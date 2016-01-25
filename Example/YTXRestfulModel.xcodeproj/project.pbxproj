@@ -7,17 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F25239CF239C579ECA71D4D /* libPods-YTXRestfulModel_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A3F7B8EAF39E8022B0C758 /* libPods-YTXRestfulModel_Tests.a */; };
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
-		65CE94F4CCE57AEAF36BB12B /* Pods_YTXRestfulModel_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C5C0B58C71D2A57DC20AD10 /* Pods_YTXRestfulModel_Tests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		44BA7F8968B8D7FBB1291584 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		5C5C0B58C71D2A57DC20AD10 /* Pods_YTXRestfulModel_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_YTXRestfulModel_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -31,6 +30,7 @@
 		B49B4CC15A25D49DB32DA99D /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		C00D7C8B97513F9E766D02BD /* YTXRestfulModel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = YTXRestfulModel.podspec; path = ../YTXRestfulModel.podspec; sourceTree = "<group>"; };
 		CA4D89D7FBB1EB5A9C14FD47 /* Pods-YTXRestfulModel_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YTXRestfulModel_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-YTXRestfulModel_Tests/Pods-YTXRestfulModel_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		F8A3F7B8EAF39E8022B0C758 /* libPods-YTXRestfulModel_Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-YTXRestfulModel_Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,7 +41,7 @@
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
-				65CE94F4CCE57AEAF36BB12B /* Pods_YTXRestfulModel_Tests.framework in Frameworks */,
+				0F25239CF239C579ECA71D4D /* libPods-YTXRestfulModel_Tests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +74,7 @@
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				5C5C0B58C71D2A57DC20AD10 /* Pods_YTXRestfulModel_Tests.framework */,
+				F8A3F7B8EAF39E8022B0C758 /* libPods-YTXRestfulModel_Tests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
