@@ -57,25 +57,36 @@
 }
 - (instancetype) mergeWithAnother:(_Nonnull id) model
 {
+    if ([self class] != [model class]){
+        return self;
+    }
     unsigned count;
-    objc_property_t *properties = class_copyPropertyList([model class], &count);
-
+    objc_property_t *modelProperties = class_copyPropertyList([model class], &count);
     
     unsigned i;
     for (i = 0; i < count; i++)
     {
-        objc_property_t property = properties[i];
-        NSString *name = [NSString stringWithUTF8String:property_getName(property)];
+        objc_property_t modelProperty = modelProperties[i];
+        NSString *modelPropertyName = [NSString stringWithUTF8String:property_getName(modelProperty)];
         
-        id selfValue = [self valueForKey:name];
-        id modelValue = [model valueForKey:name];
+        objc_property_t selfProperty = class_getProperty([self class], [modelPropertyName UTF8String]);
+        NSString *selfPropertyName = [NSString stringWithUTF8String:property_getName(selfProperty)];
+
+        id modelValue = [model valueForKey:modelPropertyName];
         
-        if (selfValue && [selfValue isMemberOfClass: [modelValue class] ]) {
-            [self setValue:modelValue forKey:name];
-        };
+        //我有这个属性，modelValue不等于空
+        if (selfPropertyName && selfPropertyName == modelPropertyName && modelValue != nil) {
+
+            const char * modelPropertyType =property_getAttributes(modelProperty);
+            const char * selfPropertyType =property_getAttributes(selfProperty);
+            //类型也一样
+            if (modelPropertyType == selfPropertyType) {
+                [self setValue:modelValue forKey:selfPropertyName];
+            }
+        }
     }
     
-    free(properties);
+    free(modelProperties);
     
     return self;
 }
