@@ -40,6 +40,12 @@
 /** 在拉到数据转mantle的时候用 */
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response;
 
+/** 在拉到数据转外部mantle对象的时候用 */
+- (nonnull MTLModel *) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response;
+
+/** :id/comment 这种形式的时候使用GET; modelClass is MTLModel*/
+- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
+
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
 
 - (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param;

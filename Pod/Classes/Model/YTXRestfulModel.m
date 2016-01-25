@@ -150,6 +150,25 @@
     return [self mergeWithAnother:[MTLJSONAdapter modelOfClass:[self class] fromJSONDictionary:response error:nil]];
 }
 
+- (nonnull MTLModel *) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response
+{
+    return [MTLJSONAdapter modelOfClass:modelClass fromJSONDictionary:response error:nil];
+}
+
+- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
+{
+    NSAssert([modelClass isSubclassOfClass: [MTLModel class] ], @"希望传入的class是MTLModel的子类，这样才能使用mantle转换");
+    
+    RACSubject * subject = [RACSubject subject];
+    [[self.remoteSync fetchRemoteForeignWithName:name param:param] subscribeNext:^(id x) {
+        [subject sendNext:[self transformerProxyOfForeign: modelClass reponse:x] ];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];

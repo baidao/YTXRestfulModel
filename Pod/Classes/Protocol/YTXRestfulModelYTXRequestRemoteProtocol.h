@@ -18,6 +18,9 @@
 
 @property (nonnull, nonatomic, copy) NSString * primaryKey;
 
+/** GET :id/commont */
+- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param;
+
 /** GET */
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
 

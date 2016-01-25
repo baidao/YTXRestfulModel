@@ -18,6 +18,9 @@
 
 - (nonnull NSURL *) setupUrlWithPathNameOfYTXRequestJSON:(nonnull NSString * )pathName;
 
+/** GET :id/comment */
+- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param;
+
 /** GET */
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
 

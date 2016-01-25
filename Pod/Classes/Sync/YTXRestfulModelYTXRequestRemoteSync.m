@@ -19,6 +19,22 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
     _url = url;
 }
 
+/** GET :id/comment */
+- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param
+{
+    @weakify(self);
+    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
+        @strongify(self);
+        [[YTXRequest requestWithNSURL:[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] AndRequestMethod:YTKRequestMethodGet] sendWithParameters:param success:^(id response) {
+            [subscriber sendNext:response];
+            [subscriber sendCompleted];
+        } failure:^(YTXRequest *request) {
+            [subscriber sendError:[self errorWithYTXRequest:request]];
+        }];
+        return nil;
+    }];
+}
+
 /** GET */
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
 {
