@@ -1,0 +1,15 @@
+{
+    "domains": {
+        "test": {
+            "jsonPlaceholder": "http://jsonplaceholder.typicode.com/"
+        }
+    },
+    "service": {
+        "restful": {
+            "posts": {
+                "domain": "jsonPlaceholder",
+                "path": "posts"
+            }
+        }
+    }
+}

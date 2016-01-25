@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 //尽量想写成Restful
 @protocol YTXRestfulModelProtocol <NSObject>
 
@@ -14,8 +15,8 @@
 + (nonnull instancetype) shared;
 - (nonnull instancetype) mergeWithAnother:(_Nonnull id) model;
 
-/** 需要告诉我KeyId是什么 */
-- (nonnull NSString *) keyId;
+/** 需要告诉我主键PrimaryKey是什么 */
+- (nonnull NSString *) primaryKey;
 /** 要用keyId判断 */
 - (BOOL) isNew;
 

@@ -20,6 +20,7 @@
     {
         self.cacheSync = [YTXRestfulModelUserDefaultCacheSync new];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
+        self.remoteSync.primaryKey = [self syncPrimaryKey];
     }
     return self;
 }
@@ -79,15 +80,20 @@
     return self;
 }
 
-- (NSString *)keyId
+- (NSString *)primaryKey
 {
     return @"keyId";
+}
+
+- (NSString *)syncPrimaryKey
+{
+    return [[self class] JSONKeyPathsByPropertyKey][[self primaryKey]] ?: [self primaryKey];
 }
 
 /** 要用keyId判断 */
 - (BOOL) isNew
 {
-    return [self valueForKey:[self keyId]] == nil;
+    return [self valueForKey:[self primaryKey]] == nil;
 }
 
 

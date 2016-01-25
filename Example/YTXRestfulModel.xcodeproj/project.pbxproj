@@ -13,6 +13,10 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
+		624C05891C55E6A600C40CE6 /* test_YTXRestfulModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C05881C55E6A600C40CE6 /* test_YTXRestfulModel.m */; };
+		624C058C1C55E9E900C40CE6 /* YTXTestCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */; };
+		624C058F1C55EB0500C40CE6 /* YTXTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058E1C55EB0500C40CE6 /* YTXTestModel.m */; };
+		624C05911C55EDC200C40CE6 /* service.json in Resources */ = {isa = PBXBuildFile; fileRef = 624C05901C55EDC200C40CE6 /* service.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +30,12 @@
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6003F5BB195388D20070C39A /* Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests.m; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
+		624C05881C55E6A600C40CE6 /* test_YTXRestfulModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModel.m; sourceTree = "<group>"; };
+		624C058A1C55E9E900C40CE6 /* YTXTestCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestCollection.h; sourceTree = "<group>"; };
+		624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestCollection.m; sourceTree = "<group>"; };
+		624C058D1C55EB0500C40CE6 /* YTXTestModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestModel.h; sourceTree = "<group>"; };
+		624C058E1C55EB0500C40CE6 /* YTXTestModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestModel.m; sourceTree = "<group>"; };
+		624C05901C55EDC200C40CE6 /* service.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = service.json; sourceTree = "<group>"; };
 		A604D77080C13B2F999253FF /* Pods-YTXRestfulModel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YTXRestfulModel_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YTXRestfulModel_Tests/Pods-YTXRestfulModel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		B49B4CC15A25D49DB32DA99D /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		C00D7C8B97513F9E766D02BD /* YTXRestfulModel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = YTXRestfulModel.podspec; path = ../YTXRestfulModel.podspec; sourceTree = "<group>"; };
@@ -83,7 +93,13 @@
 			isa = PBXGroup;
 			children = (
 				6003F5BB195388D20070C39A /* Tests.m */,
+				624C05881C55E6A600C40CE6 /* test_YTXRestfulModel.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
+				624C058A1C55E9E900C40CE6 /* YTXTestCollection.h */,
+				624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */,
+				624C058D1C55EB0500C40CE6 /* YTXTestModel.h */,
+				624C058E1C55EB0500C40CE6 /* YTXTestModel.m */,
+				624C05901C55EDC200C40CE6 /* service.json */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -179,6 +195,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */,
+				624C05911C55EDC200C40CE6 /* service.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +255,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F5BC195388D20070C39A /* Tests.m in Sources */,
+				624C05891C55E6A600C40CE6 /* test_YTXRestfulModel.m in Sources */,
+				624C058C1C55E9E900C40CE6 /* YTXTestCollection.m in Sources */,
+				624C058F1C55EB0500C40CE6 /* YTXTestModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -26,7 +26,7 @@
 - (BOOL) isNew;
 
 /** 需要告诉我主键是什么，子类也应当实现 */
-- (nonnull NSString *) keyId;
+- (nonnull NSString *) primaryKey;
 
 - (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param;
 

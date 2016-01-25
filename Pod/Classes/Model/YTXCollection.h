@@ -23,6 +23,8 @@
 
 - (nonnull instancetype) initWithModelClass:(nonnull Class)modelClass;
 
+- (nonnull instancetype) initWithModelClass:(nonnull Class)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
+
 - (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param;
 
 - (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param;

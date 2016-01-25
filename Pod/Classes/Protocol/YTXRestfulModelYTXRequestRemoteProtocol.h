@@ -16,6 +16,8 @@
 
 @property (nonnull, nonatomic, strong) NSURL * url;
 
+@property (nonnull, nonatomic, copy) NSString * primaryKey;
+
 /** GET */
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
 

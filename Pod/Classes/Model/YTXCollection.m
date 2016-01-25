@@ -36,9 +36,14 @@ typedef enum {
 
 - (instancetype)initWithModelClass:(Class)modelClass
 {
+    return [self initWithModelClass:modelClass userDefaultSuiteName:nil];
+}
+
+- (instancetype)initWithModelClass:(Class)modelClass userDefaultSuiteName:(NSString *) suiteName
+{
     if(self = [super init])
     {
-        self.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:modelClass];
+        self.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:modelClass userDefaultSuiteName:suiteName];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
         self.modelClass = modelClass;
         self.models = [NSMutableArray array];
@@ -186,8 +191,5 @@ typedef enum {
 {
     return [self fetchRemote:param withScheme:INSERTFRONT];
 }
-
-
-
 
 @end

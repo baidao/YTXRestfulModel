@@ -14,6 +14,8 @@
 
 @property (nonnull, nonatomic, strong) NSURL * url;
 
+@property (nonnull, nonatomic, copy) NSString * primaryKey;
+
 - (nonnull NSURL *) setupUrlWithPathNameOfYTXRequestJSON:(nonnull NSString * )pathName;
 
 /** GET */
@@ -22,7 +24,7 @@
 /** POST */
 - (nonnull RACSignal *) createRemote:(nullable NSDictionary *)param;
 
-/** put */
+/** PUT */
 - (nonnull RACSignal *) updateRemote:(nullable NSDictionary *)param;
 
 /** DELETE */
