@@ -17,7 +17,7 @@
 @property (nonnull, nonatomic, strong) NSMutableArray * models;
 
 @property (nonnull, nonatomic, strong) id<YTXCollectionCacheProtocol> cacheSync;
-@property (nonnull, nonatomic, strong) id<YTXRestfulModelYTXRequestRemoteProtocol> remoteSync;
+@property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
 
 + (nonnull instancetype) shared;
 

@@ -16,7 +16,7 @@
 @interface YTXRestfulModel : MTLModel <YTXRestfulModelProtocol, MTLJSONSerializing>
 
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelUserDefaultCacheProtocol> cacheSync;
-@property (nonnull, nonatomic, strong) id<YTXRestfulModelYTXRequestRemoteProtocol> remoteSync;
+@property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
 
 
 + (nonnull instancetype) shared;

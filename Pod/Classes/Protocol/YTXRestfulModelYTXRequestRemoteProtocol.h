@@ -1,5 +1,5 @@
 //
-//  YTXRestfulModelYTXRequestRemoteProtocol.h
+//  YTXRestfulModelRemoteProtocol.h
 //  YTXRestfulModel
 //
 //  Created by CaoJun on 16/1/25.
@@ -10,7 +10,7 @@
 #import <ReactiveCocoa/RACEXTScope.h>
 #import <Foundation/Foundation.h>
 
-@protocol YTXRestfulModelYTXRequestRemoteProtocol <NSObject>
+@protocol YTXRestfulModelRemoteProtocol <NSObject>
 
 @required
 

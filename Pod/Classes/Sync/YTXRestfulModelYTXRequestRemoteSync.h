@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface YTXRestfulModelYTXRequestRemoteSync : NSObject <YTXRestfulModelYTXRequestRemoteProtocol>
+@interface YTXRestfulModelYTXRequestRemoteSync : NSObject <YTXRestfulModelRemoteProtocol>
 
 @property (nonnull, nonatomic, strong) NSURL * url;
 
