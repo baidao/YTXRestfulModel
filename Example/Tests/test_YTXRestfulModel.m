@@ -31,9 +31,9 @@ describe(@"YTXRestfulModel tests", ^{
     
     
     context(@"collection", ^{
-        
-        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"test";
-    
+//        
+//        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"test";
+//    
 //        it(@"collection fetch remote", ^{
 //            __block id ret;
 //            [[[YTXTestCollection shared] fetchRemote:@{ @"_limit": @"10"}] subscribeNext:^(id x) {
@@ -54,37 +54,68 @@ describe(@"YTXRestfulModel tests", ^{
 //            [[expectFutureValue(@(ret.models.count)) shouldEventually] equal:@(20)];
 //            [[expectFutureValue(ret.models.lastObject[@"id"]) shouldEventually] equal:@(20)];
 //        });
-        
+//        
     });
     
     context(@"model", ^{
         
-        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"test";
+        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"local";
+        
+        __block NSNumber *keyId;
         
         it(@"model create remote POST", ^{
             YTXTestModel *testModel = [[YTXTestModel alloc] init];
             testModel.title = @"ytx test hahahaha";
             testModel.body = @"teststeststesettsetsetttsetttest";
             testModel.userId = @1;
-            [[testModel saveRemote:nil] subscribeNext:^(id x) {
-                NSLog(@"<SUCCESS> %@", x);
+            [[testModel saveRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
+                keyId = testModel.keyId;
+                NSLog(@"<SUCCESS> %@", responseModel);
             } error:^(NSError *error) {
                 NSLog(@"<ERROR> %@", error);
             }];
-            [[expectFutureValue(testModel.keyId) shouldEventually] equal:@101];
+            [[expectFutureValue(testModel.keyId) shouldEventually] beNonNil];
         });
         
-        it(@"model fetch remote", ^{
-            __block YTXTestModel *ret = [[YTXTestModel alloc] init];
-            ret.keyId = @2;
-            [[ret fetchRemote:nil] subscribeNext:^(id x) {
-                ret = x;
+        it(@"model update remote PUT", ^{
+            __block YTXTestModel *testModel = [[YTXTestModel alloc] init];
+            testModel.keyId = keyId;
+            testModel.title = @"ytx test hahahaha";
+            testModel.body = @"改过了";
+            testModel.userId = @1;
+            [[testModel saveRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
+                testModel = responseModel;
+                NSLog(@"<SUCCESS> %@", responseModel);
             } error:^(NSError *error) {
                 NSLog(@"<ERROR> %@", error);
             }];
-            [[expectFutureValue(ret.keyId) shouldEventually] equal:@(2)];
+            [[expectFutureValue(testModel.body) shouldEventually] equal:@"改过了"];
         });
         
+        it(@"model fetch remote GET", ^{
+            __block YTXTestModel *testModel = [[YTXTestModel alloc] init];
+            testModel.keyId = keyId;
+            [[testModel fetchRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
+                testModel = responseModel;
+                NSLog(@"<SUCCESS> %@", responseModel);
+            } error:^(NSError *error) {
+                NSLog(@"<ERROR> %@", error);
+            }];
+            [[expectFutureValue(testModel.keyId) shouldEventually] equal:keyId];
+        });
+        
+        
+        it(@"model delete remote DELETE", ^{
+            __block YTXTestModel *testModel = [[YTXTestModel alloc] init];
+            testModel.keyId = keyId;
+            [[testModel destroyRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
+                testModel = responseModel;
+                NSLog(@"<SUCCESS> %@", responseModel);
+            } error:^(NSError *error) {
+                NSLog(@"<ERROR> %@", error);
+            }];
+            [[expectFutureValue(testModel.keyId) shouldEventually] equal:keyId];
+        });
     });
 });
 
