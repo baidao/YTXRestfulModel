@@ -13,7 +13,7 @@
 
 @interface YTXRestfulModelUserDefaultCacheSync : NSObject<YTXRestfulModelUserDefaultCacheProtocol>
 
-@property (nullable, nonatomic, copy) NSString * userDefaultSuiteName;
+@property (nullable, nonatomic, copy, readonly) NSString * userDefaultSuiteName;
 
 - (nonnull instancetype) initWithUserDefaultSuiteName:(nullable NSString *) suiteName;
 

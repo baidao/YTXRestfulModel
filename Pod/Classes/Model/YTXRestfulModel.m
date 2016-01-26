@@ -19,8 +19,7 @@
     if(self = [super init])
     {
         self.cacheSync = [YTXRestfulModelUserDefaultCacheSync new];
-        self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
-        self.remoteSync.primaryKey = [self syncPrimaryKey];
+        self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync syncWithPrimaryKey: [self syncPrimaryKey]];
     }
     return self;
 }

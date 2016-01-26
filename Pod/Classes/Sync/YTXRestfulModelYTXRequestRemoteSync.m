@@ -14,9 +14,31 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
 
 @implementation YTXRestfulModelYTXRequestRemoteSync
 
-- (void)setUrl:(NSURL *)url
++ (nonnull instancetype) syncWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey
 {
-    _url = url;
+    return [[self alloc] initWithURL:URL primaryKey:primaryKey];
+}
+
++ (nonnull instancetype) syncWithPrimaryKey:(nonnull NSString *) primaryKey
+{
+    return [[self alloc] initWithPrimaryKey:primaryKey];
+}
+
+- (nonnull instancetype) initWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey
+{
+    if (self = [super init]) {
+        _url = URL;
+        _primaryKey = primaryKey;
+    }
+    return self;
+}
+
+- (nonnull instancetype) initWithPrimaryKey:(nonnull NSString *) primaryKey
+{
+    if (self = [super init]) {
+        _primaryKey = primaryKey;
+    }
+    return self;
 }
 
 /** GET :id/comment */
