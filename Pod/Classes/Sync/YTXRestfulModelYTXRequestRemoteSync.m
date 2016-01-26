@@ -114,9 +114,9 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
 - (NSURL *) restfulURLWithParam:(NSDictionary *)param
 {
     NSURL *url = [self.url copy];
-    NSString * primaryKey = param[self.primaryKey];
+    id primaryKey = param[self.primaryKey];
     if (primaryKey) {
-        url = [url URLByAppendingPathComponent:primaryKey];
+        url = [url URLByAppendingPathComponent:[primaryKey description]];
     }
     return url;
 }

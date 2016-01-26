@@ -33,7 +33,10 @@
         if ([self valueForKey:key] == nil) {
             [dictValue removeObjectForKey:key];
         }
+        
     }
+    [dictValue removeObjectForKey:@"remoteSync"];
+    [dictValue removeObjectForKey:@"cacheSync"];
     return [dictValue copy];
 }
 
@@ -150,6 +153,17 @@
     return [self mergeWithAnother:[MTLJSONAdapter modelOfClass:[self class] fromJSONDictionary:response error:nil]];
 }
 
+- (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param
+{
+    NSMutableDictionary *retDic = [[MTLJSONAdapter JSONDictionaryFromModel:self] mutableCopy];
+    for (NSString *key in param) {
+        if (retDic[key] == nil) {
+            retDic[key] = param[key];
+        }
+    }
+    return retDic;
+}
+
 - (nonnull MTLModel *) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response
 {
     return [MTLJSONAdapter modelOfClass:modelClass fromJSONDictionary:response error:nil];
@@ -160,7 +174,7 @@
     NSAssert([modelClass isSubclassOfClass: [MTLModel class] ], @"希望传入的class是MTLModel的子类，这样才能使用mantle转换");
     
     RACSubject * subject = [RACSubject subject];
-    [[self.remoteSync fetchRemoteForeignWithName:name param:param] subscribeNext:^(id x) {
+    [[self.remoteSync fetchRemoteForeignWithName:name param:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
         [subject sendNext:[self transformerProxyOfForeign: modelClass reponse:x] ];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -172,7 +186,7 @@
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
+    [[self.remoteSync fetchRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
         [subject sendNext:[self transformerProxyOfReponse:x]];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -183,14 +197,10 @@
 
 - (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param
 {
-    
-    NSMutableDictionary * dict = [[MTLJSONAdapter JSONDictionaryFromModel:self ] mutableCopy];
     RACSubject * subject = [RACSubject subject];
     
-    [dict setValuesForKeysWithDictionary:param];
-    
     if ([self isNew]) {
-        [[self.remoteSync createRemote:dict] subscribeNext:^(id x) {
+        [[self.remoteSync createRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
             [subject sendNext:[self transformerProxyOfReponse:x]];
             [subject sendCompleted];
         } error:^(NSError *error) {
@@ -198,7 +208,7 @@
         }];
     }
     else {
-        [[self.remoteSync updateRemote:dict] subscribeNext:^(id x) {
+        [[self.remoteSync updateRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
             [subject sendNext:[self transformerProxyOfReponse:x]];
             [subject sendCompleted];
         } error:^(NSError *error) {
@@ -212,9 +222,8 @@
 - (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    NSMutableDictionary * dict = [[MTLJSONAdapter JSONDictionaryFromModel:self ] mutableCopy];
     
-    [[self.remoteSync destroyRemote:dict] subscribeNext:^(id x) {
+    [[self.remoteSync destroyRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
         [subject sendNext: x ? [self transformerProxyOfReponse:x] : nil];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -223,7 +232,5 @@
     
     return subject;
 }
-
-
 
 @end

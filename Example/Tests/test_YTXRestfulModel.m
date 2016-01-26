@@ -61,14 +61,29 @@ describe(@"YTXRestfulModel tests", ^{
         
         [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"test";
         
+        it(@"model create remote POST", ^{
+            YTXTestModel *testModel = [[YTXTestModel alloc] init];
+            testModel.title = @"ytx test hahahaha";
+            testModel.body = @"teststeststesettsetsetttsetttest";
+            testModel.userId = @1;
+            [[testModel saveRemote:nil] subscribeNext:^(id x) {
+                NSLog(@"<SUCCESS> %@", x);
+            } error:^(NSError *error) {
+                NSLog(@"<ERROR> %@", error);
+            }];
+            [[expectFutureValue(testModel.keyId) shouldEventually] equal:@101];
+        });
+        
         it(@"model fetch remote", ^{
-            __block YTXTestModel *ret;
-            [[[YTXTestModel shared] fetchRemote:@{@"id": @"2"}] subscribeNext:^(id x) {
+            __block YTXTestModel *ret = [[YTXTestModel alloc] init];
+            ret.keyId = @2;
+            [[ret fetchRemote:nil] subscribeNext:^(id x) {
                 ret = x;
+            } error:^(NSError *error) {
+                NSLog(@"<ERROR> %@", error);
             }];
             [[expectFutureValue(ret.keyId) shouldEventually] equal:@(2)];
         });
-        
         
     });
 });
