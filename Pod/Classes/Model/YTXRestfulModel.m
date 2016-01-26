@@ -32,8 +32,8 @@
         if ([self valueForKey:key] == nil) {
             [dictValue removeObjectForKey:key];
         }
-        
     }
+    //删除这个2个不必要的属性 可以用http://stackoverflow.com/questions/18961622/how-to-omit-null-values-in-json-dictionary-using-mantle这些方法，但是最合理的还是这个。
     [dictValue removeObjectForKey:@"remoteSync"];
     [dictValue removeObjectForKey:@"cacheSync"];
     return [dictValue copy];
