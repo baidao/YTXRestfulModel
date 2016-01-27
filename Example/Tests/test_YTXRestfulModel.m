@@ -104,7 +104,6 @@ describe(@"YTXRestfulModel tests", ^{
             [[expectFutureValue(testModel.keyId) shouldEventually] equal:keyId];
         });
         
-        
         it(@"model delete remote DELETE", ^{
             __block YTXTestModel *testModel = [[YTXTestModel alloc] init];
             testModel.keyId = keyId;
@@ -115,6 +114,19 @@ describe(@"YTXRestfulModel tests", ^{
                 NSLog(@"<ERROR> %@", error);
             }];
             [[expectFutureValue(testModel.keyId) shouldEventually] equal:keyId];
+        });
+        
+        it(@"fetch comments of post", ^{
+            YTXTestModel *testModel = [[YTXTestModel alloc] init];
+            testModel.keyId = @1;
+            __block id ret;
+            [[testModel fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestCommentModel class] param:nil] subscribeNext:^(id x) {
+                ret = x;
+                NSLog(@"<SUCCESS> %@", x);
+            } error:^(NSError *error) {
+                NSLog(@"<ERROR> %@", error);
+            }];
+            [[expectFutureValue(ret) shouldEventually] beNonNil];
         });
     });
 });

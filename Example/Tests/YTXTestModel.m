@@ -32,3 +32,7 @@
 }
 
 @end
+
+@implementation YTXTestCommentModel
+
+@end

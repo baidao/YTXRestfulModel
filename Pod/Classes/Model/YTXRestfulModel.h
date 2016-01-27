@@ -41,7 +41,7 @@
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response;
 
 /** 在拉到数据转外部mantle对象的时候用 */
-- (nonnull MTLModel *) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response;
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response;
 
 /** 将自身转化为Dictionary，然后对传入参数进行和自身属性的融合。自身的属性优先级最高，不可被传入参数修改。 */
 - (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param;

@@ -156,9 +156,9 @@
     return retDic;
 }
 
-- (nonnull MTLModel *) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response
 {
-    return [MTLJSONAdapter modelOfClass:modelClass fromJSONDictionary:response error:nil];
+    return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:nil];
 }
 
 - (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;

@@ -16,3 +16,7 @@
 @property (nonnull, nonatomic, strong) NSString *body;
 
 @end
+
+@interface YTXTestCommentModel : YTXRestfulModel
+
+@end
