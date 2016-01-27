@@ -12,8 +12,6 @@
 
 @implementation YTXRestfulModel
 
-@synthesize url = _url;
-
 - (instancetype)init
 {
     if(self = [super init])
@@ -136,14 +134,9 @@
 
 #pragma mark remote
 
-- (void)setUrl:(NSURL *)url
+- (void)setRemoteSyncUrl:(NSURL *)url
 {
     self.remoteSync.url = url;
-}
-
-- (NSURL *)url
-{
-    return self.remoteSync.url;
 }
 
 /** 在拉到数据转mantle的时候用 */

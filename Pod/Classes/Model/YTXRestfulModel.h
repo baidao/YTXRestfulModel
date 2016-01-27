@@ -34,8 +34,8 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param;
 
-
-@property (nullable, nonatomic, strong) NSURL * url;
+/** 设置网络请求的地址 */
+- (void)setRemoteSyncUrl:(nonnull NSURL *)url;
 
 /** 在拉到数据转mantle的时候用 */
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response;

@@ -26,7 +26,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.url = [YTXRequest urlWithName:@"restful.posts"];
+        [self setRemoteSyncUrl:[YTXRequest urlWithName:@"restful.posts"]];
     }
     return  self;
 }
