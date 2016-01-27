@@ -16,6 +16,8 @@
 
 @property (nonnull, nonatomic, strong) NSURL * url;
 
+@property (nonnull, nonatomic, strong) NSURL * _Nonnull (^urlBlock)(void);
+
 @property (nonnull, nonatomic, copy, readonly) NSString * primaryKey;
 
 + (nonnull instancetype) syncWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey;

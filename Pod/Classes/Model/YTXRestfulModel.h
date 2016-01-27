@@ -37,6 +37,9 @@
 /** 设置网络请求的地址 */
 - (void)setRemoteSyncUrl:(nonnull NSURL *)url;
 
+/** 设置网络请求的地址，通过Block形式，每次访问都会重新执行，以处理shared中URL会变的情况。同时使用URL和URLBlock会优先使用Block */
+- (void)setRemoteSyncUrlBlock:(nonnull NSURL * _Nonnull (^)(void))urlBlock;
+
 /** 在拉到数据转mantle的时候用 */
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response;
 

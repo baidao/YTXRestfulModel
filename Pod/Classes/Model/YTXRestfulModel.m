@@ -139,6 +139,11 @@
     self.remoteSync.url = url;
 }
 
+- (void)setRemoteSyncUrlBlock:(NSURL * _Nonnull (^)(void))urlBlock
+{
+    self.remoteSync.urlBlock = urlBlock;
+}
+
 /** 在拉到数据转mantle的时候用 */
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response
 {

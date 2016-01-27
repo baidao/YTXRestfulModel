@@ -14,6 +14,13 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
 
 @implementation YTXRestfulModelYTXRequestRemoteSync
 
+- (NSURL *)url {
+    if (self.urlBlock) {
+        return self.urlBlock();
+    }
+    return _url;
+}
+
 + (nonnull instancetype) syncWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey
 {
     return [[self alloc] initWithURL:URL primaryKey:primaryKey];
