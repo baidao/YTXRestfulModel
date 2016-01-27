@@ -31,30 +31,30 @@ describe(@"YTXRestfulModel tests", ^{
     
     
     context(@"collection", ^{
-//        
-//        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"test";
-//    
-//        it(@"collection fetch remote", ^{
-//            __block id ret;
-//            [[[YTXTestCollection shared] fetchRemote:@{ @"_limit": @"10"}] subscribeNext:^(id x) {
-//                ret = x;
-//            } error:^(NSError *error) {
-//                NSLog(@"<ERROR> %@", error);
-//            }];
-//            [[expectFutureValue(ret) shouldEventually] beNonNil];
-//        });
-//        
-//        it(@"collection fetch remote then add", ^{
-//            __block YTXTestCollection *ret;
-//            [[[YTXTestCollection shared] fetchRemoteThenAdd:@{@"_start": @"10", @"_limit": @"10"}] subscribeNext:^(id x) {
-//                ret = x;
-//            } error:^(NSError *error) {
-//                NSLog(@"<ERROR> %@", error);
-//            }];
-//            [[expectFutureValue(@(ret.models.count)) shouldEventually] equal:@(20)];
-//            [[expectFutureValue(ret.models.lastObject[@"id"]) shouldEventually] equal:@(20)];
-//        });
-//        
+        
+        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"local";
+    
+        it(@"collection fetch remote", ^{
+            __block id ret;
+            [[[YTXTestCollection shared] fetchRemote:@{ @"_limit": @"1"}] subscribeNext:^(id x) {
+                ret = x;
+            } error:^(NSError *error) {
+                NSLog(@"<ERROR> %@", error);
+            }];
+            [[expectFutureValue(ret) shouldEventually] beNonNil];
+        });
+        
+        it(@"collection fetch remote then add", ^{
+            __block YTXTestCollection *ret;
+            [[[YTXTestCollection shared] fetchRemoteThenAdd:@{@"_start": @"1", @"_limit": @"1"}] subscribeNext:^(id x) {
+                ret = x;
+            } error:^(NSError *error) {
+                NSLog(@"<ERROR> %@", error);
+            }];
+            [[expectFutureValue(@(ret.models.count)) shouldEventually] equal:@(2)];
+            [[expectFutureValue(ret.models.lastObject[@"id"]) shouldEventually] equal:@(2)];
+        });
+        
     });
     
     context(@"model", ^{
