@@ -11,7 +11,7 @@
 @interface YTXTestModel : YTXRestfulModel
 
 @property (nonnull, nonatomic, strong) NSNumber *keyId;
-@property (nonnull, nonatomic, strong) NSNumber *userId;
+@property (nonnull, nonatomic, strong) NSNumber *userId; //可选属性为nullable 不可选为nonnull
 @property (nonnull, nonatomic, strong) NSString *title;
 @property (nonnull, nonatomic, strong) NSString *body;
 

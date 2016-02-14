@@ -150,13 +150,32 @@
     return [self mergeWithAnother:[MTLJSONAdapter modelOfClass:[self class] fromJSONDictionary:response error:nil]];
 }
 
+- (nonnull NSDictionary *)mapParameters:(nonnull NSDictionary *)param
+{
+    NSMutableDictionary * retDict = [NSMutableDictionary dictionary];
+    
+    NSMutableDictionary *_JSONKeyPathsByPropertyKey = [[[self class] JSONKeyPathsByPropertyKey] copy];
+    
+    NSString * mappedPropertyKey = nil;
+    
+    for (NSString *key in param) {
+        
+        mappedPropertyKey = _JSONKeyPathsByPropertyKey[key] ? : key;
+        
+        retDict[mappedPropertyKey] = param[key];
+    }
+    
+    return retDict;
+}
+
 - (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param
 {
+    NSDictionary * mapParam = [self mapParameters:param];
+    
     NSMutableDictionary *retDic = [[MTLJSONAdapter JSONDictionaryFromModel:self] mutableCopy];
-    for (NSString *key in param) {
-        if (retDic[key] == nil) {
-            retDic[key] = param[key];
-        }
+    
+    for (NSString *key in mapParam) {
+        retDic[key] = mapParam[key];
     }
     return retDic;
 }

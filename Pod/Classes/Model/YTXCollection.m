@@ -124,20 +124,20 @@ typedef enum {
     return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:nil];
 }
 
-- (nonnull instancetype) resetSelf:(nonnull NSArray *) array
+- (nonnull instancetype) resetModels:(nonnull NSArray *) array
 {
     [self.models removeAllObjects];
     [self.models addObjectsFromArray:array];
     return self;
 }
 
-- (nonnull instancetype) addSelf:(nonnull NSArray *) array
+- (nonnull instancetype) addModels:(nonnull NSArray *) array
 {
     [self.models addObjectsFromArray:array];
     return self;
 }
 
-- (nonnull instancetype) insertFrontSelf:(nonnull NSArray *) array
+- (nonnull instancetype) insertFrontModels:(nonnull NSArray *) array
 {
     [[array mutableCopy] addObjectsFromArray: self.models];
     [self.models removeAllObjects];
@@ -154,13 +154,13 @@ typedef enum {
         NSArray * arr = [self transformerProxyOfReponse:x];
         switch (scheme) {
             case RESET:
-                [self resetSelf:arr];
+                [self resetModels:arr];
                 break;
             case ADD:
-                [self addSelf:arr];
+                [self addModels:arr];
                 break;
             case INSERTFRONT:
-                [self insertFrontSelf:arr];
+                [self insertFrontModels:arr];
                 break;
             default:
                 break;

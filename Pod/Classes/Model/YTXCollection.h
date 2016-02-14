@@ -46,10 +46,10 @@
 - (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response;
 
 /** 注入自己时使用 */
-- (nonnull instancetype) resetSelf:(nonnull NSArray *) array;
+- (nonnull instancetype) resetModels:(nonnull NSArray *) array;
 
-- (nonnull instancetype) addSelf:(nonnull NSArray *) array;
+- (nonnull instancetype) addModels:(nonnull NSArray *) array;
 
-- (nonnull instancetype) insertFrontSelf:(nonnull NSArray *) array;
+- (nonnull instancetype) insertFrontModels:(nonnull NSArray *) array;
 
 @end
