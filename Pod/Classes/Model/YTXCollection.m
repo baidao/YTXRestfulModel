@@ -17,6 +17,12 @@ typedef enum {
     INSERTFRONT,
 } FetchRemoteHandleScheme;
 
+@interface YTXCollection()
+
+@property (nonnull, nonatomic, strong) NSArray * models;
+
+@end
+
 @implementation YTXCollection
 
 @synthesize url = _url;
@@ -28,7 +34,7 @@ typedef enum {
         self.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXRestfulModel class]];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
         self.modelClass = [YTXRestfulModel class];
-        self.models = [NSMutableArray array];
+        self.models = @[];
     }
     return self;
 
@@ -46,7 +52,7 @@ typedef enum {
         self.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:modelClass userDefaultSuiteName:suiteName];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
         self.modelClass = modelClass;
-        self.models = [NSMutableArray array];
+        self.models = @[];
     }
     return self;
 }
@@ -71,8 +77,7 @@ typedef enum {
     [[self.cacheSync fetchCache:param] subscribeNext:^(NSArray * x) {
         @strongify(self);
         //读cache就直接替换
-        [self.models removeAllObjects];
-        [self.models addObjectsFromArray:x];
+        [self resetModels:x];
         [subject sendNext:self];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -124,25 +129,39 @@ typedef enum {
     return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:nil];
 }
 
+- (nonnull instancetype) removeAllModels
+{
+    self.models = @[];
+    return self;
+}
+
 - (nonnull instancetype) resetModels:(nonnull NSArray *) array
 {
-    [self.models removeAllObjects];
-    [self.models addObjectsFromArray:array];
+# if DEBUG
+    for (id item in array) {
+        NSAssert([item isMemberOfClass:self.modelClass], @"加入的数组中的每一项都必须是当前的Model类型");
+    }
+# endif
+    self.models = array;
     return self;
 }
 
 - (nonnull instancetype) addModels:(nonnull NSArray *) array
 {
-    [self.models addObjectsFromArray:array];
-    return self;
+    NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
+    
+    [temp addObjectsFromArray:array];
+    
+    return [self resetModels:temp];
 }
 
 - (nonnull instancetype) insertFrontModels:(nonnull NSArray *) array
 {
-    [[array mutableCopy] addObjectsFromArray: self.models];
-    [self.models removeAllObjects];
-    [self.models addObjectsFromArray:array];
-    return self;
+    NSMutableArray * temp = [NSMutableArray arrayWithArray:array];
+    
+    [temp addObjectsFromArray:self.models];
+    
+    return [self resetModels:temp];
 }
 
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param withScheme:(FetchRemoteHandleScheme) scheme
@@ -191,5 +210,126 @@ typedef enum {
 {
     return [self fetchRemote:param withScheme:INSERTFRONT];
 }
+
+- (nullable NSArray *) arrayWithRange:(NSRange)range
+{
+    if (range.location + range.length > self.models.count) {
+        return nil;
+    }
+    
+    return [self.models subarrayWithRange:range];
+}
+
+- (nullable YTXCollection *) collectionWithRange:(NSRange)range
+{
+    NSArray * arr = [self arrayWithRange:range];
+    
+    return arr ? [[[YTXCollection alloc] initWithModelClass:self.modelClass] addModels:arr] : nil;
+}
+
+- (nullable YTXRestfulModel *) modelAtIndex:(NSInteger) index
+{
+    if (index < 0 || index >= self.models.count) {
+        return nil;
+    }
+    
+    return self.models[index];
+}
+
+- (nullable YTXRestfulModel *) modelWithPrimaryKey:(nonnull NSString *) primaryKey
+{
+    for (YTXRestfulModel *model in self.models) {
+        if ( [[[model primaryValue] description] isEqualToString:primaryKey]) {
+            return model;
+        }
+    }
+    return nil;
+}
+
+- (BOOL) addModel:(nonnull YTXRestfulModel *) model
+{
+    NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
+    [temp addObject:model];
+    [self resetModels:temp];
+    return YES;
+}
+
+- (BOOL) insertFrontModel:(nonnull YTXRestfulModel *) model
+{
+    return [self insertModel:model beforeIndex:0];
+}
+
+/** 插入到index之后*/
+- (BOOL) insertModel:(nonnull YTXRestfulModel *) model afterIndex:(NSInteger) index
+{
+    if (self.models.count == 0 || self.models.count == index+1) {
+        return [self addModel:model];
+    }
+    
+    if (index < 0 || index >= self.models.count) {
+        return NO;
+    }
+    NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
+    [temp insertObject:model atIndex:index+1];
+    [self resetModels:temp];
+    return YES;
+}
+
+/** 插入到index之前*/
+- (BOOL) insertModel:(nonnull YTXRestfulModel *) model beforeIndex:(NSInteger) index
+{
+    if (self.models.count == 0) {
+        return [self addModel:model];
+    }
+    
+    if (index < 0 || index >= self.models.count) {
+        return NO;
+    }
+    NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
+    [temp insertObject:model atIndex:index];
+    [self resetModels:temp];
+    return YES;
+}
+
+- (BOOL) removeModelAtIndex:(NSInteger) index
+{
+    if (index < 0 || index >= self.models.count) {
+        return NO;
+    }
+    NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
+    [temp removeObjectAtIndex:index];
+    [self resetModels:temp];
+    return YES;
+}
+
+/** 主键可能是NSNumber或NSString，统一转成NSString来判断*/
+- (BOOL) removeModelWithPrimaryKey:(nonnull NSString *) primaryKey
+{
+    for (YTXRestfulModel *model in self.models) {
+        if ( [[[model primaryValue] description] isEqualToString:primaryKey]) {
+            NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
+            [temp removeObject:model];
+            [self resetModels:temp];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL) removeModelWithModel:(nonnull YTXRestfulModel *) model
+{
+    NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
+    
+    NSInteger index = [[self models] indexOfObject:model];
+    
+    if (NSNotFound == index) {
+        return NO;
+    }
+    
+    [temp removeObjectAtIndex:index];
+    [self resetModels:temp];
+    return YES;
+}
+
 
 @end

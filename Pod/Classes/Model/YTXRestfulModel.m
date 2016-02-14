@@ -96,6 +96,11 @@
     return @"keyId";
 }
 
+- (nullable id) primaryValue
+{
+    return [self valueForKey:[self primaryKey]];
+}
+
 - (NSString *)syncPrimaryKey
 {
     return [[self class] JSONKeyPathsByPropertyKey][[self primaryKey]] ?: [self primaryKey];
