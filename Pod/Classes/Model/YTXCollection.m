@@ -123,6 +123,16 @@ typedef enum {
     return self.remoteSync.url;
 }
 
+- (void)setRemoteSyncUrl:(NSURL *)url
+{
+    self.remoteSync.url = url;
+}
+
+- (void)setRemoteSyncUrlHookBlock:(NSURL * _Nonnull (^)(void))urlHookBlock
+{
+    self.remoteSync.urlHookBlock = urlHookBlock;
+}
+
 /** 在拉到数据转mantle的时候用 */
 - (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response
 {

@@ -144,9 +144,9 @@
     self.remoteSync.url = url;
 }
 
-- (void)setRemoteSyncUrlBlock:(NSURL * _Nonnull (^)(void))urlBlock
+- (void)setRemoteSyncUrlHookBlock:(NSURL * _Nonnull (^)(void))urlHookBlock
 {
-    self.remoteSync.urlBlock = urlBlock;
+    self.remoteSync.urlHookBlock = urlHookBlock;
 }
 
 /** 在拉到数据转mantle的时候用 */

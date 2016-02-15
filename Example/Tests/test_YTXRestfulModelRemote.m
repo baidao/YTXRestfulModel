@@ -21,11 +21,82 @@ describe(@"测试YTXRestfulModel", ^{
             [[testModel should] beNonNil];
         });
         
+        it(@"修改Model的URL，在没有HookBlock时才能修改，HookBlock的优先级更高", ^{
+            YTXTestModel *testModel = [[YTXTestModel alloc] init];
+            
+            [testModel setRemoteSyncUrlHookBlock:nil];
+            
+            [testModel setRemoteSyncUrl:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            
+            [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            
+            [testModel setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+                return [NSURL URLWithString:@"http://www.google.com/"];
+            }];
+            
+            [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
+            
+            [testModel setRemoteSyncUrl:[NSURL URLWithString:@"http://www.bing.com/"]];
+            
+            [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
+            
+            [[testModel.remoteSync.url shouldNot] equal:[NSURL URLWithString:@"http://www.bing.com/"]];
+        });
+        
+        it(@"使用URLHookBlock方式注入Model的remoteSync.url", ^{
+            YTXTestModel *testModel = [[YTXTestModel alloc] init];
+            [[NSUserDefaults standardUserDefaults] setObject:@"http://www.baidu.com/" forKey:@"URLHookBlock"];
+            
+            [testModel setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+                return [NSURL URLWithString:[[NSUserDefaults standardUserDefaults] valueForKey:@"URLHookBlock"]];
+            }];
+            
+            [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            
+            [[NSUserDefaults standardUserDefaults] setObject:@"http://www.google.com/" forKey:@"URLHookBlock"];
+            
+            [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
+        });
+        
         it(@"Collection不为空", ^{
             YTXTestCollection *testCollection = [[YTXTestCollection alloc] init];
             [[testCollection should] beNonNil];
         });
         
+        it(@"修改Collection的URL，Collection初始化时没有使用HookBlock形式，可以直接修改，但是有HookBlock时会优先使用HookBlock", ^{
+            YTXTestCollection *testCollection = [[YTXTestCollection alloc] init];
+            
+            [testCollection setRemoteSyncUrl:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            
+            [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            
+            [testCollection setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+                return [NSURL URLWithString:@"http://www.google.com/"];
+            }];
+            
+            [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
+            
+            [testCollection setRemoteSyncUrl:[NSURL URLWithString:@"http://www.bing.com/"]];
+            
+            [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
+            
+            [[testCollection.remoteSync.url shouldNot] equal:[NSURL URLWithString:@"http://www.bing.com/"]];
+        });
+        
+        it(@"使用URLHookBlock方式注入Collection的remoteSync.url", ^{
+            YTXTestCollection *testCollection = [[YTXTestCollection alloc] init];
+            [testCollection setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+                return [NSURL URLWithString:[[NSUserDefaults standardUserDefaults] valueForKey:@"URLHookBlock"]];
+            }];
+            
+            [[NSUserDefaults standardUserDefaults] setObject:@"http://www.baidu.com/" forKey:@"URLHookBlock"];
+            
+            [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            
+            [[NSUserDefaults standardUserDefaults] setObject:@"http://www.google.com/" forKey:@"URLHookBlock"];
+            
+            [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
+        });
     });
     
     context(@"Collection功能", ^{

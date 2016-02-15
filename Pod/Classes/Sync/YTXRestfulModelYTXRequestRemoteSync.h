@@ -14,7 +14,7 @@
 
 @property (nonnull, nonatomic, strong) NSURL * url;
 
-@property (nonnull, nonatomic, strong) NSURL * _Nonnull (^urlBlock)(void);
+@property (nonnull, nonatomic, strong) NSURL * _Nonnull (^urlHookBlock)(void);
 
 @property (nonnull, nonatomic, copy, readonly) NSString * primaryKey;
 
