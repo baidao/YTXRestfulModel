@@ -23,7 +23,7 @@
 }
 
 - (NSArray *)transformerProxyOfReponse:(id)response {
-    return response;
+    return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:nil];
 }
 
 @end

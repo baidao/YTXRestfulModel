@@ -17,13 +17,13 @@
 
 - (nonnull instancetype) initWithUserDefaultSuiteName:(nullable NSString *) suiteName;
 
-- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cachekey wtihParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
+- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cachekey wtihParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model;
+- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model;
 
 /** DELETE */
-- (nonnull RACSignal *) destroyCacheWithKey:(nonnull NSString *)cachekey wtihParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
+- (nonnull RACSignal *) destroyCacheWithKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
 
 
 /** GET */

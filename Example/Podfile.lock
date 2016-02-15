@@ -50,7 +50,7 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   YTXRestfulModel:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7

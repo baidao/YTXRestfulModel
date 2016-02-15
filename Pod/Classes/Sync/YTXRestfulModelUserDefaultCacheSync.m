@@ -21,7 +21,7 @@
 }
 
 
-- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cachekey wtihParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
+- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
 {
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
@@ -32,7 +32,7 @@
             NSError * error = nil;
             id data = [MTLJSONAdapter modelOfClass:[model class] fromJSONDictionary:dict error:&error];
             
-            if (!error) {
+            if (error) {
                 [subscriber sendError:error];
                 
             } else {
@@ -47,7 +47,7 @@
 }
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cachekey wtihParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model
+- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model
 {
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
@@ -66,7 +66,7 @@
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyCacheWithKey:(nonnull NSString *)cachekey wtihParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
+- (nonnull RACSignal *) destroyCacheWithKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
 {
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
@@ -86,17 +86,17 @@
 /** GET */
 - (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
 {
-    return [self fetchCacheWithCacheKey:[self cacheKeyWithMtlModel:model] wtihParam:param withMtlModel:model];
+    return [self fetchCacheWithCacheKey:[self cacheKeyWithMtlModel:model] withParam:param withMtlModel:model];
 }
 
 - (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model
 {
-    return [self saveCacheWithCacheKey:[self cacheKeyWithMtlModel:model] wtihParam:param withMtlModel:model];
+    return [self saveCacheWithCacheKey:[self cacheKeyWithMtlModel:model] withParam:param withMtlModel:model];
 }
 /** DELETE */
 - (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
 {
-    return [self destroyCacheWithKey:[self cacheKeyWithMtlModel:model] wtihParam:param withMtlModel:model];
+    return [self destroyCacheWithKey:[self cacheKeyWithMtlModel:model] withParam:param withMtlModel:model];
 }
 
 - (nonnull NSString *) cacheKeyWithMtlModel:(nonnull MTLModel *) model

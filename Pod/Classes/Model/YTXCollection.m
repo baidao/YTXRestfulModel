@@ -97,6 +97,7 @@ typedef enum {
     }];
     return subject;
 }
+
 /** DELETE */
 - (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param
 {
@@ -110,6 +111,45 @@ typedef enum {
     return subject;
 }
 
+- (RACSignal *)fetchCacheWithCacheKey:(NSString *)cacheKey withParam:(NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.cacheSync fetchCacheWithCacheKey:cacheKey withParam:param] subscribeNext:^(NSArray * x) {
+        @strongify(self);
+        //读cache就直接替换
+        [self resetModels:x];
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (RACSignal *)saveCacheWithCacheKey:(NSString *)cacheKey withParam:(NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    [[self.cacheSync saveCacheWithCacheKey:cacheKey withParam:param withCollection:self.models] subscribeNext:^(id x) {
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (RACSignal *)destroyCacheWithCacheKey:(NSString *)cacheKey withParam:(NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    [[self.cacheSync destroyCacheWithCacheKey:cacheKey withParam:param] subscribeNext:^(id x) {
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
 
 #pragma mark remote
 
@@ -174,51 +214,19 @@ typedef enum {
     return [self resetModels:temp];
 }
 
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param withScheme:(FetchRemoteHandleScheme) scheme
+- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
         @strongify(self);
         NSArray * arr = [self transformerProxyOfReponse:x];
-        switch (scheme) {
-            case RESET:
-                [self resetModels:arr];
-                break;
-            case ADD:
-                [self addModels:arr];
-                break;
-            case INSERTFRONT:
-                [self insertFrontModels:arr];
-                break;
-            default:
-                break;
-        }
-        
-        [subject sendNext:self];
+        [subject sendNext: RACTuplePack(self, arr) ];
         [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
     return subject;
-}
-
-/* reset **/
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
-{
-    return [self fetchRemote:param withScheme:RESET];
-}
-
-/* add **/
-- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param
-{
-    return [self fetchRemote:param withScheme:ADD];
-}
-
-/* insertFront **/
-- (nonnull RACSignal *) fetchRemoteThenInsertFront:(nullable NSDictionary *)param
-{
-    return [self fetchRemote:param withScheme:INSERTFRONT];
 }
 
 - (nullable NSArray *) arrayWithRange:(NSRange)range
@@ -341,5 +349,14 @@ typedef enum {
     return YES;
 }
 
+- (void)reverseModels
+{
+    [self resetModels:self.models.reverseObjectEnumerator.allObjects];
+}
+
+- (void)sortedArrayUsingComparator:(NSComparator)cmptr
+{
+    [self resetModels:[self.models sortedArrayUsingComparator:cmptr]];
+}
 
 @end

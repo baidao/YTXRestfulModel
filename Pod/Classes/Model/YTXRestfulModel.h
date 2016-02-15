@@ -37,6 +37,12 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param;
 
+- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param;
+
+- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param;
+/** DELETE */
+- (nonnull RACSignal *) destroyCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param;
+
 /** 设置网络请求的地址 */
 - (void)setRemoteSyncUrl:(nonnull NSURL *)url;
 

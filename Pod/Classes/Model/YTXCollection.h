@@ -32,6 +32,13 @@
 - (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param;
 
 - (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param;
+/** GET */
+- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cacheKey withParam:(nullable NSDictionary *)param;
+/** POST / PUT */
+- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cacheKey withParam:(nullable NSDictionary *)param;
+/** DELETE */
+- (nonnull RACSignal *) destroyCacheWithCacheKey:(nonnull NSString *)cacheKey withParam:(nullable NSDictionary *)param;
+
 
 
 @property (nullable, nonatomic, strong) NSURL * url;
@@ -40,14 +47,8 @@
 /** 设置网络请求的地址，通过Block形式，每次访问都会重新执行，以处理shared中URL会变的情况。同时使用URL和URLBlock会优先使用Block */
 - (void)setRemoteSyncUrlHookBlock:(nullable NSURL * _Nonnull (^)(void))urlHookBlock;
 
-/* reset **/
+/* return ( self, Arrary<Model> ) **/
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
-
-/* add **/
-- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
-
-/* insertFront **/
-- (nonnull RACSignal *) fetchRemoteThenInsertFront:(nullable NSDictionary *)param;
 
 - (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response;
 
@@ -85,5 +86,11 @@
 - (BOOL) removeModelWithPrimaryKey:(nonnull NSString *) primaryKey;
 
 - (BOOL) removeModelWithModel:(nonnull YTXRestfulModel *) model;
+
+/** 逆序输出Collection*/
+- (void) reverseModels;
+
+- (nonnull instancetype) sortCollection;
+- (void)sortedArrayUsingComparator:(nonnull NSComparator)cmptr;
 
 @end

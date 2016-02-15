@@ -121,6 +121,8 @@
     [[self.cacheSync fetchCache:param withMtlModel:self] subscribeNext:^(id x) {
         @strongify(self);
         [self mergeWithAnother:x];
+        [subject sendNext:self];
+        [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
@@ -131,10 +133,36 @@
 {
     return [self.cacheSync saveCache:param withMtlModel:self];
 }
+
 /** DELETE */
 - (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param
 {
     return [self.cacheSync destroyCache:param withMtlModel:self];
+}
+
+- (nonnull RACSignal *)fetchCacheWithCacheKey:(NSString *)cachekey withParam:(NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.cacheSync fetchCacheWithCacheKey:cachekey withParam:param withMtlModel:self] subscribeNext:^(id x) {
+        @strongify(self);
+        [self mergeWithAnother:x];
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *)saveCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param
+{
+    return [self.cacheSync saveCacheWithCacheKey:cachekey withParam:param withMtlModel:self];
+}
+
+- (nonnull RACSignal *)destroyCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param
+{
+    return [self.cacheSync destroyCacheWithKey:cachekey withParam:param withMtlModel:self];
 }
 
 #pragma mark remote

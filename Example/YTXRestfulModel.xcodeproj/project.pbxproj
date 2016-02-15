@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0CB946391C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */; };
 		0F25239CF239C579ECA71D4D /* libPods-YTXRestfulModel_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A3F7B8EAF39E8022B0C758 /* libPods-YTXRestfulModel_Tests.a */; };
 		18E9FFF61C702CA500143B68 /* db.json in Resources */ = {isa = PBXBuildFile; fileRef = 18E9FFF51C702CA500143B68 /* db.json */; };
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelUserDefaultSpec.m; sourceTree = "<group>"; };
 		18E9FFF51C702CA500143B68 /* db.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = db.json; sourceTree = "<group>"; };
 		44BA7F8968B8D7FBB1291584 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -93,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				624C05881C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m */,
+				0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 				624C058A1C55E9E900C40CE6 /* YTXTestCollection.h */,
 				624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */,
@@ -256,6 +259,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				624C05891C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m in Sources */,
+				0CB946391C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m in Sources */,
 				624C058C1C55E9E900C40CE6 /* YTXTestCollection.m in Sources */,
 				624C058F1C55EB0500C40CE6 /* YTXTestModel.m in Sources */,
 			);

@@ -13,7 +13,7 @@
 
 SPEC_BEGIN(YTXRestfulModelRemoteSpec)
 
-describe(@"测试YTXRestfulModel", ^{
+describe(@"测试YTXRestfulModelRemote", ^{
     context(@"初始化", ^{
         
         it(@"Model不为空", ^{
@@ -99,9 +99,8 @@ describe(@"测试YTXRestfulModel", ^{
         });
     });
     
-    context(@"Collection功能", ^{
+    context(@"Collection功能，基本功能测试", ^{
         
-        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"localhost";
         it(@"Models初始化长度为0", ^{
             YTXTestCollection * collection = [YTXTestCollection new];
             [[@( collection.models.count ) should] equal:@(0)];
@@ -282,38 +281,54 @@ describe(@"测试YTXRestfulModel", ^{
             [[@( collection.models.count ) should] equal:@(0)];
         });
         
-        xit(@"获取", ^{
-            __block id ret;
-            [[[YTXTestCollection shared] fetchRemote:@{ @"_limit": @"1"}] subscribeNext:^(id x) {
-                ret = x;
-            } error:^(NSError *error) {
-//                NSLog(@"<ERROR> %@", error);
-            }];
-            [[expectFutureValue(ret) shouldEventually] beNonNil];
+        it(@"获取逆序的Models", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+            YTXTestModel *model1 = [[YTXTestModel alloc] init];
+            YTXTestModel *model2 = [[YTXTestModel alloc] init];
+            YTXTestModel *model3 = [[YTXTestModel alloc] init];
+            [collection addModels:@[model1, model2, model3]];
+            [collection reverseModels];
+            [[collection.models.firstObject should] equal:model3];
+            [[collection.models.lastObject should] equal:model1];
+            [[collection.models[1] should] equal:model2];
         });
         
-        xit(@"增加", ^{
+    });
+    
+    context(@"Collection功能，RemoteSync测试", ^{
+        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"localhost";
+
+        it(@"拉取数据并添加到Collection尾部", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
             __block YTXTestCollection *ret;
-            [[[YTXTestCollection shared] fetchRemoteThenAdd:@{@"_start": @"1", @"_limit": @"1"}] subscribeNext:^(id x) {
-                ret = x;
+            __block NSArray *array;
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
+                ret = x.first;
+                array = x.second;
             } error:^(NSError *error) {
-//                NSLog(@"<ERROR> %@", error);
+                //                NSLog(@"<ERROR> %@", error);
             }];
-            [[expectFutureValue(@(ret.models.count)) shouldEventually] equal:@(2)];
-            [[expectFutureValue(ret.models.lastObject[@"id"]) shouldEventually] equal:@(2)];
+            [[expectFutureValue(@([array count])) shouldEventually] equal:@(2)];
+            [[expectFutureValue(ret) shouldEventually] equal:collection];
         });
         
-//        it(@"增加", ^{
-//            __block YTXTestCollection *ret;
-//            [[[YTXTestCollection shared] fetchRemoteThenInsertFront:@{@"_start": @"1", @"_limit": @"1"}] subscribeNext:^(id x) {
-//                ret = x;
-//            } error:^(NSError *error) {
-//                //                NSLog(@"<ERROR> %@", error);
-//            }];
-//            [[expectFutureValue(@(ret.models.count)) shouldEventually] equal:@(2)];
-//            [[expectFutureValue(ret.models.lastObject[@"id"]) shouldEventually] equal:@(2)];
-//        });
-        
+        it(@"对Collection排序", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+            YTXTestModel *model1 = [[YTXTestModel alloc] init];
+            model1.keyId = @1;
+            YTXTestModel *model2 = [[YTXTestModel alloc] init];
+            model2.keyId = @2;
+            YTXTestModel *model3 = [[YTXTestModel alloc] init];
+            model3.keyId = @3;
+            [collection addModels:@[model1, model2, model3]];
+            [collection sortedArrayUsingComparator:^NSComparisonResult(YTXTestModel * _Nonnull obj1, YTXTestModel * _Nonnull obj2) {
+                return obj1.keyId.integerValue < obj2.keyId.integerValue;
+            }];
+            [[collection.models.firstObject should] equal:model3];
+            [[collection.models.lastObject should] equal:model1];
+            [[collection.models[1] should] equal:model2];
+        });
+
     });
     
     context(@"Model功能", ^{
