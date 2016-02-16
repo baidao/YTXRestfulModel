@@ -40,15 +40,11 @@
 - (nonnull RACSignal *) destroyCacheWithCacheKey:(nonnull NSString *)cacheKey withParam:(nullable NSDictionary *)param;
 
 
-
-@property (nullable, nonatomic, strong) NSURL * url;
-/** 设置网络请求的地址 */
-- (void)setRemoteSyncUrl:(nonnull NSURL *)url;
-/** 设置网络请求的地址，通过Block形式，每次访问都会重新执行，以处理shared中URL会变的情况。同时使用URL和URLBlock会优先使用Block */
-- (void)setRemoteSyncUrlHookBlock:(nullable NSURL * _Nonnull (^)(void))urlHookBlock;
-
-/* return ( self, Arrary<Model> ) **/
+/* RACSignal return Tuple( self, Arrary<Model> ) **/
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
+
+/* RACSignal return self **/
+- (nonnull RACSignal *) fetchRemoteThenReset:(nullable NSDictionary *)param;
 
 - (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response;
 
@@ -60,6 +56,8 @@
 - (nonnull instancetype) addModels:(nonnull NSArray *) array;
 
 - (nonnull instancetype) insertFrontModels:(nonnull NSArray *) array;
+
+- (nonnull instancetype) sortedArrayUsingComparator:(nonnull NSComparator)cmptr;
 
 - (nullable NSArray *) arrayWithRange:(NSRange)range;
 
@@ -89,8 +87,5 @@
 
 /** 逆序输出Collection*/
 - (void) reverseModels;
-
-- (nonnull instancetype) sortCollection;
-- (void)sortedArrayUsingComparator:(nonnull NSComparator)cmptr;
 
 @end

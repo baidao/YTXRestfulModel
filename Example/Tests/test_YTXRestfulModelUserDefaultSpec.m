@@ -207,44 +207,6 @@ describe(@"测试YTXRestfulModelUserDefault", ^{
     });
     
     context(@"Collection功能", ^{
-//        __block YTXTestCollection *collection = [YTXTestCollection new];
-//        it(@"设置缓存", ^{
-//            YTXTestModel *model1 = [[YTXTestModel alloc] init];
-//            YTXTestModel *model2 = [[YTXTestModel alloc] init];
-//            YTXTestModel *model3 = [[YTXTestModel alloc] init];
-//            YTXTestModel *model4 = [[YTXTestModel alloc] init];
-//            [collection addModels:@[model1, model2, model3, model4]];
-//            __block YTXTestCollection *ret = nil;
-//            [[collection saveCache:nil] subscribeNext:^(id x) {
-//                ret = x;
-//            } error:^(NSError *error) {
-//                
-//            }];
-//            [[expectFutureValue(@(ret.models.count)) shouldEventually] equal:@(collection.models.count)];
-//            [[expectFutureValue(ret.models.firstObject) shouldEventually] equal:collection.models.firstObject];
-//        });
-//        
-//        it(@"获取缓存", ^{
-//            __block YTXTestCollection *ret = nil;
-//            [[collection fetchCache:nil] subscribeNext:^(id x) {
-//                ret = x;
-//            } error:^(NSError *error) {
-//                
-//            }];
-//            
-//            [[expectFutureValue(ret) shouldEventually] equal:collection];
-//        });
-//        
-//        it(@"销毁缓存", ^{
-//            __block YTXTestCollection *ret = nil;
-//            [[collection destroyCache:nil] subscribeNext:^(id x) {
-//                ret = x;
-//            } error:^(NSError *error) {
-//                
-//            }];
-//            [[expectFutureValue(ret) shouldEventually] equal:collection];
-//        });
-        
         it(@"保存缓存成功，自定义cacheKey", ^{
             YTXTestCollection *collection1 = [YTXTestCollection new];
             __block YTXTestCollection *ret1 = nil;

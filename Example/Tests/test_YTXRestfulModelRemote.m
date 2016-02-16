@@ -24,19 +24,19 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"修改Model的URL，在没有HookBlock时才能修改，HookBlock的优先级更高", ^{
             YTXTestModel *testModel = [[YTXTestModel alloc] init];
             
-            [testModel setRemoteSyncUrlHookBlock:nil];
+            testModel.remoteSync.urlHookBlock = nil;
             
-            [testModel setRemoteSyncUrl:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            testModel.remoteSync.url = [NSURL URLWithString:@"http://www.baidu.com/"];
             
             [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.baidu.com/"]];
             
-            [testModel setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+            testModel.remoteSync.urlHookBlock = ^NSURL * _Nonnull{
                 return [NSURL URLWithString:@"http://www.google.com/"];
-            }];
+            };
             
             [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
             
-            [testModel setRemoteSyncUrl:[NSURL URLWithString:@"http://www.bing.com/"]];
+            testModel.remoteSync.url = [NSURL URLWithString:@"http://www.bing.com/"];
             
             [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
             
@@ -47,9 +47,9 @@ describe(@"测试YTXRestfulModelRemote", ^{
             YTXTestModel *testModel = [[YTXTestModel alloc] init];
             [[NSUserDefaults standardUserDefaults] setObject:@"http://www.baidu.com/" forKey:@"URLHookBlock"];
             
-            [testModel setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+            testModel.remoteSync.urlHookBlock = ^NSURL * _Nonnull{
                 return [NSURL URLWithString:[[NSUserDefaults standardUserDefaults] valueForKey:@"URLHookBlock"]];
-            }];
+            };
             
             [[testModel.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.baidu.com/"]];
             
@@ -65,18 +65,17 @@ describe(@"测试YTXRestfulModelRemote", ^{
         
         it(@"修改Collection的URL，Collection初始化时没有使用HookBlock形式，可以直接修改，但是有HookBlock时会优先使用HookBlock", ^{
             YTXTestCollection *testCollection = [[YTXTestCollection alloc] init];
-            
-            [testCollection setRemoteSyncUrl:[NSURL URLWithString:@"http://www.baidu.com/"]];
+            testCollection.remoteSync.url = [NSURL URLWithString:@"http://www.baidu.com/"];
             
             [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.baidu.com/"]];
             
-            [testCollection setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+            testCollection.remoteSync.urlHookBlock = ^NSURL * _Nonnull{
                 return [NSURL URLWithString:@"http://www.google.com/"];
-            }];
+            };
             
             [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
             
-            [testCollection setRemoteSyncUrl:[NSURL URLWithString:@"http://www.bing.com/"]];
+            testCollection.remoteSync.url = [NSURL URLWithString:@"http://www.bing.com/"];
             
             [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
             
@@ -85,9 +84,10 @@ describe(@"测试YTXRestfulModelRemote", ^{
         
         it(@"使用URLHookBlock方式注入Collection的remoteSync.url", ^{
             YTXTestCollection *testCollection = [[YTXTestCollection alloc] init];
-            [testCollection setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+            
+            testCollection.remoteSync.urlHookBlock = ^NSURL * _Nonnull{
                 return [NSURL URLWithString:[[NSUserDefaults standardUserDefaults] valueForKey:@"URLHookBlock"]];
-            }];
+            };
             
             [[NSUserDefaults standardUserDefaults] setObject:@"http://www.baidu.com/" forKey:@"URLHookBlock"];
             
@@ -293,25 +293,6 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[collection.models[1] should] equal:model2];
         });
         
-    });
-    
-    context(@"Collection功能，RemoteSync测试", ^{
-        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"localhost";
-
-        it(@"拉取数据并添加到Collection尾部", ^{
-            YTXTestCollection * collection = [YTXTestCollection new];
-            __block YTXTestCollection *ret;
-            __block NSArray *array;
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
-                ret = x.first;
-                array = x.second;
-            } error:^(NSError *error) {
-                //                NSLog(@"<ERROR> %@", error);
-            }];
-            [[expectFutureValue(@([array count])) shouldEventually] equal:@(2)];
-            [[expectFutureValue(ret) shouldEventually] equal:collection];
-        });
-        
         it(@"对Collection排序", ^{
             YTXTestCollection * collection = [YTXTestCollection new];
             YTXTestModel *model1 = [[YTXTestModel alloc] init];
@@ -327,6 +308,55 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[collection.models.firstObject should] equal:model3];
             [[collection.models.lastObject should] equal:model1];
             [[collection.models[1] should] equal:model2];
+        });
+        
+    });
+    
+    context(@"Collection功能，RemoteSync测试", ^{
+        [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"localhost";
+
+        it(@"拉取数据", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+            __block YTXTestCollection *ret;
+            __block NSArray *array;
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
+                ret = x.first;
+                array = x.second;
+            } error:^(NSError *error) {
+                //                NSLog(@"<ERROR> %@", error);
+            }];
+            [[expectFutureValue(@([array count])) shouldEventually] equal:@(2)];
+            [[expectFutureValue(ret) shouldEventually] equal:collection];
+        });
+        
+        it(@"拉取数据并重置自己的models", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+             __block YTXTestCollection *ret;
+            [collection addModel:[YTXTestModel new]];
+             
+            [[@(collection.models.count) should] equal:@(1)];
+             
+            [[collection fetchRemoteThenReset:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestCollection * x) {
+                 ret = x;
+            } error:^(NSError *error) {
+                
+            }];
+            [[expectFutureValue(@(collection.models.count)) shouldEventually] equal:@(2)];
+            [[expectFutureValue(ret) shouldEventually] equal:collection];
+        });
+             
+        it(@"拉取数据失败进入error block，因为替换了错误URL", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+            collection.remoteSync.url = [NSURL URLWithString:@"http://localhost:3000/wrongtest"];
+            __block NSError *err = nil;
+            __block NSArray *array = nil;
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
+                array = x.second;
+            } error:^(NSError *error) {
+                err = error;
+            }];
+            [[expectFutureValue(array) shouldEventually] beNil];
+            [[expectFutureValue(err) shouldEventually] beNonNil];
         });
 
     });
@@ -465,6 +495,26 @@ describe(@"测试YTXRestfulModelRemote", ^{
                 //                NSLog(@"<ERROR> %@", error);
             }];
             [[expectFutureValue(currentTestModel.keyId) shouldEventually] beNil];
+        });
+                
+        it(@"拉取-Fetch-GET失败进入error block，因为替换了错误URL", ^{
+            __block YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
+            currentTestModel.keyId = testModel.keyId;
+            currentTestModel.remoteSync.urlHookBlock = nil;
+            currentTestModel.remoteSync.url = [NSURL URLWithString:@"http://localhost:3000/wrongtest"];
+            
+            __block NSNumber * result = nil;
+            __block NSError * err = nil;
+            
+            [[currentTestModel fetchRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
+                result = @1;
+            } error:^(NSError *error) {
+                err = error;
+            }];
+            [[expectFutureValue(currentTestModel.title) shouldEventually] beNil];
+            [[expectFutureValue(err) shouldEventually] beNonNil];
+            [[expectFutureValue(result) shouldEventually] beNil];
+            
         });
     });
 });

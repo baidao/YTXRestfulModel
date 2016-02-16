@@ -25,8 +25,6 @@ typedef enum {
 
 @implementation YTXCollection
 
-@synthesize url = _url;
-
 - (instancetype)init
 {
     if(self = [super init])
@@ -153,26 +151,6 @@ typedef enum {
 
 #pragma mark remote
 
-- (void)setUrl:(NSURL *)url
-{
-    self.remoteSync.url = url;
-}
-
-- (NSURL *)url
-{
-    return self.remoteSync.url;
-}
-
-- (void)setRemoteSyncUrl:(NSURL *)url
-{
-    self.remoteSync.url = url;
-}
-
-- (void)setRemoteSyncUrlHookBlock:(NSURL * _Nonnull (^)(void))urlHookBlock
-{
-    self.remoteSync.urlHookBlock = urlHookBlock;
-}
-
 /** 在拉到数据转mantle的时候用 */
 - (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response
 {
@@ -214,6 +192,12 @@ typedef enum {
     return [self resetModels:temp];
 }
 
+- (nonnull instancetype)sortedArrayUsingComparator:(NSComparator)cmptr
+{
+    [self resetModels:[self.models sortedArrayUsingComparator:cmptr]];
+    return self;
+}
+
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
@@ -222,6 +206,22 @@ typedef enum {
         @strongify(self);
         NSArray * arr = [self transformerProxyOfReponse:x];
         [subject sendNext: RACTuplePack(self, arr) ];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchRemoteThenReset:(nullable NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
+        @strongify(self);
+        NSArray * arr = [self transformerProxyOfReponse:x];
+        [self resetModels:arr];
+        [subject sendNext: self];
         [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
@@ -352,11 +352,6 @@ typedef enum {
 - (void)reverseModels
 {
     [self resetModels:self.models.reverseObjectEnumerator.allObjects];
-}
-
-- (void)sortedArrayUsingComparator:(NSComparator)cmptr
-{
-    [self resetModels:[self.models sortedArrayUsingComparator:cmptr]];
 }
 
 @end

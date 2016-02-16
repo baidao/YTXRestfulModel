@@ -26,9 +26,9 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        [self setRemoteSyncUrlHookBlock:^NSURL * _Nonnull{
+        self.remoteSync.urlHookBlock = ^NSURL * _Nonnull{
             return [YTXRequest urlWithName:@"restful.posts"];
-        }];
+        };
     }
     return  self;
 }

@@ -166,17 +166,6 @@
 }
 
 #pragma mark remote
-
-- (void)setRemoteSyncUrl:(NSURL *)url
-{
-    self.remoteSync.url = url;
-}
-
-- (void)setRemoteSyncUrlHookBlock:(NSURL * _Nonnull (^)(void))urlHookBlock
-{
-    self.remoteSync.urlHookBlock = urlHookBlock;
-}
-
 /** 在拉到数据转mantle的时候用 */
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response
 {

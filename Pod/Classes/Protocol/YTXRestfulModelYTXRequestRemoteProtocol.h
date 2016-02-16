@@ -16,7 +16,8 @@
 
 @property (nonnull, nonatomic, strong) NSURL * url;
 
-@property (nonnull, nonatomic, strong) NSURL * _Nonnull (^urlHookBlock)(void);
+/** 设置网络请求的地址，通过Block形式，每次访问都会重新执行，以处理shared中URL会变的情况。同时使用URL和URLBlock会优先使用Block */
+@property (nullable, nonatomic, strong) NSURL * _Nonnull (^urlHookBlock)(void);
 
 @property (nonnull, nonatomic, copy, readonly) NSString * primaryKey;
 

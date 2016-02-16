@@ -17,7 +17,7 @@
 - (instancetype)init
 {
     if (self = [super initWithModelClass: [YTXTestModel class]]) {
-        self.url = [YTXRequest urlWithName:@"restful.posts"];
+        self.remoteSync.url = [YTXRequest urlWithName:@"restful.posts"];
     }
     return  self;
 }
