@@ -55,18 +55,6 @@ typedef enum {
     return self;
 }
 
-#pragma mark EFSCollectionProtocol
-+ (instancetype) shared
-{
-    static YTXCollection * collection;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        collection =  [[[self class] alloc] init];
-        NSAssert(collection.modelClass, @"如果使用Shared必须在子类实现init方法并且在内部绑定当前的Model");
-    });
-    return collection;
-}
-
 #pragma mark cache
 - (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param
 {

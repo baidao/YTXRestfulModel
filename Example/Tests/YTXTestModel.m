@@ -14,6 +14,16 @@
 
 @implementation YTXTestModel
 
++ (instancetype) shared
+{
+    static YTXTestModel * model;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        model =  [[[self class] alloc] init];
+    });
+    return model;
+}
+
 + (NSDictionary *)JSONKeyPathsByPropertyKey
 {
     return @{@"keyId": @"id"};

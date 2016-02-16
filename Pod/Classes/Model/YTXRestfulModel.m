@@ -46,15 +46,6 @@
 
 #pragma mark EFSModelProtocol
 
-+ (instancetype) shared
-{
-    static YTXRestfulModel *model;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        model = [[[self class] alloc] init];
-    });
-    return model;
-}
 - (instancetype) mergeWithAnother:(_Nonnull id) model
 {
     if ([self class] != [model class]){

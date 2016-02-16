@@ -12,8 +12,6 @@
 
 @required
 
-+ (nonnull instancetype) shared;
-
 @property (nonnull, nonatomic, assign) Class modelClass;
 @property (nonnull, nonatomic, strong) NSMutableArray * models;
 

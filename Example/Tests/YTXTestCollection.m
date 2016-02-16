@@ -14,6 +14,16 @@
 
 @implementation YTXTestCollection
 
++ (instancetype) shared
+{
+    static YTXTestCollection * collection;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        collection =  [[[self class] alloc] init];
+    });
+    return collection;
+}
+
 - (instancetype)init
 {
     if (self = [super initWithModelClass: [YTXTestModel class]]) {
@@ -25,5 +35,6 @@
 - (NSArray *)transformerProxyOfReponse:(id)response {
     return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:nil];
 }
+
 
 @end
