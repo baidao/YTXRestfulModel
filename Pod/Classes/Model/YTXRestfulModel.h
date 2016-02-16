@@ -19,7 +19,6 @@
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
 
 
-+ (nonnull instancetype) shared;
 - (nonnull instancetype) mergeWithAnother:(_Nonnull id) model;
 
 /** 要用keyId判断 */

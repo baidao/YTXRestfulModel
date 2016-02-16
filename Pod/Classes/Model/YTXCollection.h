@@ -21,7 +21,6 @@
 @property (nonnull, nonatomic, strong) id<YTXCollectionCacheProtocol> cacheSync;
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
 
-+ (nonnull instancetype) shared;
 
 - (nonnull instancetype) initWithModelClass:(nonnull Class)modelClass;
 
