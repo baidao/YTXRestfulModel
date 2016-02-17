@@ -21,6 +21,21 @@ SPEC_BEGIN(YTXRestfulModelUserDefaultSpec)
 
 describe(@"测试YTXRestfulModelUserDefault", ^{
     context(@"Model功能", ^{
+        beforeAll(^{
+            //清空以便测试
+            YTXTestModel *model1 = [YTXTestModel new];
+            model1.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName1];
+            
+            YTXTestModel *model2 = [YTXTestModel new];
+            model2.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName2];
+            
+            YTXTestModel *model3 = [YTXTestModel new];
+            
+            [model1 destroyCache:nil];
+            [model2 destroyCache:nil];
+            [model3 destroyCache:nil];
+            
+        });
         
         it(@"保存缓存成功，使用cacheKey", ^{
             YTXTestModel *model = [YTXTestModel new];
@@ -240,25 +255,24 @@ describe(@"测试YTXRestfulModelUserDefault", ^{
             [[expectFutureValue(model4.title) shouldEventually] equal:@"123"];
 
         });
-        
-        afterAll(^{
-            //清空以便测试
-            YTXTestModel *model1 = [YTXTestModel new];
-            model1.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName1];
-            
-            YTXTestModel *model2 = [YTXTestModel new];
-            model2.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName2];
-            
-            YTXTestModel *model3 = [YTXTestModel new];
-            
-            [model1 destroyCache:nil];
-            [model2 destroyCache:nil];
-            [model3 destroyCache:nil];
-            
-        });
     });
     
     context(@"Collection功能", ^{
+        beforeAll(^{
+            //清空以便测试
+            YTXTestCollection *collection1 = [YTXTestCollection new];
+            collection1.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
+            
+            YTXTestCollection *collection2 = [YTXTestCollection new];
+            collection2.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
+            
+            YTXTestCollection *collection3 = [YTXTestCollection new];
+            
+            [collection1 destroyCache:nil];
+            [collection2 destroyCache:nil];
+            [collection3 destroyCache:nil];
+        });
+        
         it(@"保存缓存成功，自定义cacheKey", ^{
             YTXTestCollection *collection1 = [YTXTestCollection new];
             __block YTXTestCollection *ret1 = nil;
@@ -493,27 +507,13 @@ describe(@"测试YTXRestfulModelUserDefault", ^{
                     return [collection4 fetchCache:nil];
                 }] subscribeNext:^(id x) {
                     [collection2 removeAllModels];
+                    [collection2 destroyCache:nil];
                 }];
             }];
 
             [[expectFutureValue(@(collection2.models.count)) shouldEventually] equal:@0];
             [[expectFutureValue(@(collection3.models.count)) shouldEventually] equal:@1];
             [[expectFutureValue(@(collection4.models.count)) shouldEventually] equal:@2];
-        });
-        
-        afterAll(^{
-            //清空以便测试
-            YTXTestCollection *collection1 = [YTXTestCollection new];
-            collection1.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
-            
-            YTXTestCollection *collection2 = [YTXTestCollection new];
-            collection2.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
-            
-            YTXTestCollection *collection3 = [YTXTestCollection new];
-            
-            [collection1 destroyCache:nil];
-            [collection2 destroyCache:nil];
-            [collection3 destroyCache:nil];
         });
         
     });
