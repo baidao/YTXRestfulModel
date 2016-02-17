@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'AFNetworking', '~> 2.3'
-  s.dependency 'YTXRequest', '~> 0.1.4'
+  s.dependency 'YTXRequest', '~> 0.1.5'
   s.dependency 'Mantle', '~> 1.5.4'
   s.dependency 'ReactiveCocoa', '~> 2.3.1'
 end

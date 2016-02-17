@@ -14,6 +14,9 @@
 
 @required
 
+/** 超时时间 */
+@property (nonatomic, assign) NSTimeInterval timeoutInterval;
+
 @property (nonnull, nonatomic, strong) NSURL * url;
 
 /** 设置网络请求的地址，通过Block形式，每次访问都会重新执行，以处理shared中URL会变的情况。同时使用URL和URLBlock会优先使用Block */

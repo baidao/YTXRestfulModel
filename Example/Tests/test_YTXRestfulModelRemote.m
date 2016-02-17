@@ -377,6 +377,20 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[expectFutureValue(array) shouldEventually] beNil];
             [[expectFutureValue(err) shouldEventually] beNonNil];
         });
+        
+        xit(@"拉取数据失败进入error block，因为把超时时间定为了0", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+            collection.remoteSync.timeoutInterval = 0;
+            __block NSError *err = nil;
+            __block NSArray *array = nil;
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
+                array = x.second;
+            } error:^(NSError *error) {
+                err = error;
+            }];
+            [[expectFutureValue(array) shouldEventually] beNil];
+            [[expectFutureValue(err) shouldEventually] beNonNil];
+        });
 
     });
 
@@ -531,6 +545,25 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[expectFutureValue(err) shouldEventually] beNonNil];
             [[expectFutureValue(result) shouldEventually] beNil];
 
+        });
+        
+        xit(@"拉取-Fetch-GET失败进入error block，因为把超时时间定为了0", ^{
+            __block YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
+            currentTestModel.keyId = testModel.keyId;
+            currentTestModel.remoteSync.timeoutInterval = 0;
+            
+            __block NSNumber * result = nil;
+            __block NSError * err = nil;
+            
+            [[currentTestModel fetchRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
+                result = @1;
+            } error:^(NSError *error) {
+                err = error;
+            }];
+            [[expectFutureValue(currentTestModel.title) shouldEventually] beNil];
+            [[expectFutureValue(err) shouldEventually] beNonNil];
+            [[expectFutureValue(result) shouldEventually] beNil];
+            
         });
     });
 });
