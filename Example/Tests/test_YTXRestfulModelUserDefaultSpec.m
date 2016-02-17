@@ -11,11 +11,15 @@
 #import <Kiwi/Kiwi.h>
 #import <YTXRequest/YTXRequest.h>
 
+#import <YTXRestfulModel/YTXRestfulModelUserDefaultCacheSync.h>
+#import <YTXRestfulModel/YTXCollectionUserDefaultCacheSync.h>
+
+static NSString * suitName1 = @"com.baidao.test";
+static NSString * suitName2 = @"com.baidao.ppp";
 
 SPEC_BEGIN(YTXRestfulModelUserDefaultSpec)
 
 describe(@"测试YTXRestfulModelUserDefault", ^{
-
     context(@"Model功能", ^{
         
         it(@"保存缓存成功，使用cacheKey", ^{
@@ -203,7 +207,55 @@ describe(@"测试YTXRestfulModelUserDefault", ^{
             
             [[expectFutureValue(ret) shouldEventually] beNonNil];
         });
+        
+        it(@"更换UserDefalut的group", ^{
+            YTXTestModel *model1 = [YTXTestModel new];
+            model1.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName1];
+            model1.keyId = @1;
+            
+            __block YTXTestModel *model2 = [YTXTestModel new];
+            model2.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName2];
+            
+            __block YTXTestModel *model3 = [YTXTestModel new];
+            model3.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName1];
+            
+            __block YTXTestModel *model4 = [YTXTestModel new];
+            model4.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName2];
+            
+            [[[[model1 saveCache:nil] flattenMap:^RACStream *(id value) {
+                return [model3 fetchCache:nil];
+            }] flattenMap:^RACStream *(id value) {
+                return [model2 fetchCache:nil];
+            }] subscribeError:^(NSError * x) {
+                model2.title = @"123";
+                [[[model2 saveCache:nil] flattenMap:^RACStream *(id value) {
+                    return [model4 fetchCache:nil];
+                }] subscribeNext:^(id x) {
 
+                }];
+            }];
+            
+            [[expectFutureValue(model2.keyId) shouldEventually] beNil];
+            [[expectFutureValue(model3.keyId) shouldEventually] equal:@1];
+            [[expectFutureValue(model4.title) shouldEventually] equal:@"123"];
+
+        });
+        
+        afterAll(^{
+            //清空以便测试
+            YTXTestModel *model1 = [YTXTestModel new];
+            model1.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName1];
+            
+            YTXTestModel *model2 = [YTXTestModel new];
+            model2.cacheSync = [[YTXRestfulModelUserDefaultCacheSync alloc] initWithUserDefaultSuiteName:suitName2];
+            
+            YTXTestModel *model3 = [YTXTestModel new];
+            
+            [model1 destroyCache:nil];
+            [model2 destroyCache:nil];
+            [model3 destroyCache:nil];
+            
+        });
     });
     
     context(@"Collection功能", ^{
@@ -415,6 +467,53 @@ describe(@"测试YTXRestfulModelUserDefault", ^{
             }] ;
             
             [[expectFutureValue(ret) shouldEventually] beNonNil];
+        });
+        
+        it(@"更换UserDefalut的group", ^{
+            YTXTestCollection *collection1 = [YTXTestCollection new];
+            collection1.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
+            [collection1 addModels:@[[YTXTestModel new]]];
+            
+            YTXTestCollection *collection2 = [YTXTestCollection new];
+            collection2.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
+            
+            YTXTestCollection *collection3 = [YTXTestCollection new];
+            collection3.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
+            
+            YTXTestCollection *collection4 = [YTXTestCollection new];
+            collection4.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
+            
+            [[[[collection1 saveCache:nil] flattenMap:^RACStream *(id value) {
+                return [collection3 fetchCache:nil];
+            }] flattenMap:^RACStream *(id value) {
+                return [collection2 fetchCache:nil];
+            }] subscribeError:^(NSError * x) {
+                [collection2 addModels:@[[YTXTestModel new], [YTXTestModel new]]];
+                [[[collection2 saveCache:nil] flattenMap:^RACStream *(id value) {
+                    return [collection4 fetchCache:nil];
+                }] subscribeNext:^(id x) {
+                    [collection2 removeAllModels];
+                }];
+            }];
+
+            [[expectFutureValue(@(collection2.models.count)) shouldEventually] equal:@0];
+            [[expectFutureValue(@(collection3.models.count)) shouldEventually] equal:@1];
+            [[expectFutureValue(@(collection4.models.count)) shouldEventually] equal:@2];
+        });
+        
+        afterAll(^{
+            //清空以便测试
+            YTXTestCollection *collection1 = [YTXTestCollection new];
+            collection1.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
+            
+            YTXTestCollection *collection2 = [YTXTestCollection new];
+            collection2.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
+            
+            YTXTestCollection *collection3 = [YTXTestCollection new];
+            
+            [collection1 destroyCache:nil];
+            [collection2 destroyCache:nil];
+            [collection3 destroyCache:nil];
         });
         
     });
