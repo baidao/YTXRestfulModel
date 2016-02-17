@@ -14,6 +14,8 @@
 
 @implementation YTXTestModel
 
+//可以重写init方法 改变sync的初始值
+
 + (instancetype) shared
 {
     static YTXTestModel * model;
