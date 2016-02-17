@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "YTXRestfulModel"
-  s.version          = "0.1.6"
+  s.version          = "0.1.7"
   s.summary          = "YTXRestfulModel 提供了restful的功能"
 
 # This description is used to generate tags and improve search results.
