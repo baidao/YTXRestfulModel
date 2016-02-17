@@ -13,6 +13,9 @@
 
 SPEC_BEGIN(YTXRestfulModelRemoteSpec)
 
+// npm install -g json-server
+// json-server db.json
+
 describe(@"测试YTXRestfulModelRemote", ^{
     context(@"初始化", ^{
         
