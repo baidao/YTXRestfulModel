@@ -344,7 +344,23 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[expectFutureValue(@(collection.models.count)) shouldEventually] equal:@(2)];
             [[expectFutureValue(ret) shouldEventually] equal:collection];
         });
-             
+        
+        it(@"拉取数据并增加自己的models", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+            __block YTXTestCollection *ret;
+            [collection addModel:[YTXTestModel new]];
+            
+            [[@(collection.models.count) should] equal:@(1)];
+            
+            [[collection fetchRemoteThenAdd:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestCollection * x) {
+                ret = x;
+            } error:^(NSError *error) {
+                
+            }];
+            [[expectFutureValue(@(collection.models.count)) shouldEventually] equal:@(3)];
+            [[expectFutureValue(ret) shouldEventually] equal:collection];
+        });
+        
         it(@"拉取数据失败进入error block，因为替换了错误URL", ^{
             YTXTestCollection * collection = [YTXTestCollection new];
             collection.remoteSync.url = [NSURL URLWithString:@"http://localhost:3000/wrongtest"];

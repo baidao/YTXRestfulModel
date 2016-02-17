@@ -217,6 +217,22 @@ typedef enum {
     return subject;
 }
 
+- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
+        @strongify(self);
+        NSArray * arr = [self transformerProxyOfReponse:x];
+        [self addModels:arr];
+        [subject sendNext: self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
 - (nullable NSArray *) arrayWithRange:(NSRange)range
 {
     if (range.location + range.length > self.models.count) {

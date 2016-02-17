@@ -45,6 +45,9 @@
 /* RACSignal return self **/
 - (nonnull RACSignal *) fetchRemoteThenReset:(nullable NSDictionary *)param;
 
+/* RACSignal return self **/
+- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
+
 - (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response;
 
 /** 注入自己时使用 */
