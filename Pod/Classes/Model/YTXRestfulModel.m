@@ -122,13 +122,31 @@
 
 - (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param
 {
-    return [self.cacheSync saveCache:param withMtlModel:self];
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.cacheSync saveCache:param withMtlModel:self] subscribeNext:^(id x) {
+        @strongify(self);
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
 }
 
 /** DELETE */
 - (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param
 {
-    return [self.cacheSync destroyCache:param withMtlModel:self];
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.cacheSync destroyCache:param withMtlModel:self] subscribeNext:^(id x) {
+        @strongify(self);
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
 }
 
 - (nonnull RACSignal *)fetchCacheWithCacheKey:(NSString *)cachekey withParam:(NSDictionary *)param
