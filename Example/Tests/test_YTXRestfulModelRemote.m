@@ -135,6 +135,14 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[[collection modelAtIndex:collection.models.count] should] beNil];
             [[[collection modelAtIndex:-1] should] beNil];
         });
+        
+        it(@"输入错误的response会返回error", ^{
+            YTXTestCollection * collection = [YTXTestCollection new];
+            NSError * error = nil;
+            [collection transformerProxyOfReponse:@{@"abc": @123} error:&error];
+            [[error should] beNonNil];
+        });
+        
         it(@"在index之前插入Model", ^{
             YTXTestCollection * collection = [YTXTestCollection new];
             YTXTestModel *model1 = [[YTXTestModel alloc] init];
@@ -399,7 +407,21 @@ describe(@"测试YTXRestfulModelRemote", ^{
         [YTXRequestConfig sharedYTXRequestConfig].serviceKey = @"localhost";
 
         __block YTXTestModel *testModel = [[YTXTestModel alloc] init];
-
+        
+        it(@"输入错误的response会返回error", ^{
+            YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
+            NSError * error = nil;
+            [currentTestModel transformerProxyOfReponse:@1 error:&error];
+            [[error should] beNonNil];
+        });
+        
+        it(@"输入错误的Foreign会返回error", ^{
+            YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
+            NSError * error = nil;
+            [currentTestModel transformerProxyOfForeign:[self class] reponse:@1 error:&error];
+            [[error should] beNonNil];
+        });
+        
         it(@"创建-Create-POST", ^{
             testModel.title = @"ytx test hahahaha";
             testModel.body = @"teststeststesettsetsetttsetttest";
