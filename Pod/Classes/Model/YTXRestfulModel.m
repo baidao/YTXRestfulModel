@@ -66,7 +66,7 @@
         id modelValue = [model valueForKey:modelPropertyName];
         
         //我有这个属性，modelValue不等于空
-        if (selfPropertyName && selfPropertyName == modelPropertyName && modelValue != nil) {
+        if (selfPropertyName && [selfPropertyName isEqualToString:modelPropertyName] && modelValue != nil) {
 
             const char * modelPropertyType =property_getAttributes(modelProperty);
             const char * selfPropertyType =property_getAttributes(selfProperty);
