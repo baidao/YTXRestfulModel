@@ -140,9 +140,9 @@ typedef enum {
 #pragma mark remote
 
 /** 在拉到数据转mantle的时候用 */
-- (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response
+- (nullable NSArray *) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
-    return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:nil];
+    return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:error];
 }
 
 - (nonnull instancetype) removeAllModels
@@ -192,9 +192,17 @@ typedef enum {
     @weakify(self);
     [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
         @strongify(self);
-        NSArray * arr = [self transformerProxyOfReponse:x];
-        [subject sendNext: RACTuplePack(self, arr) ];
-        [subject sendCompleted];
+        NSError * error = nil;
+        
+        NSArray * arr = [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [subject sendNext: RACTuplePack(self, arr) ];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+        
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
@@ -207,10 +215,18 @@ typedef enum {
     @weakify(self);
     [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
         @strongify(self);
-        NSArray * arr = [self transformerProxyOfReponse:x];
-        [self resetModels:arr];
-        [subject sendNext: self];
-        [subject sendCompleted];
+        NSError * error = nil;
+        
+        NSArray * arr = [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [self resetModels:arr];
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
@@ -223,10 +239,17 @@ typedef enum {
     @weakify(self);
     [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
         @strongify(self);
-        NSArray * arr = [self transformerProxyOfReponse:x];
-        [self addModels:arr];
-        [subject sendNext: self];
-        [subject sendCompleted];
+        NSError * error = nil;
+        
+        NSArray * arr = [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [self addModels:arr];
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
     } error:^(NSError *error) {
         [subject sendError:error];
     }];

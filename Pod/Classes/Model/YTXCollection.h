@@ -48,7 +48,7 @@
 /* RACSignal return self **/
 - (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
 
-- (nonnull NSArray *) transformerProxyOfReponse:(nonnull id) response;
+- (nullable NSArray *) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 
 /** 注入自己时使用 */
 - (nonnull instancetype) removeAllModels;

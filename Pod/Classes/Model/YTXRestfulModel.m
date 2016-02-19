@@ -176,9 +176,9 @@
 
 #pragma mark remote
 /** 在拉到数据转mantle的时候用 */
-- (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response
+- (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
-    return [self mergeWithAnother:[MTLJSONAdapter modelOfClass:[self class] fromJSONDictionary:response error:nil]];
+    return [self mergeWithAnother:[MTLJSONAdapter modelOfClass:[self class] fromJSONDictionary:response error:error]];
 }
 
 - (nonnull NSDictionary *)mapParameters:(nonnull NSDictionary *)param
@@ -211,19 +211,27 @@
     return retDic;
 }
 
-- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
-    return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:nil];
+    return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
 }
 
 - (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
 {
     NSAssert([modelClass isSubclassOfClass: [MTLModel class] ], @"希望传入的class是MTLModel的子类，这样才能使用mantle转换");
-    
+    @weakify(self);
     RACSubject * subject = [RACSubject subject];
     [[self.remoteSync fetchRemoteForeignWithName:name param:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-        [subject sendNext:[self transformerProxyOfForeign: modelClass reponse:x] ];
-        [subject sendCompleted];
+        @strongify(self);
+        NSError * error = nil;
+        [self transformerProxyOfForeign: modelClass reponse:x error:&error];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
@@ -233,9 +241,18 @@
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
+    @weakify(self);
     [[self.remoteSync fetchRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-        [subject sendNext:[self transformerProxyOfReponse:x]];
-        [subject sendCompleted];
+        @strongify(self);
+        NSError * error = nil;
+        [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
@@ -245,19 +262,35 @@
 - (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    
+    @weakify(self);
     if ([self isNew]) {
         [[self.remoteSync createRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-            [subject sendNext:[self transformerProxyOfReponse:x]];
-            [subject sendCompleted];
+            @strongify(self);
+            NSError * error = nil;
+            [self transformerProxyOfReponse:x error:&error];
+            if (!error) {
+                [subject sendNext:self];
+                [subject sendCompleted];
+            }
+            else {
+                [subject sendError:error];
+            }
         } error:^(NSError *error) {
             [subject sendError:error];
         }];
     }
     else {
         [[self.remoteSync updateRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-            [subject sendNext:[self transformerProxyOfReponse:x]];
-            [subject sendCompleted];
+            @strongify(self);
+            NSError * error = nil;
+            [self transformerProxyOfReponse:x error:&error];
+            if (!error) {
+                [subject sendNext:self];
+                [subject sendCompleted];
+            }
+            else {
+                [subject sendError:error];
+            }
         } error:^(NSError *error) {
              [subject sendError:error];
         }];
@@ -269,10 +302,18 @@
 - (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    
+    @weakify(self);
     [[self.remoteSync destroyRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-        [subject sendNext: x ? [self transformerProxyOfReponse:x] : nil];
-        [subject sendCompleted];
+        @strongify(self);
+        NSError * error = nil;
+        [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [subject sendNext:x];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
