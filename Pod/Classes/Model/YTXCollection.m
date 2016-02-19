@@ -140,7 +140,7 @@ typedef enum {
 #pragma mark remote
 
 /** 在拉到数据转mantle的时候用 */
-- (nullable NSArray *) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+- (nullable NSArray *) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error
 {
     return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:error];
 }
