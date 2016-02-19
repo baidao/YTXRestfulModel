@@ -224,9 +224,9 @@
     [[self.remoteSync fetchRemoteForeignWithName:name param:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self transformerProxyOfForeign: modelClass reponse:x error:&error];
+        id model = [self transformerProxyOfForeign: modelClass reponse:x error:&error];
         if (!error) {
-            [subject sendNext:self];
+            [subject sendNext:model];
             [subject sendCompleted];
         }
         else {
