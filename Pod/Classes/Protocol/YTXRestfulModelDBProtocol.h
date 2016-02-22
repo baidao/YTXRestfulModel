@@ -1,5 +1,5 @@
 //
-//  YTXRestfulModelLocalProtocol.h
+//  YTXRestfulModelDBProtocol.h
 //  YTXRestfulModel
 //
 //  Created by CaoJun on 16/1/19.
@@ -10,7 +10,7 @@
 #import <ReactiveCocoa/RACEXTScope.h>
 #import <Foundation/Foundation.h>
 
-@protocol YTXRestfulModelLocalProtocol <NSObject>
+@protocol YTXRestfulModelDBProtocol <NSObject>
 
 /** GET */
 - (nonnull RACSignal *) fetchLocal:(nullable NSDictionary *)param;
