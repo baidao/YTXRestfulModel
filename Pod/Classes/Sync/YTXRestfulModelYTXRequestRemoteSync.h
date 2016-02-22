@@ -6,7 +6,7 @@
 //  Copyright © 2016年 Elephants Financial Service. All rights reserved.
 //
 
-#import "YTXRestfulModelYTXRequestRemoteProtocol.h"
+#import "YTXRestfulModelRemoteProtocol.h"
 
 #import <Foundation/Foundation.h>
 
