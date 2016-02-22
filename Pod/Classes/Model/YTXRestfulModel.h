@@ -7,7 +7,7 @@
 //
 
 #import "YTXRestfulModelProtocol.h"
-#import "YTXRestfulModelUserDefaultCacheSync.h"
+#import "YTXRestfulModelUserDefaultStorageSync.h"
 #import "YTXRestfulModelYTXRequestRemoteSync.h"
 
 #import <Mantle/Mantle.h>
@@ -15,7 +15,7 @@
 
 @interface YTXRestfulModel : MTLModel <YTXRestfulModelProtocol, MTLJSONSerializing>
 
-@property (nonnull, nonatomic, strong) id<YTXRestfulModelUserDefaultCacheProtocol> cacheSync;
+@property (nonnull, nonatomic, strong) id<YTXRestfulModelStorageProtocol> storageSync;
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
 
 
@@ -30,17 +30,17 @@
 /** 方便的直接取主键的值*/
 - (nullable id) primaryValue;
 
-- (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
 
-- (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param;
 /** DELETE */
-- (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
 
-- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param;
 
-- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param;
 /** DELETE */
-- (nonnull RACSignal *) destroyCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param;
 
 /** 在拉到数据转mantle的时候用 */
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;

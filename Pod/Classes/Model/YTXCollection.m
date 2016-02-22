@@ -29,7 +29,7 @@ typedef enum {
 {
     if(self = [super init])
     {
-        self.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:[YTXRestfulModel class]];
+        self.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXRestfulModel class]];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
         self.modelClass = [YTXRestfulModel class];
         self.models = @[];
@@ -47,7 +47,7 @@ typedef enum {
 {
     if(self = [super init])
     {
-        self.cacheSync = [[YTXCollectionUserDefaultCacheSync alloc] initWithModelClass:modelClass userDefaultSuiteName:suiteName];
+        self.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:modelClass userDefaultSuiteName:suiteName];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
         self.modelClass = modelClass;
         self.models = @[];
@@ -55,14 +55,14 @@ typedef enum {
     return self;
 }
 
-#pragma mark cache
-- (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param
+#pragma mark storage
+- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.cacheSync fetchCache:param] subscribeNext:^(NSArray * x) {
+    [[self.storageSync fetchStorage:param] subscribeNext:^(NSArray * x) {
         @strongify(self);
-        //读cache就直接替换
+        //读storage就直接替换
         [self resetModels:x];
         [subject sendNext:self];
         [subject sendCompleted];
@@ -72,10 +72,10 @@ typedef enum {
     return subject;
 }
 
-- (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param
+- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    [[self.cacheSync saveCache:param withCollection:self.models] subscribeNext:^(id x) {
+    [[self.storageSync saveStorage:param withCollection:self.models] subscribeNext:^(id x) {
         [subject sendNext:self];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -85,10 +85,10 @@ typedef enum {
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param
+- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    [[self.cacheSync destroyCache:param] subscribeNext:^(id x) {
+    [[self.storageSync destroyStorage:param] subscribeNext:^(id x) {
         [subject sendNext:self];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -97,13 +97,13 @@ typedef enum {
     return subject;
 }
 
-- (RACSignal *)fetchCacheWithCacheKey:(NSString *)cacheKey withParam:(NSDictionary *)param
+- (RACSignal *)fetchStorageWithKey:(NSString *)storageKey withParam:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.cacheSync fetchCacheWithCacheKey:cacheKey withParam:param] subscribeNext:^(NSArray * x) {
+    [[self.storageSync fetchStorageWithKey:storageKey withParam:param] subscribeNext:^(NSArray * x) {
         @strongify(self);
-        //读cache就直接替换
+        //读storage就直接替换
         [self resetModels:x];
         [subject sendNext:self];
         [subject sendCompleted];
@@ -113,10 +113,10 @@ typedef enum {
     return subject;
 }
 
-- (RACSignal *)saveCacheWithCacheKey:(NSString *)cacheKey withParam:(NSDictionary *)param
+- (RACSignal *)saveStorageWithKey:(NSString *)storageKey withParam:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    [[self.cacheSync saveCacheWithCacheKey:cacheKey withParam:param withCollection:self.models] subscribeNext:^(id x) {
+    [[self.storageSync saveStorageWithKey:storageKey withParam:param withCollection:self.models] subscribeNext:^(id x) {
         [subject sendNext:self];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -125,10 +125,10 @@ typedef enum {
     return subject;
 }
 
-- (RACSignal *)destroyCacheWithCacheKey:(NSString *)cacheKey withParam:(NSDictionary *)param
+- (RACSignal *)destroyStorageWithKey:(NSString *)storageKey withParam:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    [[self.cacheSync destroyCacheWithCacheKey:cacheKey withParam:param] subscribeNext:^(id x) {
+    [[self.storageSync destroyStorageWithKey:storageKey withParam:param] subscribeNext:^(id x) {
         [subject sendNext:self];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -165,18 +165,18 @@ typedef enum {
 - (nonnull instancetype) addModels:(nonnull NSArray *) array
 {
     NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
-    
+
     [temp addObjectsFromArray:array];
-    
+
     return [self resetModels:temp];
 }
 
 - (nonnull instancetype) insertFrontModels:(nonnull NSArray *) array
 {
     NSMutableArray * temp = [NSMutableArray arrayWithArray:array];
-    
+
     [temp addObjectsFromArray:self.models];
-    
+
     return [self resetModels:temp];
 }
 
@@ -193,7 +193,7 @@ typedef enum {
     [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        
+
         NSArray * arr = [self transformerProxyOfReponse:x error:&error];
         if (!error) {
             [subject sendNext: RACTuplePack(self, arr) ];
@@ -202,7 +202,7 @@ typedef enum {
         else {
             [subject sendError:error];
         }
-        
+
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
@@ -216,7 +216,7 @@ typedef enum {
     [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        
+
         NSArray * arr = [self transformerProxyOfReponse:x error:&error];
         if (!error) {
             [self resetModels:arr];
@@ -240,7 +240,7 @@ typedef enum {
     [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        
+
         NSArray * arr = [self transformerProxyOfReponse:x error:&error];
         if (!error) {
             [self addModels:arr];
@@ -261,14 +261,14 @@ typedef enum {
     if (range.location + range.length > self.models.count) {
         return nil;
     }
-    
+
     return [self.models subarrayWithRange:range];
 }
 
 - (nullable YTXCollection *) collectionWithRange:(NSRange)range
 {
     NSArray * arr = [self arrayWithRange:range];
-    
+
     return arr ? [[[YTXCollection alloc] initWithModelClass:self.modelClass] addModels:arr] : nil;
 }
 
@@ -277,7 +277,7 @@ typedef enum {
     if (index < 0 || index >= self.models.count) {
         return nil;
     }
-    
+
     return self.models[index];
 }
 
@@ -310,7 +310,7 @@ typedef enum {
     if (self.models.count == 0 || self.models.count == index+1) {
         return [self addModel:model];
     }
-    
+
     if (index < 0 || index >= self.models.count) {
         return NO;
     }
@@ -326,7 +326,7 @@ typedef enum {
     if (self.models.count == 0) {
         return [self addModel:model];
     }
-    
+
     if (index < 0 || index >= self.models.count) {
         return NO;
     }
@@ -364,13 +364,13 @@ typedef enum {
 - (BOOL) removeModelWithModel:(nonnull YTXRestfulModel *) model
 {
     NSMutableArray * temp = [NSMutableArray arrayWithArray:self.models];
-    
+
     NSInteger index = [[self models] indexOfObject:model];
-    
+
     if (NSNotFound == index) {
         return NO;
     }
-    
+
     [temp removeObjectAtIndex:index];
     [self resetModels:temp];
     return YES;

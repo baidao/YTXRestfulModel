@@ -6,7 +6,7 @@
 //  Copyright © 2016年 Elephants Financial Service. All rights reserved.
 //
 
-#import "YTXCollectionUserDefaultCacheSync.h"
+#import "YTXCollectionUserDefaultStorageSync.h"
 #import "YTXRestfulModelYTXRequestRemoteSync.h"
 
 #import "YTXRestfulModel.h"
@@ -18,7 +18,7 @@
 @property (nonnull, nonatomic, assign) Class modelClass;
 @property (nonnull, nonatomic, strong, readonly) NSArray * models;
 
-@property (nonnull, nonatomic, strong) id<YTXCollectionCacheProtocol> cacheSync;
+@property (nonnull, nonatomic, strong) id<YTXCollectionStorageProtocol> storageSync;
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
 
 
@@ -26,17 +26,17 @@
 
 - (nonnull instancetype) initWithModelClass:(nonnull Class)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
 
-- (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
 
-- (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param;
 
-- (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
 /** GET */
-- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cacheKey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storageKey withParam:(nullable NSDictionary *)param;
 /** POST / PUT */
-- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cacheKey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storageKey withParam:(nullable NSDictionary *)param;
 /** DELETE */
-- (nonnull RACSignal *) destroyCacheWithCacheKey:(nonnull NSString *)cacheKey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey withParam:(nullable NSDictionary *)param;
 
 
 /* RACSignal return Tuple( self, Arrary<Model> ) **/

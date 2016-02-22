@@ -16,7 +16,7 @@
 {
     if(self = [super init])
     {
-        self.cacheSync = [YTXRestfulModelUserDefaultCacheSync new];
+        self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync syncWithPrimaryKey: [self syncPrimaryKey]];
     }
     return self;
@@ -33,7 +33,7 @@
     }
     //删除这个2个不必要的属性 可以用http://stackoverflow.com/questions/18961622/how-to-omit-null-values-in-json-dictionary-using-mantle这些方法，但是最合理的还是这个。
     [dictValue removeObjectForKey:@"remoteSync"];
-    [dictValue removeObjectForKey:@"cacheSync"];
+    [dictValue removeObjectForKey:@"storageSync"];
     return [dictValue copy];
 }
 
@@ -53,18 +53,18 @@
     }
     unsigned count;
     objc_property_t *modelProperties = class_copyPropertyList([model class], &count);
-    
+
     unsigned i;
     for (i = 0; i < count; i++)
     {
         objc_property_t modelProperty = modelProperties[i];
         NSString *modelPropertyName = [NSString stringWithUTF8String:property_getName(modelProperty)];
-        
+
         objc_property_t selfProperty = class_getProperty([self class], [modelPropertyName UTF8String]);
         NSString *selfPropertyName = [NSString stringWithUTF8String:property_getName(selfProperty)];
 
         id modelValue = [model valueForKey:modelPropertyName];
-        
+
         //我有这个属性，modelValue不等于空
         if (selfPropertyName && [selfPropertyName isEqualToString:modelPropertyName] && modelValue != nil) {
 
@@ -76,9 +76,9 @@
             }
         }
     }
-    
+
     free(modelProperties);
-    
+
     return self;
 }
 
@@ -104,12 +104,12 @@
 }
 
 
-#pragma mark cache
-- (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param
+#pragma mark storage
+- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.cacheSync fetchCache:param withMtlModel:self] subscribeNext:^(id x) {
+    [[self.storageSync fetchStorage:param withMtlModel:self] subscribeNext:^(id x) {
         @strongify(self);
         [self mergeWithAnother:x];
         [subject sendNext:self];
@@ -120,11 +120,11 @@
     return subject;
 }
 
-- (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param
+- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.cacheSync saveCache:param withMtlModel:self] subscribeNext:^(id x) {
+    [[self.storageSync saveStorage:param withMtlModel:self] subscribeNext:^(id x) {
         @strongify(self);
         [subject sendNext:self];
         [subject sendCompleted];
@@ -135,11 +135,11 @@
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param
+- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.cacheSync destroyCache:param withMtlModel:self] subscribeNext:^(id x) {
+    [[self.storageSync destroyStorage:param withMtlModel:self] subscribeNext:^(id x) {
         @strongify(self);
         [subject sendNext:self];
         [subject sendCompleted];
@@ -149,11 +149,11 @@
     return subject;
 }
 
-- (nonnull RACSignal *)fetchCacheWithCacheKey:(NSString *)cachekey withParam:(NSDictionary *)param
+- (nonnull RACSignal *)fetchStorageWithKey:(NSString *)storage withParam:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.cacheSync fetchCacheWithCacheKey:cachekey withParam:param withMtlModel:self] subscribeNext:^(id x) {
+    [[self.storageSync fetchStorageWithKey:storage withParam:param withMtlModel:self] subscribeNext:^(id x) {
         @strongify(self);
         [self mergeWithAnother:x];
         [subject sendNext:self];
@@ -164,14 +164,14 @@
     return subject;
 }
 
-- (nonnull RACSignal *)saveCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param
+- (nonnull RACSignal *)saveStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
 {
-    return [self.cacheSync saveCacheWithCacheKey:cachekey withParam:param withMtlModel:self];
+    return [self.storageSync saveStorageWithKey:storage withParam:param withMtlModel:self];
 }
 
-- (nonnull RACSignal *)destroyCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param
+- (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
 {
-    return [self.cacheSync destroyCacheWithKey:cachekey withParam:param withMtlModel:self];
+    return [self.storageSync destroyStorageWithKey:storage withParam:param withMtlModel:self];
 }
 
 #pragma mark remote
@@ -184,27 +184,27 @@
 - (nonnull NSDictionary *)mapParameters:(nonnull NSDictionary *)param
 {
     NSMutableDictionary * retDict = [NSMutableDictionary dictionary];
-    
+
     NSMutableDictionary *_JSONKeyPathsByPropertyKey = [[[self class] JSONKeyPathsByPropertyKey] copy];
-    
+
     NSString * mappedPropertyKey = nil;
-    
+
     for (NSString *key in param) {
-        
+
         mappedPropertyKey = _JSONKeyPathsByPropertyKey[key] ? : key;
-        
+
         retDict[mappedPropertyKey] = param[key];
     }
-    
+
     return retDict;
 }
 
 - (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param
 {
     NSDictionary * mapParam = [self mapParameters:param];
-    
+
     NSMutableDictionary *retDic = [[MTLJSONAdapter JSONDictionaryFromModel:self] mutableCopy];
-    
+
     for (NSString *key in mapParam) {
         retDic[key] = mapParam[key];
     }
@@ -295,7 +295,7 @@
              [subject sendError:error];
         }];
     }
-    
+
     return subject;
 }
 
@@ -317,7 +317,7 @@
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
-    
+
     return subject;
 }
 

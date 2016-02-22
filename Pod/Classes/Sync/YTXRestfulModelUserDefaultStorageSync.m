@@ -1,16 +1,16 @@
 //
-//  YTXRestfulModelUserDefaultCacheSync.m
+//  YTXRestfulModelUserDefaultStorageSync.m
 //  YTXRestfulModel
 //
 //  Created by CaoJun on 16/1/25.
 //  Copyright © 2016年 Elephants Financial Service. All rights reserved.
 //
 
-#import "YTXRestfulModelUserDefaultCacheSync.h"
+#import "YTXRestfulModelUserDefaultStorageSync.h"
 
 #import <Mantle/Mantle.h>
 
-@implementation YTXRestfulModelUserDefaultCacheSync
+@implementation YTXRestfulModelUserDefaultStorageSync
 
 - (nonnull instancetype) initWithUserDefaultSuiteName:(nullable NSString *) suiteName;
 {
@@ -21,85 +21,85 @@
 }
 
 
-- (nonnull RACSignal *) fetchCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
+- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
 {
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            NSDictionary * dict = [[[NSUserDefaults alloc] initWithSuiteName:self.userDefaultSuiteName] objectForKey:cachekey];
-            
+            NSDictionary * dict = [[[NSUserDefaults alloc] initWithSuiteName:self.userDefaultSuiteName] objectForKey:storage];
+
             NSError * error = nil;
             id data = [MTLJSONAdapter modelOfClass:[model class] fromJSONDictionary:dict error:&error];
-            
+
             if (error) {
                 [subscriber sendError:error];
-                
+
             } else {
                 [subscriber sendNext:data];
                 [subscriber sendCompleted];
             }
-            
+
         });
-        
+
         return nil;
     }];
 }
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveCacheWithCacheKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model
+- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model
 {
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             NSDictionary * json = [MTLJSONAdapter JSONDictionaryFromModel:model];
-            
-            [[[NSUserDefaults alloc] initWithSuiteName:self.userDefaultSuiteName] setObject:json forKey:cachekey];
-            
+
+            [[[NSUserDefaults alloc] initWithSuiteName:self.userDefaultSuiteName] setObject:json forKey:storage];
+
             [subscriber sendNext:model];
             [subscriber sendCompleted];
         });
-        
+
         return nil;
     }];
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyCacheWithKey:(nonnull NSString *)cachekey withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
+- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
 {
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [[[NSUserDefaults alloc] initWithSuiteName:self.userDefaultSuiteName] removeObjectForKey:cachekey];
-            
+            [[[NSUserDefaults alloc] initWithSuiteName:self.userDefaultSuiteName] removeObjectForKey:storage];
+
             [subscriber sendNext:model];
             [subscriber sendCompleted];
         });
-        
+
         return nil;
     }];
 }
 
 
 /** GET */
-- (nonnull RACSignal *) fetchCache:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
+- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model
 {
-    return [self fetchCacheWithCacheKey:[self cacheKeyWithMtlModel:model] withParam:param withMtlModel:model];
+    return [self fetchStorageWithKey:[self storageKeyWithMtlModel:model] withParam:param withMtlModel:model];
 }
 
-- (nonnull RACSignal *) saveCache:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model
+- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model
 {
-    return [self saveCacheWithCacheKey:[self cacheKeyWithMtlModel:model] withParam:param withMtlModel:model];
+    return [self saveStorageWithKey:[self storageKeyWithMtlModel:model] withParam:param withMtlModel:model];
 }
 /** DELETE */
-- (nonnull RACSignal *) destroyCache:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
+- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
 {
-    return [self destroyCacheWithKey:[self cacheKeyWithMtlModel:model] withParam:param withMtlModel:model];
+    return [self destroyStorageWithKey:[self storageKeyWithMtlModel:model] withParam:param withMtlModel:model];
 }
 
-- (nonnull NSString *) cacheKeyWithMtlModel:(nonnull MTLModel *) model
+- (nonnull NSString *) storageKeyWithMtlModel:(nonnull MTLModel *) model
 {
     return [NSString stringWithFormat:@"EFSModel+%@", NSStringFromClass([model class])];
 }
