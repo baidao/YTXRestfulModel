@@ -1,25 +1,25 @@
 PODS:
   - AFDownloadRequestOperation (2.0.1):
     - AFNetworking (~> 2.0)
-  - AFNetworking (2.5.4):
-    - AFNetworking/NSURLConnection (= 2.5.4)
-    - AFNetworking/NSURLSession (= 2.5.4)
-    - AFNetworking/Reachability (= 2.5.4)
-    - AFNetworking/Security (= 2.5.4)
-    - AFNetworking/Serialization (= 2.5.4)
-    - AFNetworking/UIKit (= 2.5.4)
-  - AFNetworking/NSURLConnection (2.5.4):
+  - AFNetworking (2.6.3):
+    - AFNetworking/NSURLConnection (= 2.6.3)
+    - AFNetworking/NSURLSession (= 2.6.3)
+    - AFNetworking/Reachability (= 2.6.3)
+    - AFNetworking/Security (= 2.6.3)
+    - AFNetworking/Serialization (= 2.6.3)
+    - AFNetworking/UIKit (= 2.6.3)
+  - AFNetworking/NSURLConnection (2.6.3):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/NSURLSession (2.5.4):
+  - AFNetworking/NSURLSession (2.6.3):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/Reachability (2.5.4)
-  - AFNetworking/Security (2.5.4)
-  - AFNetworking/Serialization (2.5.4)
-  - AFNetworking/UIKit (2.5.4):
+  - AFNetworking/Reachability (2.6.3)
+  - AFNetworking/Security (2.6.3)
+  - AFNetworking/Serialization (2.6.3)
+  - AFNetworking/UIKit (2.6.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - Kiwi (2.4.0)
@@ -33,16 +33,16 @@ PODS:
   - ReactiveCocoa/no-arc (2.3.1)
   - ReactiveCocoa/UI (2.3.1):
     - ReactiveCocoa/Core
-  - YTKNetwork (0.2.0):
+  - YTKNetwork (0.3.0):
     - AFDownloadRequestOperation (~> 2.0)
     - AFNetworking (~> 2.0)
-  - YTXRequest (0.1.5):
-    - AFNetworking (~> 2.5.4)
-    - YTKNetwork (~> 0.2.0)
-  - YTXRestfulModel (0.2.1):
+  - YTXRequest (0.1.6):
+    - AFNetworking (~> 2.6.3)
+    - YTKNetwork (~> 0.3.0)
+  - YTXRestfulModel (0.2.2):
     - Mantle (~> 1.5.4)
     - ReactiveCocoa (~> 2.3.1)
-    - YTXRequest (~> 0.1.5)
+    - YTXRequest (~> 0.1.6)
 
 DEPENDENCIES:
   - Kiwi
@@ -54,12 +54,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
-  AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
+  AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
   Mantle: a197db93e0f1e36194b1fdbc078219a8492eaef2
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
-  YTKNetwork: 8adc811cb3877e0d2993aa873d9869ac058bdb84
-  YTXRequest: a840036c1ed0bf1f1650fd5789daddca4482afbd
-  YTXRestfulModel: f5687dd936248fd03a6da3aa5ba92cafb63e8d72
+  YTKNetwork: 6c42c364ac9139bdd5659e4816fce29156ca8fa9
+  YTXRequest: d1551173e808e41b6c3e858a554c1d83772abbaf
+  YTXRestfulModel: a0ad5bb8e68384795b6e4bd3d2fa8664279c8601
 
 COCOAPODS: 0.39.0
