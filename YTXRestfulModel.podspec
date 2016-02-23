@@ -39,4 +39,6 @@ Pod::Spec.new do |s|
   s.dependency 'YTXRequest', '~> 0.1.6'
   s.dependency 'Mantle', '~> 1.5.4'
   s.dependency 'ReactiveCocoa', '~> 2.3.1'
+  s.dependency 'FMDB', '~> 2.6'
+  s.dependency 'FMDB/FTS'
 end

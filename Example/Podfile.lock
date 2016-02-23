@@ -22,6 +22,11 @@ PODS:
   - AFNetworking/UIKit (2.6.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - FMDB (2.6):
+    - FMDB/standard (= 2.6)
+  - FMDB/FTS (2.6):
+    - FMDB/standard
+  - FMDB/standard (2.6)
   - Kiwi (2.4.0)
   - Mantle (1.5.6):
     - Mantle/extobjc (= 1.5.6)
@@ -40,6 +45,8 @@ PODS:
     - AFNetworking (~> 2.6.3)
     - YTKNetwork (~> 0.3.0)
   - YTXRestfulModel (0.2.2):
+    - FMDB (~> 2.6)
+    - FMDB/FTS
     - Mantle (~> 1.5.4)
     - ReactiveCocoa (~> 2.3.1)
     - YTXRequest (~> 0.1.6)
@@ -55,11 +62,12 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
+  FMDB: c1968bab3ab0aed38f66cb778ae1e7fa9a652b6e
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
   Mantle: a197db93e0f1e36194b1fdbc078219a8492eaef2
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
   YTKNetwork: 6c42c364ac9139bdd5659e4816fce29156ca8fa9
   YTXRequest: d1551173e808e41b6c3e858a554c1d83772abbaf
-  YTXRestfulModel: a0ad5bb8e68384795b6e4bd3d2fa8664279c8601
+  YTXRestfulModel: e64220347daeca1a6e41c416559290f3fdccc61b
 
 COCOAPODS: 0.39.0
