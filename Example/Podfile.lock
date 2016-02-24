@@ -41,10 +41,10 @@ PODS:
   - YTKNetwork (0.3.0):
     - AFDownloadRequestOperation (~> 2.0)
     - AFNetworking (~> 2.0)
-  - YTXRequest (0.1.6):
+  - YTXRequest (0.1.7):
     - AFNetworking (~> 2.6.3)
     - YTKNetwork (~> 0.3.0)
-  - YTXRestfulModel (0.2.2):
+  - YTXRestfulModel (0.3.0):
     - FMDB (~> 2.6)
     - FMDB/FTS
     - Mantle (~> 1.5.4)
@@ -67,7 +67,7 @@ SPEC CHECKSUMS:
   Mantle: a197db93e0f1e36194b1fdbc078219a8492eaef2
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
   YTKNetwork: 6c42c364ac9139bdd5659e4816fce29156ca8fa9
-  YTXRequest: d1551173e808e41b6c3e858a554c1d83772abbaf
-  YTXRestfulModel: e64220347daeca1a6e41c416559290f3fdccc61b
+  YTXRequest: af02c852225b7c740a85f4ca0f3d09402949e2b4
+  YTXRestfulModel: 3a3bc2c79498f2267e399eda34fa2adcb0c33c6d
 
 COCOAPODS: 0.39.0
