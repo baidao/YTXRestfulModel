@@ -12,7 +12,6 @@
 #import <YTXRequest/YTXRequest.h>
 
 #import <YTXRestfulModel/YTXRestfulModelUserDefaultStorageSync.h>
-#import <YTXRestfulModel/YTXCollectionUserDefaultStorageSync.h>
 
 static NSString * suitName1 = @"com.baidao.test";
 static NSString * suitName2 = @"com.baidao.ppp";
@@ -261,10 +260,10 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         beforeAll(^{
             //清空以便测试
             YTXTestCollection *collection1 = [YTXTestCollection new];
-            collection1.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
+            collection1.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName1];
 
             YTXTestCollection *collection2 = [YTXTestCollection new];
-            collection2.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
+            collection2.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName2];
 
             YTXTestCollection *collection3 = [YTXTestCollection new];
 
@@ -276,7 +275,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         it(@"保存缓存成功，自定义storageKey", ^{
             YTXTestCollection *collection1 = [YTXTestCollection new];
             __block YTXTestCollection *ret1 = nil;
-            [[collection1 saveStorageWithKey:@"storageKey1" withParam:nil] subscribeNext:^(id x) {
+            [[collection1 saveStorageWithKey:@"storageKey1" param:nil] subscribeNext:^(id x) {
                 ret1 = x;
             } error:^(NSError *error) {
 
@@ -293,8 +292,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestModel *model4 = [[YTXTestModel alloc] init];
             [collection addModels:@[model1, model2, model3, model4]];
             __block YTXTestCollection *ret = nil;
-            [[[collection saveStorageWithKey:@"storageKey1" withParam:nil] flattenMap:^RACStream *(id value) {
-                return [collection fetchStorageWithKey:@"storageKey1" withParam:nil];
+            [[[collection saveStorageWithKey:@"storageKey1" param:nil] flattenMap:^RACStream *(id value) {
+                return [collection fetchStorageWithKey:@"storageKey1" param:nil];
             }] subscribeNext:^(id x) {
                 ret = x;
             }];
@@ -309,8 +308,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model.keyId = @1;
             [collection addModels:@[model]];
             __block YTXTestCollection *ret = [YTXTestCollection new];
-            [[collection saveStorageWithKey:@"storageKey3" withParam:nil] subscribeNext:^(id x) {
-                [ret fetchStorageWithKey:@"storageKey3" withParam:nil];
+            [[collection saveStorageWithKey:@"storageKey3" param:nil] subscribeNext:^(id x) {
+                [ret fetchStorageWithKey:@"storageKey3" param:nil];
             }];
 
             [[expectFutureValue(((YTXTestModel *)ret.models.firstObject).keyId) shouldEventually] equal:model.keyId];
@@ -319,7 +318,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         it(@"删除缓存成功，使用storageKey", ^{
             YTXTestCollection *collection = [YTXTestCollection new];
             __block YTXTestModel *ret = nil;
-            [[collection destroyStorageWithKey:@"storageKey4" withParam:nil] subscribeNext:^(id x) {
+            [[collection destroyStorageWithKey:@"storageKey4" param:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -335,12 +334,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestCollection *collection2 = [YTXTestCollection new];
             __block YTXTestCollection *collection3 = [YTXTestCollection new];
 
-            [[[[[collection1 saveStorageWithKey:@"storageKey5" withParam:nil] flattenMap:^RACStream *(id value) {
-                return [collection2 fetchStorageWithKey:@"storageKey5" withParam:nil];
+            [[[[[collection1 saveStorageWithKey:@"storageKey5" param:nil] flattenMap:^RACStream *(id value) {
+                return [collection2 fetchStorageWithKey:@"storageKey5" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection1 destroyStorageWithKey:@"storageKey5" withParam:nil];
+                return [collection1 destroyStorageWithKey:@"storageKey5" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection3 fetchStorageWithKey:@"storageKey5" withParam:nil];
+                return [collection3 fetchStorageWithKey:@"storageKey5" param:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -354,8 +353,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
             __block NSError *ret = nil;
 
-            [[collection1 saveStorageWithKey:@"key6" withParam:nil] subscribeNext:^(id x) {
-                [[collection2 fetchStorageWithKey:@"abc" withParam:nil] subscribeError:^(NSError *error) {
+            [[collection1 saveStorageWithKey:@"key6" param:nil] subscribeNext:^(id x) {
+                [[collection2 fetchStorageWithKey:@"abc" param:nil] subscribeError:^(NSError *error) {
                     ret = error;
                 }];
             }] ;
@@ -377,12 +376,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestCollection *collection4 = [YTXTestCollection new];
 
 
-            [[[[[collection1 saveStorageWithKey:@"key111" withParam:nil] flattenMap:^RACStream *(id value) {
-                return [collection2 saveStorageWithKey:@"key222" withParam:nil];
+            [[[[[collection1 saveStorageWithKey:@"key111" param:nil] flattenMap:^RACStream *(id value) {
+                return [collection2 saveStorageWithKey:@"key222" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection3 fetchStorageWithKey:@"key111" withParam:nil];
+                return [collection3 fetchStorageWithKey:@"key111" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection4 fetchStorageWithKey:@"key222" withParam:nil];
+                return [collection4 fetchStorageWithKey:@"key222" param:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -485,17 +484,17 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
         it(@"更换UserDefalut的group", ^{
             YTXTestCollection *collection1 = [YTXTestCollection new];
-            collection1.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
+            collection1.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName1];
             [collection1 addModels:@[[YTXTestModel new]]];
 
             YTXTestCollection *collection2 = [YTXTestCollection new];
-            collection2.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
+            collection2.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName2];
 
             YTXTestCollection *collection3 = [YTXTestCollection new];
-            collection3.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName1];
+            collection3.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName1];
 
             YTXTestCollection *collection4 = [YTXTestCollection new];
-            collection4.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXTestModel class] userDefaultSuiteName:suitName2];
+            collection4.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName2];
 
             [[[[collection1 saveStorage:nil] flattenMap:^RACStream *(id value) {
                 return [collection3 fetchStorage:nil];

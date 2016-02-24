@@ -29,7 +29,7 @@ typedef enum {
 {
     if(self = [super init])
     {
-        self.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:[YTXRestfulModel class]];
+        self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
         self.modelClass = [YTXRestfulModel class];
         self.models = @[];
@@ -47,7 +47,7 @@ typedef enum {
 {
     if(self = [super init])
     {
-        self.storageSync = [[YTXCollectionUserDefaultStorageSync alloc] initWithModelClass:modelClass userDefaultSuiteName:suiteName];
+        self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
         self.modelClass = modelClass;
         self.models = @[];
@@ -58,53 +58,49 @@ typedef enum {
 #pragma mark storage
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync fetchStorage:param] subscribeNext:^(NSArray * x) {
-        @strongify(self);
-        //读storage就直接替换
-        [self resetModels:x];
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self fetchStorageWithKey:[self storageKey] param:param];
 }
 
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    [[self.storageSync saveStorage:param withCollection:self.models] subscribeNext:^(id x) {
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self saveStorageWithKey:[self storageKey] param:param];
 }
 
 /** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    [[self.storageSync destroyStorage:param] subscribeNext:^(id x) {
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
-}
+    return [self destroyStorageWithKey:[self storageKey] param:param];}
 
-- (RACSignal *)fetchStorageWithKey:(NSString *)storageKey withParam:(NSDictionary *)param
+- (RACSignal *)fetchStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.storageSync fetchStorageWithKey:storageKey withParam:param] subscribeNext:^(NSArray * x) {
+    [[self.storageSync fetchStorageWithKey:storageKey param:param] subscribeNext:^(NSArray * x) {
         @strongify(self);
         //读storage就直接替换
-        [self resetModels:x];
+        NSError * error = nil;
+        NSArray * ret = [self transformerProxyOfReponse:x error:&error];
+        
+        if (!error) {
+            [self resetModels:ret];
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (RACSignal *)saveStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.storageSync saveStorageWithKey:storageKey withObject:[self transformerProxyOfModels:[self.models copy]] param:param] subscribeNext:^(id x) {
+        @strongify(self);
         [subject sendNext:self];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -113,10 +109,12 @@ typedef enum {
     return subject;
 }
 
-- (RACSignal *)saveStorageWithKey:(NSString *)storageKey withParam:(NSDictionary *)param
+- (RACSignal *)destroyStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    [[self.storageSync saveStorageWithKey:storageKey withParam:param withCollection:self.models] subscribeNext:^(id x) {
+    @weakify(self);
+    [[self.storageSync destroyStorageWithKey:storageKey param:param] subscribeNext:^(id x) {
+        @strongify(self);
         [subject sendNext:self];
         [subject sendCompleted];
     } error:^(NSError *error) {
@@ -125,24 +123,23 @@ typedef enum {
     return subject;
 }
 
-- (RACSignal *)destroyStorageWithKey:(NSString *)storageKey withParam:(NSDictionary *)param
+- (nonnull NSString *) storageKey
 {
-    RACSubject * subject = [RACSubject subject];
-    [[self.storageSync destroyStorageWithKey:storageKey withParam:param] subscribeNext:^(id x) {
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [NSString stringWithFormat:@"EFSCollection+%@", NSStringFromClass(self.modelClass)];
 }
 
 #pragma mark remote
 
 /** 在拉到数据转mantle的时候用 */
-- (nullable NSArray *) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error
+- (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfReponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error
 {
     return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:error];
+}
+     
+    /** 在拉到数据转mantle的时候用 */
+- (nullable NSArray<NSDictionary *> *) transformerProxyOfModels:(nonnull NSArray< id<MTLJSONSerializing> > *) array
+{
+    return [MTLJSONAdapter JSONArrayFromModels:array];
 }
 
 - (nonnull instancetype) removeAllModels

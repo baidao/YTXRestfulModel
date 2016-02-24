@@ -6,7 +6,7 @@
 //  Copyright © 2016年 Elephants Financial Service. All rights reserved.
 //
 
-#import "YTXCollectionUserDefaultStorageSync.h"
+#import "YTXRestfulModelUserDefaultStorageSync.h"
 #import "YTXRestfulModelYTXRequestRemoteSync.h"
 
 #import "YTXRestfulModel.h"
@@ -18,7 +18,7 @@
 @property (nonnull, nonatomic, assign) Class modelClass;
 @property (nonnull, nonatomic, strong, readonly) NSArray * models;
 
-@property (nonnull, nonatomic, strong) id<YTXCollectionStorageProtocol> storageSync;
+@property (nonnull, nonatomic, strong) id<YTXRestfulModelStorageProtocol> storageSync;
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
 
 
@@ -32,11 +32,11 @@
 
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
 /** GET */
-- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storageKey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 /** POST / PUT */
-- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storageKey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 /** DELETE */
-- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 
 
 /* RACSignal return Tuple( self, Arrary<Model> ) **/
@@ -48,7 +48,10 @@
 /* RACSignal return self **/
 - (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
 
-- (nullable NSArray *) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+- (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfReponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error;
+
+/** 在拉到数据转mantle的时候用 */
+- (nullable NSArray<NSDictionary *> *) transformerProxyOfModels:(nonnull NSArray< id<MTLJSONSerializing> > *) array;
 
 /** 注入自己时使用 */
 - (nonnull instancetype) removeAllModels;

@@ -17,22 +17,13 @@
 
 - (nonnull instancetype) initWithUserDefaultSuiteName:(nullable NSString *) suiteName;
 
-- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
+/** GET */
+- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param;
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model;
+- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storage withObject:(nonnull id<NSCoding>)object param:(nullable NSDictionary *) param;
 
 /** DELETE */
-- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
-
-
-/** GET */
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
-
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel<MTLJSONSerializing> *) model;
-/** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param withMtlModel:(nonnull MTLModel *) model;
-
-- (nonnull NSString *) storageKeyWithMtlModel:(nonnull MTLModel *) model;
+- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param;
 
 @end

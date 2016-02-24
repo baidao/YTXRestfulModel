@@ -88,57 +88,35 @@
 #pragma mark storage
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync fetchStorage:param withMtlModel:self] subscribeNext:^(id x) {
-        @strongify(self);
-        [self mergeWithAnother:x];
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self fetchStorageWithKey:[self storageKey] withParam:param];
 }
 
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync saveStorage:param withMtlModel:self] subscribeNext:^(id x) {
-        @strongify(self);
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self saveStorageWithKey:[self storageKey] withParam:param];
 }
 
 /** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync destroyStorage:param withMtlModel:self] subscribeNext:^(id x) {
-        @strongify(self);
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self destroyStorageWithKey:[self storageKey] withParam:param];
 }
 
 - (nonnull RACSignal *)fetchStorageWithKey:(NSString *)storage withParam:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.storageSync fetchStorageWithKey:storage withParam:param withMtlModel:self] subscribeNext:^(id x) {
+    [[self.storageSync fetchStorageWithKey:storage param: param] subscribeNext:^(NSDictionary * x) {
         @strongify(self);
-        [self mergeWithAnother:x];
-        [subject sendNext:self];
-        [subject sendCompleted];
+        NSError * error = nil;
+        [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
@@ -147,12 +125,35 @@
 
 - (nonnull RACSignal *)saveStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
 {
-    return [self.storageSync saveStorageWithKey:storage withParam:param withMtlModel:self];
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.storageSync saveStorageWithKey:storage withObject:[self mergeSelfAndParameters:param] param: param] subscribeNext:^(NSDictionary * x) {
+        @strongify(self);
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
 }
 
 - (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
 {
-    return [self.storageSync destroyStorageWithKey:storage withParam:param withMtlModel:self];
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.storageSync destroyStorageWithKey:storage param: param] subscribeNext:^(NSDictionary * x) {
+        @strongify(self);
+        [subject sendNext:self];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull NSString *) storageKey
+{
+    return [NSString stringWithFormat:@"EFSModel+%@", NSStringFromClass([self class])];
 }
 
 #pragma mark remote

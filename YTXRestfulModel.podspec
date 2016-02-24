@@ -8,14 +8,14 @@
 
 Pod::Spec.new do |s|
   s.name             = "YTXRestfulModel"
-  s.version          = "0.2.3"
+  s.version          = "0.3.0"
   s.summary          = "YTXRestfulModel 提供了restful的功能"
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
 #   * Try to keep it short, snappy and to the point.
 #   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!  
+#   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description      = "提供了restful的model和collection以及实现。依赖了Mantle，ReativeCocoa，YTXRequest。"
 
   s.homepage         = "http://gitlab.baidao.com/ios/YTXRestfulModel"
