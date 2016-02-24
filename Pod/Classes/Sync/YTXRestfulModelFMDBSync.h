@@ -54,6 +54,7 @@ TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
 @class FMDatabase;
 @class FMDatabaseQueue;
 
+
 @interface YTXRestfulModelFMDBSync : NSObject <YTXRestfulModelDBProtocol>
 
 @property (nonatomic, strong, readonly, nonnull) FMDatabase * fmdb;
@@ -80,25 +81,60 @@ TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
 //操作将会保证在migration之后进行
 
 /** GET Model with primary key */
-- (nonnull RACSignal *) fetch:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param;
 
 /** POST Model with primary key */
-- (nonnull RACSignal *) create:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) createOne:(nullable NSDictionary *)param;
 
 /** PUT Model with primary key */
-- (nonnull RACSignal *) update:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) updateOne:(nullable NSDictionary *)param;
 
 /** DELETE Model with primary key */
-- (nonnull RACSignal *) destroy:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param;
 
 /** GET Foreign Model with primary key */
-- (nonnull RACSignal *) fetchForeignModelWithPrimaryKeyValue:(nonnull id) primaryKeyValue foreignName:(nonnull NSString *)foreignName param:(nullable NSDictionary *)param;
+//- (nonnull RACSignal *) fetchForeignModelWithPrimaryKeyValue:(nonnull id) primaryKeyValue foreignTableName:(nonnull NSString *)foreignTableName param:(nullable NSDictionary *)param;
 
-/** GET Models {@"name": @"= CJ", @"old":">= 10"}*/
-- (nonnull RACSignal *) fetchModelsWithConditionOfKeyValue:(nullable NSDictionary *) dictionary;
+/** ORDER BY primaryKey ASC*/
+- (nonnull RACSignal *) fetchAll;
 
-/** GET Models {@"name": @"= CJ", @"old":">= 10"}*/
-- (nonnull RACSignal *) fetchModelsWithConditionOfKeyValue:(nullable NSDictionary *) dictionary start:(NSUInteger) start limit:(NSUInteger) limit;
+- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+
+- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start limit:(NSUInteger) limit soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSString * ) condition, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count condtions:(nonnull NSString * ) condition, ...;
+
+/**
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName condtions:(nonnull NSString * ) condition, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * ) condition, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count  condtions:(nonnull NSString * ) condition, ...;
+
+/**
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName condtions:(nonnull NSString * ) condition, ...;
 
 
 //Migration
@@ -106,7 +142,7 @@ TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
 /** 数字越大越后面执行*/
 
 /** 返回当前版本*/
-@property (nonatomic, strong, readonly, nonnull) NSMutableArray * migrationBlocks;
+@property (nonatomic, strong, readonly, nonnull) NSMutableArray<YTXRestfulModelDBMigrationEntity *> * migrationBlocks;
 
 /** 大于currentMigrationVersion将会依次执行*/
 - (void) migrate:(nonnull YTXRestfulModelDBMigrationEntity *) entity;
@@ -121,5 +157,11 @@ TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
 
 + (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct;
 + (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value;
+
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key equal:(nonnull id) value;
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key greatThan:(nonnull id) value;
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key greatThanOrEqaul:(nonnull id) value;
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key lessThan:(nonnull id) value;
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key lessThanOrEqual:(nonnull id) value;
 
 @end

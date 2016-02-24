@@ -10,6 +10,16 @@
 #import <ReactiveCocoa/RACEXTScope.h>
 #import <Foundation/Foundation.h>
 
+typedef enum : NSUInteger {
+    YTXRestfulModelDBErrorCodeNotFound = -100
+} YTXRestfulModelDBErrorCode;
+
+typedef enum : NSUInteger {
+    //升序
+    YTXRestfulModelDBSortByDESC,
+    //降序
+    YTXRestfulModelDBSortByASC
+} YTXRestfulModelDBSortBy;
 
 struct YTXRestfulModelDBSerializingStruct {
     /** 数据类型 */
@@ -31,8 +41,8 @@ struct YTXRestfulModelDBSerializingStruct {
 
 @protocol YTXRestfulModelDBSerializing <NSObject>
 
-/** NSSet<YTXRestfulModelDBSerializingStruct>  */
-+ (nullable NSDictionary *) tableKeyPathsByPropertyKey;
+/** NSDictionary<ColumnName, NSValue(YTXRestfulModelDBSerializingStruct)> */
++ (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
 
 + (nullable NSNumber *) currentMigrationVersion;
 
@@ -79,25 +89,63 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 //操作将会保证在migration之后进行
 
 /** GET Model with primary key */
-- (nonnull RACSignal *) fetch:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param;
 
 /** POST Model with primary key */
-- (nonnull RACSignal *) create:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) createOne:(nullable NSDictionary *)param;
 
 /** PUT Model with primary key */
-- (nonnull RACSignal *) update:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) updateOne:(nullable NSDictionary *)param;
 
 /** DELETE Model with primary key */
-- (nonnull RACSignal *) destroy:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param;
 
 /** GET Foreign Model with primary key */
-- (nonnull RACSignal *) fetchForeignModelWithName:(nonnull NSString *)foreignName param:(nullable NSDictionary *)param;
+//- (nonnull RACSignal *) fetchForeignModelWithPrimaryKeyValue:(nonnull id) primaryKeyValue foreignTableName:(nonnull NSString *)foreignTableName param:(nullable NSDictionary *)param;
 
-/** GET Models {@"name": @"= CJ", @"old":">= 10"}*/
-- (nonnull RACSignal *) fetchModelsWithConditionOfKeyValue:(nullable NSDictionary *) dictionary;
+/** DELETE All Model with primary key */
+- (nonnull RACSignal *) destroyAll;
 
-/** GET Models {@"name": @"= CJ", @"old":">= 10"}*/
-- (nonnull RACSignal *) fetchModelsWithConditionOfKeyValue:(nullable NSDictionary *) dictionary start:(NSUInteger) start limit:(NSUInteger) limit;
+/** ORDER BY primaryKey ASC*/
+- (nonnull RACSignal *) fetchAll;
+
+- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+
+- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start limit:(NSUInteger) limit soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSString * ) condition, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count condtions:(nonnull NSString * ) condition, ...;
+
+/**
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName condtions:(nonnull NSString * ) condition, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * ) condition, ...;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count  condtions:(nonnull NSString * ) condition, ...;
+
+/**
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName condtions:(nonnull NSString * ) condition, ...;
 
 
 //Migration
@@ -105,7 +153,7 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 /** 数字越大越后面执行*/
 
 /** 返回当前版本*/
-@property (nonatomic, strong, readonly, nonnull) NSArray * migrationBlocks;
+@property (nonatomic, strong, readonly, nonnull) NSMutableArray<YTXRestfulModelDBMigrationEntity *> * migrationBlocks;
 
 /** 大于currentMigrationVersion将会依次执行，数字越大越后执行*/
 - (void) migrate:(nonnull YTXRestfulModelDBMigrationEntity *) entity;
