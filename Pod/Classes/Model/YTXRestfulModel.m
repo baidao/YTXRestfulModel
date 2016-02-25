@@ -56,34 +56,14 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     if ([self class] != [model class]){
         return self;
     }
-    unsigned count;
-    objc_property_t *modelProperties = class_copyPropertyList([model class], &count);
-
-    unsigned i;
-    for (i = 0; i < count; i++)
-    {
-        objc_property_t modelProperty = modelProperties[i];
-        NSString *modelPropertyName = [NSString stringWithUTF8String:property_getName(modelProperty)];
-
-        objc_property_t selfProperty = class_getProperty([self class], [modelPropertyName UTF8String]);
-        NSString *selfPropertyName = [NSString stringWithUTF8String:property_getName(selfProperty)];
-
-        id modelValue = [model valueForKey:modelPropertyName];
-
-        //我有这个属性，modelValue不等于空
-        if (selfPropertyName && [selfPropertyName isEqualToString:modelPropertyName] && modelValue != nil) {
-
-            const char * modelPropertyType =property_getAttributes(modelProperty);
-            const char * selfPropertyType =property_getAttributes(selfProperty);
-            //类型也一样
-            if (modelPropertyType == selfPropertyType) {
-                [self setValue:modelValue forKey:selfPropertyName];
-            }
+    NSSet * keys = [[self class] propertyKeys];
+    
+    for (NSString * key in keys) {
+        id value = [model valueForKey:key];
+        if (value) {
+            [self setValue:value forKey:key];
         }
     }
-
-    free(modelProperties);
-
     return self;
 }
 
