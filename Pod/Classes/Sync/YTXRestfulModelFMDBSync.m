@@ -195,74 +195,83 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** GET Model with primary key */
 - (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param
 {
+    id value = param[self.primaryKey];
+    NSAssert(value != nil,@"必须在param找到主键的value");
+    return [self _fetchOneWithSqliteString:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]]];
+}
+
+- (BOOL) _isExitWithDB:(nonnull FMDatabase *) db primaryKeyValue:(nonnull id) value
+{
+    BOOL exist = NO;
+    FMResultSet* rs = [db executeQuery:[self sqlForSelectOneWithPrimaryKeyValue:value]];
+    
+    if ([rs next]) {
+        exist = YES;
+    }
+    
+    [rs close];
+    
+    return exist;
+}
+
+- (nonnull RACSignal *) saveOne:(nullable NSDictionary *)param
+{
     RACSubject * subject = [RACSubject subject];
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         id value = param[self.primaryKey];
-        NSAssert(value != nil,@"必须在param找到主键的value");
-        NSError * error;
-        
-        FMResultSet* rs = [db executeQuery:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]]];
-        
-        NSDictionary * ret = [self dictionaryWithFMResultSet:rs error:&error];
-        
-        if (error) {
-            *rollback = YES;
-            [subject sendError:error];
-            return;
-        }
-        if (!ret) {
-            [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
-            return;
-        }
-        
-        [subject sendNext:ret];
-        [subject sendCompleted];
-        
-
-    }];
-    
-    return subject;
-}
-
-/** POST Model with primary key */
-- (nonnull RACSignal *) createOne:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    
-    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         NSError *error = nil;
-        [db executeUpdate:[self sqlForCreateOneWithParam:param] withErrorAndBindings:&error];
+        if (value == nil || ![self _isExitWithDB:db primaryKeyValue:value]) {
+            //不存在 需要创建
+            [db executeUpdate:[self sqlForCreateOneWithParam:param] withErrorAndBindings:&error];
+        }
+        else {
+            //存在 更新
+            [db executeUpdate:[self sqlForUpdateOneWithParam:param[self.primaryKey]] withErrorAndBindings:&error];
+        }
         if (!error) {
-            [subject sendNext:nil];
+            NSString * sqliteString = nil;
+            if (value != nil){
+                // 有主键，再把结果查出来
+                sqliteString = [self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]];
+            }
+            else {
+                // 没有主键
+                sqliteString = [self sqlForSelectLatestOneOrderBy:self.primaryKey];
+                
+                //                NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+                
+                //                NSValue * primaryKeyStructValue = map[self.primaryKey];
+                //
+                //                struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = [YTXRestfulModelFMDBSync structWithValue:primaryKeyStructValue];
+                //                if (primaryKeyStruct.autoincrement) {
+                //                    //自增的情况下
+                //                }
+                //                else {
+                //
+                //                }
+            }
+            
+            FMResultSet* rs = [db executeQuery:sqliteString];
+            NSDictionary * ret = [self dictionaryWithFMResultSet:rs error:&error];;
+            if (error) {
+                [subject sendError:error];
+                return;
+            }
+            if (!ret) {
+                [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
+                return;
+            }
+            
+            [subject sendNext:ret];
             [subject sendCompleted];
+
         }
         else {
             *rollback = YES;
             [subject sendError:error];
         }
-    }];
-    
-    return subject;
-}
 
-/** PUT Model with primary key */
-- (nonnull RACSignal *) updateOne:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    
-    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSAssert(param[self.primaryKey] != nil,@"必须在param找到主键的value");
-        NSError *error = nil;
-        [db executeUpdate:[self sqlForUpdateOneWithParam:param[self.primaryKey]] withErrorAndBindings:&error];
-        if (!error) {
-            [subject sendNext:nil];
-            [subject sendCompleted];
-        }
-        else {
-            *rollback = YES;
-            [subject sendError:error];
-        }
     }];
     
     return subject;
@@ -312,6 +321,47 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return subject;
 }
 
+
+/** GET */
+- (nonnull RACSignal *) fetchTopOne
+{
+    return [self _fetchOneWithSqliteString: [self sqlForSelectTopOneOrderBy:self.primaryKey] ];
+}
+
+/** GET */
+- (nonnull RACSignal *) fetchLatestOne
+{
+    return [self _fetchOneWithSqliteString: [self sqlForSelectLatestOneOrderBy:self.primaryKey] ];
+}
+
+- (nonnull RACSignal *) _fetchOneWithSqliteString:(nonnull NSString *) sqlitString
+{
+    RACSubject * subject = [RACSubject subject];
+    
+    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
+        NSError * error;
+        
+        FMResultSet* rs = [db executeQuery:sqlitString];
+        
+        NSDictionary * ret = [self dictionaryWithFMResultSet:rs error:&error];
+        
+        if (error) {
+            *rollback = YES;
+            [subject sendError:error];
+            return;
+        }
+        if (!ret) {
+            [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
+            return;
+        }
+        
+        [subject sendNext:ret];
+        [subject sendCompleted];
+        
+    }];
+    
+    return subject;
+}
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull RACSignal *) fetchAll
@@ -610,6 +660,16 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSString * valueString = [(NSObject *)value sqliteValue];
     
     return [NSString stringWithFormat:@"SELECT 1 FROM %@ WHERE %@=%@", [self tableName], [self primaryKey], valueString];
+}
+
+- (nonnull NSString *) sqlForSelectTopOneOrderBy:(nonnull NSString *) name
+{
+    return [NSString stringWithFormat:@"SELECT TOP 1 * FROM %@ ORDER BY %@", [self tableName], name];
+}
+
+- (nonnull NSString *) sqlForSelectLatestOneOrderBy:(nonnull NSString *) name
+{
+    return [NSString stringWithFormat:@"SELECT TOP 1 * FROM %@ ORDER BY %@ DESC", [self tableName], name];
 }
 
 - (nonnull NSString *) sqlForCreateOneWithParam:(NSDictionary *) param

@@ -9,14 +9,16 @@
 #import "YTXRestfulModelProtocol.h"
 #import "YTXRestfulModelUserDefaultStorageSync.h"
 #import "YTXRestfulModelYTXRequestRemoteSync.h"
+#import "YTXRestfulModelFMDBSync.h"
 
 #import <Mantle/Mantle.h>
 #import <Foundation/Foundation.h>
 
-@interface YTXRestfulModel : MTLModel <YTXRestfulModelProtocol, MTLJSONSerializing>
+@interface YTXRestfulModel : MTLModel <YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>
 
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelStorageProtocol> storageSync;
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
+@property (nonnull, nonatomic, strong) id<YTXRestfulModelDBProtocol> dbSync;
 
 
 - (nonnull instancetype) mergeWithAnother:(_Nonnull id) model;
@@ -25,7 +27,7 @@
 - (BOOL) isNew;
 
 /** 需要告诉我主键是什么，子类也应当实现 */
-- (nonnull NSString *) primaryKey;
++ (nonnull NSString *) primaryKey;
 
 /** 方便的直接取主键的值*/
 - (nullable id) primaryValue;
@@ -54,10 +56,34 @@
 /** :id/comment 这种形式的时候使用GET; modelClass is MTLModel*/
 - (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
 
+/** GET */
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
 
+/** POST / PUT */
 - (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param;
 /** DELETE */
 - (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param;
+
+
+// DB
+
++ (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
+
++ (nullable NSNumber *) currentMigrationVersion;
+
+/** GET */
+- (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param;
+
+/**
+  * POST / PUT
+  * 数据库不存在时创建，否则更新
+  * 更新必须带主键
+  */
+- (nonnull RACSignal *) saveDB:(nullable NSDictionary *)param;
+
+
+/** DELETE */
+- (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param;
+
 
 @end

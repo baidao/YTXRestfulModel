@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 
 typedef enum : NSUInteger {
-    YTXRestfulModelDBErrorCodeNotFound = -100
+    YTXRestfulModelDBErrorCodeNotFound = 404
 } YTXRestfulModelDBErrorCode;
 
 typedef enum : NSUInteger {
@@ -25,24 +25,24 @@ struct YTXRestfulModelDBSerializingStruct {
     /** 数据类型 */
     _Nonnull Class objectClass;
     /** 表里的属性名字 如果columnName没有将会使用modelName */
-    char * _Nullable  columnName;
+    const char * _Nullable  columnName;
     /** Model的属性名字 */
-    char * _Nonnull  modelName;
+    const char * _Nonnull  modelName;
     
     bool isPrimaryKey;
-    
-    bool isForeignKey;
     
     bool autoincrement;
     
     char * _Nullable defaultValue;
     
+    bool isForeignKey;
+
 };
 
 @protocol YTXRestfulModelDBSerializing <NSObject>
 
 /** NSDictionary<ColumnName, NSValue(YTXRestfulModelDBSerializingStruct)> */
-+ (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
++ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
 
 + (nullable NSNumber *) currentMigrationVersion;
 
@@ -91,17 +91,20 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 /** GET Model with primary key */
 - (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param;
 
-/** POST Model with primary key */
-- (nonnull RACSignal *) createOne:(nullable NSDictionary *)param;
-
-/** PUT Model with primary key */
-- (nonnull RACSignal *) updateOne:(nullable NSDictionary *)param;
+/** POST / PUT Model with primary key */
+- (nonnull RACSignal *) saveOne:(nullable NSDictionary *)param;
 
 /** DELETE Model with primary key */
 - (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param;
 
 /** GET Foreign Model with primary key */
 //- (nonnull RACSignal *) fetchForeignModelWithPrimaryKeyValue:(nonnull id) primaryKeyValue foreignTableName:(nonnull NSString *)foreignTableName param:(nullable NSDictionary *)param;
+
+/** GET */
+- (nonnull RACSignal *) fetchTopOne;
+
+/** GET */
+- (nonnull RACSignal *) fetchLatestOne;
 
 /** DELETE All Model with primary key */
 - (nonnull RACSignal *) destroyAll;

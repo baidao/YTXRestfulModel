@@ -83,17 +83,20 @@ TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
 /** GET Model with primary key */
 - (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param;
 
-/** POST Model with primary key */
-- (nonnull RACSignal *) createOne:(nullable NSDictionary *)param;
-
-/** PUT Model with primary key */
-- (nonnull RACSignal *) updateOne:(nullable NSDictionary *)param;
+/** POST / PUT Model with primary key */
+- (nonnull RACSignal *) saveOne:(nullable NSDictionary *)param;
 
 /** DELETE Model with primary key */
 - (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param;
 
 /** GET Foreign Model with primary key */
 //- (nonnull RACSignal *) fetchForeignModelWithPrimaryKeyValue:(nonnull id) primaryKeyValue foreignTableName:(nonnull NSString *)foreignTableName param:(nullable NSDictionary *)param;
+
+/** GET */
+- (nonnull RACSignal *) fetchTopOne;
+
+/** GET */
+- (nonnull RACSignal *) fetchLatestOne;
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull RACSignal *) fetchAll;

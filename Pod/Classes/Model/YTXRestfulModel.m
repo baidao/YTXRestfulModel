@@ -8,7 +8,11 @@
 
 #import "YTXRestfulModel.h"
 
+#import <Mantle/MTLEXTRuntimeExtensions.h>
+
 #import <objc/runtime.h>
+
+static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedPropertyKeysKey;
 
 @implementation YTXRestfulModel
 
@@ -17,7 +21,8 @@
     if(self = [super init])
     {
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
-        self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync syncWithPrimaryKey: [self syncPrimaryKey]];
+        self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync syncWithPrimaryKey: [[self class] syncPrimaryKey]];
+        self.dbSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:[self class] primaryKey: [[self class] syncPrimaryKey]];
     }
     return self;
 }
@@ -82,25 +87,25 @@
     return self;
 }
 
-- (NSString *)primaryKey
++ (nonnull NSString *)primaryKey
 {
     return @"keyId";
 }
 
 - (nullable id) primaryValue
 {
-    return [self valueForKey:[self primaryKey]];
+    return [self valueForKey:[[self class] primaryKey]];
 }
 
-- (NSString *)syncPrimaryKey
++ (nonnull NSString *)syncPrimaryKey
 {
-    return [[self class] JSONKeyPathsByPropertyKey][[self primaryKey]] ?: [self primaryKey];
+    return [self JSONKeyPathsByPropertyKey][[self primaryKey]] ?: [self primaryKey];
 }
 
 /** 要用keyId判断 */
 - (BOOL) isNew
 {
-    return [self valueForKey:[self primaryKey]] == nil;
+    return [self valueForKey:[[self class] primaryKey]] == nil;
 }
 
 
@@ -159,10 +164,8 @@
 - (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    @weakify(self);
     [[self.storageSync destroyStorageWithKey:storage param: param] subscribeNext:^(NSDictionary * x) {
-        @strongify(self);
-        [subject sendNext:self];
+        [subject sendNext:nil];
         [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
@@ -303,13 +306,80 @@
 - (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    @weakify(self);
     [[self.remoteSync destroyRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
+        [subject sendNext:nil];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+
+    return subject;
+}
+
+#pragma mark DB
++ (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
+{
+    NSDictionary<NSString *, NSValue *> * cachedKeys = objc_getAssociatedObject(self, YTXRestfulModelCachedPropertyKeysKey);
+    if (cachedKeys != nil) return cachedKeys;
+    
+    NSMutableDictionary<NSString *, NSValue *> * properties =  [NSMutableDictionary dictionary];
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    
+    [[self class] performSelector:NSSelectorFromString(@"enumeratePropertiesUsingBlock:") withObject:^(objc_property_t property, BOOL *stop) {
+        mtl_propertyAttributes *attributes = mtl_copyPropertyAttributes(property);
+        @onExit {
+            free(attributes);
+        };
+        
+        if (attributes->readonly && attributes->ivar == NULL) return;
+        
+        NSString *modelProperyName = @(property_getName(property));
+        NSString *columnName = [self JSONKeyPathsByPropertyKey][modelProperyName] ? : modelProperyName;
+        
+        BOOL isPrimaryKey = modelProperyName == [self primaryKey];
+        
+        struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = {
+            attributes->objectClass,
+            [columnName UTF8String],
+            [modelProperyName UTF8String],
+            isPrimaryKey,
+            NO,
+            nil,
+            NO
+        };
+        
+        
+        [properties setObject:[NSValue value:&primaryKeyStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)] forKey:modelProperyName];
+    }];
+#pragma clang diagnostic pop
+    
+    
+    // It doesn't really matter if we replace another thread's work, since we do
+    // it atomically and the result should be the same.
+    objc_setAssociatedObject(self, YTXRestfulModelCachedPropertyKeysKey, properties, OBJC_ASSOCIATION_COPY);
+    
+    return properties;
+}
+
++ (nullable NSNumber *) currentMigrationVersion
+{
+    return @0;
+}
+
+/** GET */
+- (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    
+    @weakify(self);
+    [[self.dbSync fetchOne:[self mergeSelfAndParameters:param]] subscribeNext:^(NSDictionary * x) {
         @strongify(self);
         NSError * error = nil;
         [self transformerProxyOfReponse:x error:&error];
         if (!error) {
-            [subject sendNext:x];
+            [subject sendNext:self];
             [subject sendCompleted];
         }
         else {
@@ -318,7 +388,42 @@
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
+    
+    return subject;
+}
 
+/**
+ * POST / PUT
+ * 数据库不存在时创建，否则更新
+ * 更新必须带主键
+ */
+- (nonnull RACSignal *) saveDB:(nullable NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync saveOne:[self mergeSelfAndParameters:param]] subscribeNext:^(NSDictionary * x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    
+    return subject;
+}
+
+/** DELETE */
+- (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param
+{
+    RACSubject * subject = [RACSubject subject];
+    
     return subject;
 }
 
