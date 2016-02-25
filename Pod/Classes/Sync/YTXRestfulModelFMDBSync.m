@@ -82,30 +82,34 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             }
         }
         else {
-            NSNumber * migrationVersion = [YTXRestfulModelFMDBSync migrationVersionWithclassOfModelFromUserDefault:self.modelClass];
-            //migration doing
-            if (migrationVersion || migrationVersion < currentVersion) {
-                [self.modelClass dbWillMigrate];
-                
-                [self.migrationBlocks sortUsingComparator:^NSComparisonResult(YTXRestfulModelDBMigrationEntity * obj1, YTXRestfulModelDBMigrationEntity * obj2) {
-                    return obj1.version > obj2.version;
-                }];
-                
-                @weakify(self);
-                [[[self.migrationBlocks.rac_sequence.signal  filter:^BOOL(YTXRestfulModelDBMigrationEntity *entity) {
-                   return entity.version > currentVersion;
-                }] flattenMap:^RACStream *(YTXRestfulModelDBMigrationEntity *entity) {
-                    @strongify(self);
-                    return entity.block(self);
-                }] subscribeError:^(NSError *error) {
-                    [subject sendError:error];
-                } completed:^{
-                    @strongify(self);
-                    [subject sendNext:nil];
-                    [subject sendCompleted];
-                    [[self modelClass] dbDidMigrate];
-                }];
-            }
+            [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
+                NSNumber * migrationVersion = [YTXRestfulModelFMDBSync migrationVersionWithclassOfModelFromUserDefault:self.modelClass];
+                //migration doing
+                if (migrationVersion && migrationVersion < currentVersion) {
+                    [self.modelClass dbWillMigrate];
+                    
+                    [self.migrationBlocks sortUsingComparator:^NSComparisonResult(YTXRestfulModelDBMigrationEntity * obj1, YTXRestfulModelDBMigrationEntity * obj2) {
+                        return obj1.version > obj2.version;
+                    }];
+                    
+                    @weakify(self);
+                    [[[self.migrationBlocks.rac_sequence.signal  filter:^BOOL(YTXRestfulModelDBMigrationEntity *entity) {
+                        return entity.version > currentVersion;
+                    }] flattenMap:^RACStream *(YTXRestfulModelDBMigrationEntity *entity) {
+                        @strongify(self);
+                        return entity.block(self);
+                    }] subscribeError:^(NSError *error) {
+                        *rollback = YES;
+                        [subject sendError:error];
+                    } completed:^{
+                        @strongify(self);
+                        [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
+                        [subject sendNext:nil];
+                        [subject sendCompleted];
+                        [[self modelClass] dbDidMigrate];
+                    }];
+                }
+            }];
         }
     }];
     
@@ -131,6 +135,63 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return subject;
 }
 
+- (nullable NSDictionary *) dictionaryWithFMResultSet:(FMResultSet *) rs error:(NSError * _Nullable * _Nullable) error
+{
+    NSArray* columns = [[rs columnNameToIndexMap] allKeys];
+    NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+    
+    NSMutableDictionary * ret = nil;
+    
+    [rs nextWithError:error];
+
+    if (!error) {
+        ret = [NSMutableDictionary dictionary];
+        for (NSString * columnName in columns) {
+            struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[columnName]];
+            Class cls = sstruct.objectClass;
+            
+            id value = [cls objectForSqliteString:[rs stringForColumn:columnName] objectType:NSStringFromClass(cls)];
+            
+            [ret setObject:columnName forKey:value];
+        }
+    }
+    [rs close];
+    return ret;
+}
+
+- (nullable NSArray<NSDictionary *> *) arrayWithFMResultSet:(FMResultSet *) rs error:(NSError * _Nullable * _Nullable) error
+{
+    NSArray* columns = [[rs columnNameToIndexMap] allKeys];
+    NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+    
+    NSMutableArray<NSMutableDictionary *> * ret = [NSMutableArray array];
+    
+    while ([rs nextWithError:error]) {
+        
+        if (!error) {
+            NSMutableDictionary * dict = [NSMutableDictionary dictionary];
+            
+            for (NSString * columnName in columns) {
+                struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[columnName]];
+                Class cls = sstruct.objectClass;
+                
+                id value = [cls objectForSqliteString:[rs stringForColumn:columnName] objectType:NSStringFromClass(cls)];
+                
+                [dict setObject:columnName forKey:value];
+            }
+        }
+        else {
+            ret = nil;
+            break;
+        }
+
+    }
+    
+    [rs close];
+    
+    return ret;
+}
+
 /** GET Model with primary key */
 - (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param
 {
@@ -142,30 +203,23 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         NSError * error;
         
         FMResultSet* rs = [db executeQuery:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]]];
-        NSArray* columns = [[rs columnNameToIndexMap] allKeys];
-        NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
         
-        NSMutableDictionary * ret = [NSMutableDictionary dictionary];
+        NSDictionary * ret = [self dictionaryWithFMResultSet:rs error:&error];
         
-        [rs nextWithError:&error];
-        
-        if (!error) {
-            for (NSString * columnName in columns) {
-                struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[columnName]];
-                Class cls = sstruct.objectClass;
-                
-                id value = [cls objectForSqliteString:[rs stringForColumn:columnName] objectType:NSStringFromClass(cls)];
-                
-                [ret setObject:columnName forKey:value];
-            }
-            [subject sendNext:ret];
-            [subject sendCompleted];
-        }
-        else {
+        if (error) {
+            *rollback = YES;
             [subject sendError:error];
+            return;
+        }
+        if (!ret) {
+            [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
+            return;
         }
         
-        [rs close];
+        [subject sendNext:ret];
+        [subject sendCompleted];
+        
+
     }];
     
     return subject;
@@ -262,24 +316,32 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** ORDER BY primaryKey ASC*/
 - (nonnull RACSignal *) fetchAll
 {
-    RACSubject * subject = [RACSubject subject];
-    
-    return subject;
+    return [self fetchAllSoryBy:YTXRestfulModelDBSortByASC orderBy:[self primaryKey]];
 }
 
 - (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
 {
-    RACSubject * subject = [RACSubject subject];
+    va_list args;
+    va_start(args, columnName);
     
-    return subject;
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString:[self sqlForSelectAllSoryBy:sortBy orderBy:columnNames]];
 }
 
 
-- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start limit:(NSUInteger) limit soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
+- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
 {
-    RACSubject * subject = [RACSubject subject];
+    va_list args;
+    va_start(args, columnName);
     
-    return subject;
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWithStart:start count:count soryBy:sortBy orderBy:columnNames]];
 }
 
 
@@ -289,9 +351,14 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  */
 - (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSString * ) condition, ...
 {
-    RACSubject * subject = [RACSubject subject];
+    va_list args;
+    va_start(args, condition);
     
-    return subject;
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions]];
 }
 
 
@@ -299,22 +366,32 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...
 {
-    RACSubject * subject = [RACSubject subject];
+    va_list args;
+    va_start(args, condition);
     
-    return subject;
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
 
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...
 {
-    RACSubject * subject = [RACSubject subject];
+    va_list args;
+    va_start(args, condition);
     
-    return subject;
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
 
@@ -324,9 +401,14 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  */
 - (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * ) condition, ...
 {
-    RACSubject * subject = [RACSubject subject];
+    va_list args;
+    va_start(args, condition);
     
-    return subject;
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions]];
 }
 
 
@@ -334,20 +416,58 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count  condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...
 {
-    RACSubject * subject = [RACSubject subject];
+    va_list args;
+    va_start(args, condition);
     
-    return subject;
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
 
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    
+    va_end(args);
+    
+    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions]];
+}
+
+- (nonnull RACSignal *) _fetchMultipleWithSqliteString:(nonnull NSString *) sqliteString
 {
     RACSubject * subject = [RACSubject subject];
+    
+    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
+        NSError *error = nil;
+        
+        FMResultSet * rs = [db executeQuery:sqliteString];
+        
+        NSArray * ret = [self arrayWithFMResultSet:rs error:&error];
+        
+        if (error) {
+            [subject sendError:error];
+            *rollback = YES;
+            return;
+        }
+        if (!ret) {
+            [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
+            return;
+        }
+        
+        [subject sendNext:ret];
+        [subject sendCompleted];
+    }];
     
     return subject;
 }
@@ -459,6 +579,9 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         if (beAssignPrimaryKey && [primaryKey isEqualToString:key]) {
             [columns appendFormat:@" PRIMARY KEY"];
             beAssignPrimaryKey = NO;
+        }
+        if (sstruct.autoincrement) {
+            [columns appendFormat:@" AUTOINCREMENT"];
         }
         //提供默认值
         if (sstruct.defaultValue) {
@@ -582,16 +705,53 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return [NSString stringWithFormat:@"DELETE FROM %@", [self tableName]];
 }
 
-- (nonnull NSString *) sqlForSelectAll
+- (nonnull NSString *) sqlForSelectAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * ) columnNames
 {
-    return [NSString stringWithFormat:@"SELECT * FROM %@  ORDER BY %@ ASC", [self tableName], [self primaryKey]];
+    NSString * sortyByString = [columnNames componentsJoinedByString:@","];
+    
+    return [NSString stringWithFormat:@"SELECT * FROM %@ ORDER BY %@ %@", [self tableName], sortyByString, [YTXRestfulModelFMDBSync stringWithYTXRestfulModelDBSortBy:sortBy]];
 }
 
-//- (nonnull NSString *) sqlForSelectMultipleWithStart:(NSNumber *) start limit:(NSNumber *) limit
-//{
-//    return [NSString stringWithFormat:@"SELECT * FROM %@ ", [self tableName]];
-//}
+- (nonnull NSString *) sqlForSelectMultipleWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * ) columnNames
+{
+    return [NSString stringWithFormat:@"%@ LIMIT %tu, %tu", [self sqlForSelectAllSoryBy:sortBy orderBy:columnNames], start, count];
+}
 
+- (nonnull NSString *) _sqlForSelectMultipleWhereConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString *) orderBy connection:(NSString *)connection conditions:(nonnull NSArray<NSString *> * )conditions
+{
+    return [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@ ORDER BY %@ %@", [self tableName], [conditions componentsJoinedByString:[NSString stringWithFormat:@" %@ " , connection] ], orderBy, [YTXRestfulModelFMDBSync stringWithYTXRestfulModelDBSortBy:sortBy]];
+}
+
+
+- (nonnull NSString *) sqlForSelectMultipleWhereAllTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
+{
+    return [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:YTXRestfulModelDBSortByASC orderBy:[self primaryKey] conditions:conditions];
+}
+
+- (nonnull NSString *) sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString *) orderBy conditions:(nonnull NSArray<NSString *> * )conditions
+{
+    return [self _sqlForSelectMultipleWhereConditionsAreMetWithSoryBy:sortBy orderBy:orderBy connection:@"AND" conditions:conditions];
+}
+
+- (nonnull NSString *) sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString *) orderBy conditions:(nonnull NSArray<NSString *> * )conditions
+{
+    return [NSString stringWithFormat:@"%@ LIMIT %tu, %tu", [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions], start, count];
+}
+
+- (nonnull NSString *) sqlForSelectMultipleWherePartOfTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
+{
+    return [self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:YTXRestfulModelDBSortByASC orderBy:[self primaryKey] conditions:conditions];
+}
+
+- (nonnull NSString *) sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString *) orderBy conditions:(nonnull NSArray<NSString *> * )conditions
+{
+    return [self _sqlForSelectMultipleWhereConditionsAreMetWithSoryBy:sortBy orderBy:orderBy connection:@"OR" conditions:conditions];
+}
+
+- (nonnull NSString *) sqlForSelectMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString *) orderBy conditions:(nonnull NSArray<NSString *> * )conditions
+{
+    return [NSString stringWithFormat:@"%@ LIMIT %tu, %tu", [self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions], start, count];
+}
 
 #pragma mark other
 
@@ -618,6 +778,29 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 }
 
 #pragma makr Tools
+
++ (nonnull NSString *) stringWithYTXRestfulModelDBSortBy:(YTXRestfulModelDBSortBy) sortyBy
+{
+    switch (sortyBy) {
+        case YTXRestfulModelDBSortByDESC:
+            return @"DESC";
+            break;
+        case YTXRestfulModelDBSortByASC:
+        default:
+            return @"ASC";
+            break;
+    }
+}
+
++ (nonnull NSArray *) arrayWithArgs:(va_list) args
+{
+    NSMutableArray * array = [NSMutableArray array];
+    id arg = nil;
+    while ((arg = va_arg(args,id))) {
+        [array addObject:arg];
+    }
+    return array;
+}
 
 + (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct
 {
@@ -669,6 +852,10 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key lessThanOrEqual:(nonnull id) value
 {
     return [NSString stringWithFormat:@"%@ <= %@", key, [value sqliteValue]];
+}
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key match:(nonnull id) value
+{
+    return [NSString stringWithFormat:@"%@ MATCH %@", key, [value sqliteValue]];
 }
 
 @end
