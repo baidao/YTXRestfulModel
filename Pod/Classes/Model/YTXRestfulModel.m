@@ -140,10 +140,8 @@
 - (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    @weakify(self);
     [[self.storageSync destroyStorageWithKey:storage param: param] subscribeNext:^(NSDictionary * x) {
-        @strongify(self);
-        [subject sendNext:self];
+        [subject sendNext:nil];
         [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
@@ -284,18 +282,9 @@
 - (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    @weakify(self);
     [[self.remoteSync destroyRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-        @strongify(self);
-        NSError * error = nil;
-        [self transformerProxyOfReponse:x error:&error];
-        if (!error) {
-            [subject sendNext:x];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
+        [subject sendNext:nil];
+        [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
     }];

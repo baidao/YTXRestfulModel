@@ -23,9 +23,9 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - Kiwi (2.4.0)
-  - Mantle (1.5.6):
-    - Mantle/extobjc (= 1.5.6)
-  - Mantle/extobjc (1.5.6)
+  - Mantle (1.5.7):
+    - Mantle/extobjc (= 1.5.7)
+  - Mantle/extobjc (1.5.7)
   - ReactiveCocoa (2.3.1):
     - ReactiveCocoa/UI (= 2.3.1)
   - ReactiveCocoa/Core (2.3.1):
@@ -56,7 +56,7 @@ SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
-  Mantle: a197db93e0f1e36194b1fdbc078219a8492eaef2
+  Mantle: 4af47cf9547a4d0ad145a48cd0be3b411a5ae2b8
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
   YTKNetwork: 6c42c364ac9139bdd5659e4816fce29156ca8fa9
   YTXRequest: af02c852225b7c740a85f4ca0f3d09402949e2b4
