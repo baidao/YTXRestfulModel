@@ -10,65 +10,23 @@
 
 #import <Foundation/Foundation.h>
 
-#define TYPEMAP(__rawType, __objcType, __sqliteType) \
-__rawType:@[__objcType, __sqliteType]
-
-//see Objective-C Runtime Programming Guide > Type Encodings.
-
-#define kObjectCTypeToSqliteTypeMap \
-@{\
-TYPEMAP(@"c",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"i",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"s",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"l",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"q",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"C",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"I",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"S",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"L",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"Q",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"f",                   @"NSNumber",        @"REAL"),\
-TYPEMAP(@"d",                   @"NSNumber",        @"REAL"),\
-TYPEMAP(@"B",                   @"NSNumber",        @"INTEGER"),\
-TYPEMAP(@"NSString",            @"NSString",        @"TEXT"),\
-TYPEMAP(@"NSMutableString",     @"NSMutableString", @"TEXT"),\
-TYPEMAP(@"NSDate",              @"NSDate",          @"REAL"),\
-TYPEMAP(@"NSNumber",            @"NSNumber",        @"REAL"),\
-TYPEMAP(@"NSDictionary",        @"NSDictionary",    @"TEXT"),\
-TYPEMAP(@"CGPoint",             @"NSValue",         @"TEXT"),\
-TYPEMAP(@"CGSize",              @"NSValue",         @"TEXT"),\
-TYPEMAP(@"CGRect",              @"NSValue",         @"TEXT"),\
-TYPEMAP(@"CGVector",            @"NSValue",         @"TEXT"),\
-TYPEMAP(@"CGAffineTransform",   @"NSValue",         @"TEXT"),\
-TYPEMAP(@"UIEdgeInsets",        @"NSValue",         @"TEXT"),\
-TYPEMAP(@"UIOffset",            @"NSValue",         @"TEXT"),\
-TYPEMAP(@"NSRange",             @"NSValue",         @"TEXT"),\
-TYPEMAP(@"NSString",            @"NSString",        @"TEXT"),\
-TYPEMAP(@"NSMutableString",     @"NSMutableString", @"TEXT"),\
-TYPEMAP(@"NSDate",              @"NSDate",          @"REAL"),\
-TYPEMAP(@"NSNumber",            @"NSNumber",        @"REAL"),\
-TYPEMAP(@"NSDictionary",        @"NSDictionary",    @"TEXT"),\
-TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
-}
-
-@class FMDatabase;
 @class FMDatabaseQueue;
 
 
 @interface YTXRestfulModelFMDBSync : NSObject <YTXRestfulModelDBProtocol>
 
-@property (nonatomic, strong, readonly, nonnull) FMDatabase * fmdb;
-
 @property (nonatomic, strong, readonly, nonnull) FMDatabaseQueue * fmdbQueue;
-
-@property (nonatomic, copy, readonly, nonnull) NSString * path;
 
 @property (nonatomic, assign, readonly, nonnull) Class<YTXRestfulModelDBSerializing> modelClass;
 
 @property (nonnull, nonatomic, copy, readonly) NSString * primaryKey;
 
 
+#pragma mark db operation
+
 + (nonnull instancetype) syncWithModelOfClass:(nonnull Class<YTXRestfulModelDBSerializing>) modelClass primaryKey:(nonnull NSString *) key;
+
++ (nonnull NSString *) path;
 
 - (nonnull instancetype) initWithModelOfClass:(nonnull Class<YTXRestfulModelDBSerializing>) modelClass primaryKey:(nonnull NSString *) key;
 
@@ -139,7 +97,6 @@ TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
  */
 - (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...;
 
-
 //Migration
 
 /** 数字越大越后面执行*/
@@ -160,11 +117,14 @@ TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
 + (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct;
 + (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value;
 
+/** 格式化objc的类名 @\"NSString\" -> NSString */
++ (nonnull NSString * ) formateObjectType:(const char * _Nonnull) objcType;
+
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key equal:(nonnull id) value;
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key greatThan:(nonnull id) value;
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key greatThanOrEqaul:(nonnull id) value;
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key lessThan:(nonnull id) value;
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key lessThanOrEqual:(nonnull id) value;
-+ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key match:(nonnull id) value;
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key like:(nonnull id) value;
 
 @end

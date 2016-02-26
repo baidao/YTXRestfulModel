@@ -21,11 +21,50 @@
 #import <FMDB/FMDatabaseQueue.h>
 #import <objc/runtime.h>
 
+#define TYPEMAP(__rawType, __objcType, __sqliteType) \
+__rawType:@[__objcType, __sqliteType]
+
+//see Objective-C Runtime Programming Guide > Type Encodings.
+
+#define kObjectCTypeToSqliteTypeMap \
+@{\
+TYPEMAP(@"c",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"i",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"s",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"l",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"q",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"C",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"I",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"S",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"L",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"Q",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"f",                   @"NSNumber",        @"REAL"),\
+TYPEMAP(@"d",                   @"NSNumber",        @"REAL"),\
+TYPEMAP(@"B",                   @"NSNumber",        @"INTEGER"),\
+TYPEMAP(@"NSString",            @"NSString",        @"TEXT"),\
+TYPEMAP(@"NSMutableString",     @"NSMutableString", @"TEXT"),\
+TYPEMAP(@"NSDate",              @"NSDate",          @"REAL"),\
+TYPEMAP(@"NSNumber",            @"NSNumber",        @"REAL"),\
+TYPEMAP(@"NSDictionary",        @"NSDictionary",    @"TEXT"),\
+TYPEMAP(@"CGPoint",             @"NSValue",         @"TEXT"),\
+TYPEMAP(@"CGSize",              @"NSValue",         @"TEXT"),\
+TYPEMAP(@"CGRect",              @"NSValue",         @"TEXT"),\
+TYPEMAP(@"CGVector",            @"NSValue",         @"TEXT"),\
+TYPEMAP(@"CGAffineTransform",   @"NSValue",         @"TEXT"),\
+TYPEMAP(@"UIEdgeInsets",        @"NSValue",         @"TEXT"),\
+TYPEMAP(@"UIOffset",            @"NSValue",         @"TEXT"),\
+TYPEMAP(@"NSRange",             @"NSValue",         @"TEXT"),\
+TYPEMAP(@"NSString",            @"NSString",        @"TEXT"),\
+TYPEMAP(@"NSMutableString",     @"NSMutableString", @"TEXT"),\
+TYPEMAP(@"NSDate",              @"NSDate",          @"REAL"),\
+TYPEMAP(@"NSNumber",            @"NSNumber",        @"REAL"),\
+TYPEMAP(@"NSDictionary",        @"NSDictionary",    @"TEXT"),\
+TYPEMAP(@"NSArray",             @"NSArray",         @"TEXT"),\
+}
+
 static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 @interface YTXRestfulModelFMDBSync()
-
-@property (nonatomic, strong, nonnull) FMDatabase * fmdb;
 
 @property (nonatomic, strong, nonnull) FMDatabaseQueue * fmdbQueue;
 
@@ -45,115 +84,174 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nonnull instancetype) initWithModelOfClass:(nonnull Class<YTXRestfulModelDBSerializing>) modelClass primaryKey:(nonnull NSString *) key
 {
     if (self = [super init]) {
-        _fmdb = [FMDatabase databaseWithPath:self.path];
-        _fmdbQueue = [FMDatabaseQueue databaseQueueWithPath:self.path];
+        _fmdbQueue = [[self class] sharedDBQueue];
         _modelClass = modelClass;
         _primaryKey = key;
-        [self createTable];
+        if ( [modelClass autoCreateTable] ) {
+            [[self createTable] flattenMap:^RACStream *(id value) {
+                return [self migrationTable];
+            }];
+        }
     }
     return self;
 }
 
+
 #pragma mark db operation
+
++ (nonnull FMDatabaseQueue *) sharedDBQueue
+{
+    static FMDatabaseQueue * dbQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dbQueue = [FMDatabaseQueue databaseQueueWithPath:[self path]];
+    });
+    return dbQueue;
+}
 
 - (nonnull RACSignal *) createTable
 {
-    RACSubject * subject = [RACSubject subject];
-    
+    __block NSError * error;
     [self.fmdbQueue inDatabase:^(FMDatabase *db) {
         NSNumber * currentVersion = [self.modelClass currentMigrationVersion];
         
         BOOL success = NO;
-        NSError *error = nil;
         
         if (![db tableExists:[self tableName]]) {
+            
             NSString *sql = [self sqlForCreatingTable];
             success = [db executeUpdate:sql withErrorAndBindings:&error];
-            NSLog(@"[%d]CREATE TABLE SQL:%@", success, sql);
             if (success) {
                 [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
-                [subject sendNext:nil];
-                [subject sendCompleted];
             }
-            else
-            {
-                [subject sendError:error];
-                NSLog(@"CREATE TABLE ERROR:%@",error);
-            }
-        }
-        else {
-            [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-                NSNumber * migrationVersion = [YTXRestfulModelFMDBSync migrationVersionWithclassOfModelFromUserDefault:self.modelClass];
-                //migration doing
-                if (migrationVersion && migrationVersion < currentVersion) {
-                    [self.modelClass dbWillMigrate];
-                    
-                    [self.migrationBlocks sortUsingComparator:^NSComparisonResult(YTXRestfulModelDBMigrationEntity * obj1, YTXRestfulModelDBMigrationEntity * obj2) {
-                        return obj1.version > obj2.version;
-                    }];
-                    
-                    @weakify(self);
-                    [[[self.migrationBlocks.rac_sequence.signal  filter:^BOOL(YTXRestfulModelDBMigrationEntity *entity) {
-                        return entity.version > currentVersion;
-                    }] flattenMap:^RACStream *(YTXRestfulModelDBMigrationEntity *entity) {
-                        @strongify(self);
-                        return entity.block(self);
-                    }] subscribeError:^(NSError *error) {
-                        *rollback = YES;
-                        [subject sendError:error];
-                    } completed:^{
-                        @strongify(self);
-                        [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
-                        [subject sendNext:nil];
-                        [subject sendCompleted];
-                        [[self modelClass] dbDidMigrate];
-                    }];
-                }
-            }];
         }
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];;
+}
+
+- (nonnull RACSignal *) migrationTable
+{
+    __block NSError * error;
+    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
+        if ([db tableExists:[self tableName]]) {
+            NSNumber * currentVersion = [self.modelClass currentMigrationVersion];
+            NSNumber * migrationVersion = [YTXRestfulModelFMDBSync migrationVersionWithclassOfModelFromUserDefault:self.modelClass];
+            //migration doing
+            if (migrationVersion && [migrationVersion integerValue] < [currentVersion integerValue]) {
+                [self.modelClass dbWillMigrate];
+                
+                [self.migrationBlocks sortUsingComparator:^NSComparisonResult(YTXRestfulModelDBMigrationEntity * obj1, YTXRestfulModelDBMigrationEntity * obj2) {
+                    return obj1.version > obj2.version;
+                }];
+                
+                @weakify(self);
+                [[[self.migrationBlocks.rac_sequence.signal  filter:^BOOL(YTXRestfulModelDBMigrationEntity *entity) {
+                    return entity.version > currentVersion;
+                }] flattenMap:^RACStream *(YTXRestfulModelDBMigrationEntity *entity) {
+                    @strongify(self);
+                    return entity.block(self);
+                }] subscribeError:^(NSError *err) {
+                    *rollback = YES;
+                    error = err;
+                } completed:^{
+                    @strongify(self);
+                    [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
+                    [[self modelClass] dbDidMigrate];
+                }];
+            }
+        }
+    }];
+    
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 - (nonnull RACSignal *) dropTable
 {
-    RACSubject * subject = [RACSubject subject];
+    __block NSError *error = nil;
     
     [self.fmdbQueue inDatabase:^(FMDatabase *db) {
-        NSError *error = nil;
         [db executeUpdate:[self sqlForDropTable] withErrorAndBindings:&error];
-        if (!error) {
-            [subject sendNext:nil];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];;
 }
 
 - (nullable NSDictionary *) dictionaryWithFMResultSet:(FMResultSet *) rs error:(NSError * _Nullable * _Nullable) error
 {
     NSArray* columns = [[rs columnNameToIndexMap] allKeys];
     NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
-    
+    NSDictionary* typeMap = kObjectCTypeToSqliteTypeMap;
     NSMutableDictionary * ret = nil;
     
-    [rs nextWithError:error];
+    BOOL success = [rs next];
 
-    if (!error) {
+    if (success) {
         ret = [NSMutableDictionary dictionary];
-        for (NSString * columnName in columns) {
-            struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[columnName]];
-            Class cls = sstruct.objectClass;
+        
+        for (NSString * key in map) {
+            NSUInteger index = [columns indexOfObject: [key lowercaseString] ];
             
-            id value = [cls objectForSqliteString:[rs stringForColumn:columnName] objectType:NSStringFromClass(cls)];
+            if (index == NSNotFound) {
+                continue;
+            }
             
-            [ret setObject:columnName forKey:value];
+            NSString * columnName = [columns objectAtIndex:index];
+            
+            struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[key]];
+            
+            NSString * objectTypeString = typeMap[[NSString stringWithUTF8String:sstruct.objectClass]][0];
+            
+            NSString * modelPropertyName = [NSString stringWithUTF8String:sstruct.columnName];
+            
+            Class cls = NSClassFromString(objectTypeString);
+            
+            NSString * stringValue = [rs stringForColumn:columnName];
+            
+            if (stringValue == nil) {
+                continue;
+            }
+            
+            id value = [cls objectForSqliteString:stringValue objectType: objectTypeString];
+            
+            if (value != nil) {
+                [ret setObject:value forKey:modelPropertyName];
+            }
+            
         }
+    }
+    else {
+        *error = [NSError errorWithDomain:ErrorDomain code:NSCoderValueNotFoundError userInfo:@{ @"description": @"FMResultSet No Data" }];
     }
     [rs close];
     return ret;
@@ -163,31 +261,49 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 {
     NSArray* columns = [[rs columnNameToIndexMap] allKeys];
     NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
-    
+    NSDictionary* typeMap = kObjectCTypeToSqliteTypeMap;
     NSMutableArray<NSMutableDictionary *> * ret = [NSMutableArray array];
     
-    while ([rs nextWithError:error]) {
-        
-        if (!error) {
+    while ([rs next]) {
             NSMutableDictionary * dict = [NSMutableDictionary dictionary];
             
-            for (NSString * columnName in columns) {
-                struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[columnName]];
-                Class cls = sstruct.objectClass;
+        for (NSString * key in map) {
+                NSUInteger index = [columns indexOfObject: [key lowercaseString] ];
+            
+                if (index == NSNotFound) {
+                    continue;
+                }
+            
+                NSString * columnName = [columns objectAtIndex:index];
+            
+                struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[key]];
                 
-                id value = [cls objectForSqliteString:[rs stringForColumn:columnName] objectType:NSStringFromClass(cls)];
+                NSString * objectTypeString = typeMap[[NSString stringWithUTF8String:sstruct.objectClass]][0];
                 
-                [dict setObject:columnName forKey:value];
+                NSString * modelPropertyName = [NSString stringWithUTF8String:sstruct.columnName];
+                
+                Class cls = NSClassFromString(objectTypeString);
+            
+                NSString * stringValue = [rs stringForColumn:columnName];
+                
+                if (stringValue == nil) {
+                    continue;
+                }
+            
+                id value = [cls objectForSqliteString:stringValue objectType:objectTypeString];
+            
+                if (value != nil) {
+                    [dict setObject:value forKey:modelPropertyName];
+                }
+            
             }
-        }
-        else {
-            ret = nil;
-            break;
-        }
-
     }
     
     [rs close];
+    
+    if ([ret count] == 0) {
+        *error = [NSError errorWithDomain:ErrorDomain code:NSCoderValueNotFoundError userInfo:@{ @"description": @"FMResultSet No Data" }];
+    }
     
     return ret;
 }
@@ -216,11 +332,11 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull RACSignal *) saveOne:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
+    __block NSDictionary * ret = nil;
+    __block NSError *error = nil;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         id value = param[self.primaryKey];
-        NSError *error = nil;
         if (value == nil || ![self _isExitWithDB:db primaryKeyValue:value]) {
             //不存在 需要创建
             [db executeUpdate:[self sqlForCreateOneWithParam:param] withErrorAndBindings:&error];
@@ -253,72 +369,84 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             }
             
             FMResultSet* rs = [db executeQuery:sqliteString];
-            NSDictionary * ret = [self dictionaryWithFMResultSet:rs error:&error];;
-            if (error) {
-                [subject sendError:error];
-                return;
-            }
-            if (!ret) {
-                [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
-                return;
-            }
+            ret = [self dictionaryWithFMResultSet:rs error:&error];
             
-            [subject sendNext:ret];
-            [subject sendCompleted];
-
+            if (!ret) {
+                error = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
+                return;
+            }
         }
         else {
             *rollback = YES;
-            [subject sendError:error];
         }
-
+        
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            
+            [subscriber sendNext:ret];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
+
 }
 
 /** DELETE Model with primary key */
 - (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
+    __block NSError * error;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         id value = param[self.primaryKey];
         NSAssert(value != nil,@"必须在param找到主键的value");
-        NSError *error = nil;
         [db executeUpdate:[self sqlForDeleteOneWithPrimaryKeyValue:param[self.primaryKey]] withErrorAndBindings:&error];
-        if (!error) {
-            [subject sendNext:nil];
-            [subject sendCompleted];
-        }
-        else {
+        if (error) {
             *rollback = YES;
-            [subject sendError:error];
         }
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 /** DELETE All Model with primary key */
 - (nonnull RACSignal *) destroyAll
 {
-    RACSubject * subject = [RACSubject subject];
+    __block NSError * error;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSError *error = nil;
         [db executeUpdate:[self sqlForDeleteAll] withErrorAndBindings:&error];
-        if (!error) {
-            [subject sendNext:nil];
-            [subject sendCompleted];
-        }
-        else {
+        if (error) {
             *rollback = YES;
-            [subject sendError:error];
         }
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 
@@ -336,31 +464,34 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull RACSignal *) _fetchOneWithSqliteString:(nonnull NSString *) sqlitString
 {
-    RACSubject * subject = [RACSubject subject];
-    
+    __block NSError * error;
+    __block NSDictionary * ret;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSError * error;
-        
         FMResultSet* rs = [db executeQuery:sqlitString];
         
-        NSDictionary * ret = [self dictionaryWithFMResultSet:rs error:&error];
+        ret = [self dictionaryWithFMResultSet:rs error:&error];
         
         if (error) {
             *rollback = YES;
-            [subject sendError:error];
             return;
         }
         if (!ret) {
-            [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
-            return;
+            error = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
         }
-        
-        [subject sendNext:ret];
-        [subject sendCompleted];
         
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:ret];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 /** ORDER BY primaryKey ASC*/
@@ -496,30 +627,37 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull RACSignal *) _fetchMultipleWithSqliteString:(nonnull NSString *) sqliteString
 {
-    RACSubject * subject = [RACSubject subject];
-    
+    __block NSError *error;
+    __block NSArray * ret;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSError *error = nil;
-        
         FMResultSet * rs = [db executeQuery:sqliteString];
         
-        NSArray * ret = [self arrayWithFMResultSet:rs error:&error];
+        ret = [self arrayWithFMResultSet:rs error:&error];
         
         if (error) {
-            [subject sendError:error];
             *rollback = YES;
             return;
         }
         if (!ret) {
-            [subject sendError:[NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil]];
+            error = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
             return;
         }
         
-        [subject sendNext:ret];
-        [subject sendCompleted];
+
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            
+            [subscriber sendNext:ret];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 #pragma mark migration
@@ -531,62 +669,78 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull RACSignal *) createColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct
 {
-    RACSubject * subject = [RACSubject subject];
+    __block NSError *error = nil;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSError *error = nil;
         [db executeUpdate:[self sqlForAlterAddColumnWithStruct:sstruct] withErrorAndBindings:&error];
-        if (!error) {
-            [subject sendNext:nil];
-            [subject sendCompleted];
-        }
-        else {
+        if (error) {
             *rollback = YES;
-            [subject sendError:error];
         }
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 - (nonnull RACSignal *) dropColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct
 {
-    RACSubject * subject = [RACSubject subject];
+    __block NSError *error = nil;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSError *error = nil;
+        
         [db executeUpdate:[self sqlForAlterDropColumnWithStruct:sstruct] withErrorAndBindings:&error];
-        if (!error) {
-            [subject sendNext:nil];
-            [subject sendCompleted];
-        }
-        else {
+        if (error) {
             *rollback = YES;
-            [subject sendError:error];
         }
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 - (nonnull RACSignal *) changeCollumnOldStruct:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct
 {
-    RACSubject * subject = [RACSubject subject];
+    __block NSError *error = nil;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSError *error = nil;
         [db executeUpdate:[self sqlForAlterChangeColumnWithOldStruct:oldStruct newStruct:newStruct] withErrorAndBindings:&error];
-        if (!error) {
-            [subject sendNext:nil];
-            [subject sendCompleted];
-        }
-        else {
+        if (error) {
             *rollback = YES;
-            [subject sendError:error];
         }
     }];
     
-    return subject;
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            
+            [subscriber sendNext:nil];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
 }
 
 #pragma mark sql string
@@ -605,7 +759,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     //Table Name
     NSString* tableName = [self tableName];
-    NSString* primaryKey = [self primaryKey];
+    NSString* primaryKey = self.primaryKey;
     NSDictionary* typeMap = kObjectCTypeToSqliteTypeMap;
     
     //Attributes
@@ -617,37 +771,45 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:value];
         NSString* key = [NSString stringWithUTF8String:sstruct.columnName ? : sstruct.modelName];
         
-        NSString* typeKey = NSStringFromClass(sstruct.objectClass);
+        NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
         //TODO:外键
-        if (!typeMap[map[typeKey]]) continue;
+        if (!typeMap[typeKey]) continue;
         
         if (!first) [columns appendString:@","];
         first = NO;
         
-        NSString* sqlType = typeMap[sstruct.objectClass][1];
+        NSString* sqlType = typeMap[typeKey][1];
+        
+        BOOL isAutoincrement = sstruct.autoincrement && sstruct.isPrimaryKey;
+        
+        if (isAutoincrement && [sqlType isEqualToString:@"REAL"]){
+            sqlType = @"INTEGER";
+        }
+        
         [columns appendFormat:@"%@ %@", key, sqlType];
         if (beAssignPrimaryKey && [primaryKey isEqualToString:key]) {
             [columns appendFormat:@" PRIMARY KEY"];
             beAssignPrimaryKey = NO;
         }
-        if (sstruct.autoincrement) {
+        // If a column has the type INTEGER PRIMARY KEY AUTOINCREMENT then a slightly different ROWID selection algorithm is used.
+        if (isAutoincrement) {
             [columns appendFormat:@" AUTOINCREMENT"];
         }
         //提供默认值
         if (sstruct.defaultValue) {
             [columns appendFormat:@" DEFAULT %@", [NSString stringWithUTF8String:sstruct.defaultValue]];
         }
-        else {
-            //设置默认值
-            if ([sqlType isEqualToString:@"INTEGER"]) {
-                [columns appendFormat:@" DEFAULT 0"];
-            } else if ([sqlType isEqualToString:@"REAL"]) {
-                [columns appendFormat:@" DEFAULT 0.0"];
-            }
-        }
+//        else {
+//            //设置默认值
+//            if ([sqlType isEqualToString:@"INTEGER"]) {
+//                [columns appendFormat:@" DEFAULT 0"];
+//            } else if ([sqlType isEqualToString:@"REAL"]) {
+//                [columns appendFormat:@" DEFAULT 0.0"];
+//            }
+//        }
     }
     
-    return [NSString stringWithFormat:@"CREATE VIRTUAL TABLE %@ USING fts3(%@)", tableName, columns];
+    return [NSString stringWithFormat:@"CREATE TABLE %@ (%@)", tableName, columns];
 }
 
 - (nonnull NSString *) sqlForDropTable
@@ -659,17 +821,17 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 {
     NSString * valueString = [(NSObject *)value sqliteValue];
     
-    return [NSString stringWithFormat:@"SELECT 1 FROM %@ WHERE %@=%@", [self tableName], [self primaryKey], valueString];
+    return [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@=%@", [self tableName], [self primaryKey], valueString];
 }
 
 - (nonnull NSString *) sqlForSelectTopOneOrderBy:(nonnull NSString *) name
 {
-    return [NSString stringWithFormat:@"SELECT TOP 1 * FROM %@ ORDER BY %@", [self tableName], name];
+    return [NSString stringWithFormat:@"SELECT * FROM %@ ORDER BY %@ LIMIT 1", [self tableName], name];
 }
 
 - (nonnull NSString *) sqlForSelectLatestOneOrderBy:(nonnull NSString *) name
 {
-    return [NSString stringWithFormat:@"SELECT TOP 1 * FROM %@ ORDER BY %@ DESC", [self tableName], name];
+    return [NSString stringWithFormat:@"SELECT * FROM %@ ORDER BY %@ DESC LIMIT 1", [self tableName], name];
 }
 
 - (nonnull NSString *) sqlForCreateOneWithParam:(NSDictionary *) param
@@ -680,11 +842,17 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSDictionary* typeMap = kObjectCTypeToSqliteTypeMap;
 
     BOOL first = YES;
-    for (NSString * key in [param allValues]) {
+    for (NSString * key in param) {
+        NSString * lowerKey = [key lowercaseString];
         id value = param[key];
         NSString * strValue = [value sqliteValue];
-        NSString* typeKey = NSStringFromClass( [value class] );
-        if (!typeMap[param[typeKey]] || !propertyMap[key]) continue;
+        
+        if (!propertyMap[lowerKey]) continue;
+        
+        struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:propertyMap[lowerKey]];
+        NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
+        
+        if (!typeMap[typeKey]) continue;
         
         if (value) {
             if (!first) {
@@ -692,7 +860,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
                 [values appendString:@","];
             }
             first = NO;
-            [columns appendString:key];
+            [columns appendString:lowerKey];
             [values appendString:strValue?strValue:@""];
         }
     }
@@ -710,17 +878,18 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     BOOL first = YES;
     
     for (NSString* key in [param allKeys]) {
+        NSString * lowerKey = [key lowercaseString];
         id value = param[key];
         NSString * strValue = [value sqliteValue];
         NSString* typeKey = NSStringFromClass( [value class] );
-        if (!typeMap[param[typeKey]] || !propertyMap[key]) continue;
+        if (!typeMap[typeKey] || !propertyMap[lowerKey]) continue;
         
         if (value) {
             if (!first) {
                 [updateString appendString:@","];
             }
             first = NO;
-            [updateString appendString:[NSString stringWithFormat:@"%@=%@", key, strValue]];
+            [updateString appendString:[NSString stringWithFormat:@"%@=%@", lowerKey, strValue]];
         }
     }
     
@@ -737,9 +906,10 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nonnull NSString *) sqlForAlterAddColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct
 {
     NSDictionary* typeMap = kObjectCTypeToSqliteTypeMap;
-    NSString* sqlType = typeMap[ NSStringFromClass(sstruct.objectClass) ][1];
+    NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
+    NSString* sqlType = typeMap[typeKey][1];
     
-    return [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ %@ %@", [self tableName], [NSString stringWithUTF8String:sstruct.columnName],
+    return [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ %@ %@", [self tableName], [NSString stringWithUTF8String:sstruct.columnName ],
             sqlType,
             sstruct.defaultValue? [NSString stringWithFormat:@" DEFAULT %@", [NSString stringWithUTF8String:sstruct.defaultValue]] : @""
             
@@ -754,7 +924,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nonnull NSString *) sqlForAlterChangeColumnWithOldStruct:(struct YTXRestfulModelDBSerializingStruct) oldStruct newStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct
 {
     NSDictionary* typeMap = kObjectCTypeToSqliteTypeMap;
-    NSString* sqlType = typeMap[ NSStringFromClass(newStruct.objectClass) ][1];
+    NSString* typeKey = [NSString stringWithUTF8String:(newStruct.objectClass)];
+    NSString* sqlType = typeMap[typeKey][1];
     
     return [NSString stringWithFormat:@"ALTER TABLE %@ CHANGE COLUMN %@ %@ %@ %@", [self tableName], [NSString stringWithUTF8String:oldStruct.columnName], [NSString stringWithUTF8String:newStruct.columnName], sqlType,
             newStruct.defaultValue? [NSString stringWithFormat:@" DEFAULT %@", [NSString stringWithUTF8String:newStruct.defaultValue]] : @""  ];
@@ -820,13 +991,16 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return NSStringFromClass(self.modelClass);
 }
 
-- (NSString *)path
++ (NSString *)path
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     
     NSString *documentsDirectory = [paths objectAtIndex:0];
     
+    NSLog(@"----------------   %@ ", documentsDirectory);
+    
     return [documentsDirectory stringByAppendingPathComponent:@"/YTXRestfulModel.db"];
+
 }
 
 - (NSMutableArray *)migrationBlocks
@@ -865,6 +1039,24 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 + (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct
 {
     return [NSValue value:&sstruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
+}
+
++ (nonnull NSString *) formateObjectType:(const char * _Nonnull) objcType
+{
+    if (!objcType || !strlen(objcType)) return nil;
+    NSString* type = [NSString stringWithCString:objcType encoding:NSUTF8StringEncoding];
+    
+    switch (objcType[0]) {
+        case '@':
+            type = [type substringWithRange:NSMakeRange(2, strlen(objcType)-3)];
+            break;
+        case '{':
+            type = [type substringWithRange:NSMakeRange(1, strchr(objcType, '=')-objcType-1)];
+            break;
+        default:
+            break;
+    }
+    return type;
 }
 
 + (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value
@@ -913,9 +1105,9 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 {
     return [NSString stringWithFormat:@"%@ <= %@", key, [value sqliteValue]];
 }
-+ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key match:(nonnull id) value
++ (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key like:(nonnull id) value
 {
-    return [NSString stringWithFormat:@"%@ MATCH %@", key, [value sqliteValue]];
+    return [NSString stringWithFormat:@"%@ like %@", key, [value sqliteValue]];
 }
 
 @end

@@ -39,6 +39,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     //删除这个2个不必要的属性 可以用http://stackoverflow.com/questions/18961622/how-to-omit-null-values-in-json-dictionary-using-mantle这些方法，但是最合理的还是这个。
     [dictValue removeObjectForKey:@"remoteSync"];
     [dictValue removeObjectForKey:@"storageSync"];
+    [dictValue removeObjectForKey:@"dbSync"];
     return [dictValue copy];
 }
 
@@ -309,6 +310,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     
     [[self class] performSelector:NSSelectorFromString(@"enumeratePropertiesUsingBlock:") withObject:^(objc_property_t property, BOOL *stop) {
         mtl_propertyAttributes *attributes = mtl_copyPropertyAttributes(property);
+        char *propertyType = property_copyAttributeValue(property, "T");
         @onExit {
             free(attributes);
         };
@@ -318,10 +320,12 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
         NSString *modelProperyName = @(property_getName(property));
         NSString *columnName = [self JSONKeyPathsByPropertyKey][modelProperyName] ? : modelProperyName;
         
-        BOOL isPrimaryKey = modelProperyName == [self primaryKey];
+        const char * propertyClassName = [[YTXRestfulModelFMDBSync formateObjectType:propertyType] UTF8String];
         
-        struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = {
-            attributes->objectClass,
+        BOOL isPrimaryKey = [modelProperyName isEqualToString:[self primaryKey]];
+        
+        struct YTXRestfulModelDBSerializingStruct dataStruct = {
+            propertyClassName,
             [columnName UTF8String],
             [modelProperyName UTF8String],
             isPrimaryKey,
@@ -331,7 +335,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
         };
         
         
-        [properties setObject:[NSValue value:&primaryKeyStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)] forKey:modelProperyName];
+        [properties setObject:[NSValue value:&dataStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)] forKey:columnName];
     }];
 #pragma clang diagnostic pop
     
@@ -346,6 +350,11 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
 + (nullable NSNumber *) currentMigrationVersion
 {
     return @0;
+}
+
++ (BOOL) autoCreateTable
+{
+    return NO;
 }
 
 /** GET */

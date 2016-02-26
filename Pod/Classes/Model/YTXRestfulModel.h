@@ -29,6 +29,8 @@
 /** 需要告诉我主键是什么，子类也应当实现 */
 + (nonnull NSString *) primaryKey;
 
++ (nonnull NSString *)syncPrimaryKey;
+
 /** 方便的直接取主键的值*/
 - (nullable id) primaryValue;
 

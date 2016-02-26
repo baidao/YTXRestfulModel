@@ -31,7 +31,7 @@
     return @{@"keyId": @"id"};
 }
 
-- (NSString *)primaryKey
++ (NSString *)primaryKey
 {
     return @"keyId";
 }

@@ -73,13 +73,13 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
         it(@"删除缓存成功，使用storageKey", ^{
             YTXTestModel *model = [YTXTestModel new];
-            __block YTXTestModel *ret = nil;
+            __block NSNumber *ret = nil;
             [[model destroyStorageWithKey:@"key4" withParam:nil] subscribeNext:^(id x) {
-                ret = x;
+                ret = @1;
             } error:^(NSError *error) {
 
             }];
-            [[expectFutureValue(ret) shouldEventually] equal:model];
+            [[expectFutureValue(ret) shouldEventually] equal:@1];
         });
 
         it(@"删除缓存成功并且读不到，使用storageKey", ^{
@@ -178,13 +178,13 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
         it(@"删除缓存成功", ^{
             YTXTestModel *model = [YTXTestModel new];
-            __block YTXTestModel *ret = nil;
+            __block NSNumber *ret = nil;
             [[model destroyStorage:nil] subscribeNext:^(id x) {
-                ret = x;
+                ret = @1;
             } error:^(NSError *error) {
 
             }];
-            [[expectFutureValue(ret) shouldEventually] equal:model];
+            [[expectFutureValue(ret) shouldEventually] equal:@1];
         });
 
         it(@"删除缓存成功并且读不到", ^{

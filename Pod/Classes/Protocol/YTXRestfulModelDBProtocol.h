@@ -23,17 +23,19 @@ typedef enum : NSUInteger {
 
 struct YTXRestfulModelDBSerializingStruct {
     /** 数据类型 */
-    _Nonnull Class objectClass;
-    /** 表里的属性名字 如果columnName没有将会使用modelName */
+    const char * _Nonnull objectClass;
+    
+    /** 表名 */
     const char * _Nullable  columnName;
-    /** Model的属性名字 */
+    
+    /** Model原始的属性名字 */
     const char * _Nonnull  modelName;
     
     bool isPrimaryKey;
     
     bool autoincrement;
     
-    char * _Nullable defaultValue;
+    const char * _Nullable defaultValue;
     
     bool isForeignKey;
 
@@ -41,10 +43,12 @@ struct YTXRestfulModelDBSerializingStruct {
 
 @protocol YTXRestfulModelDBSerializing <NSObject>
 
-/** NSDictionary<ColumnName, NSValue(YTXRestfulModelDBSerializingStruct)> */
+/** NSDictionary<ColumnName(lowerCase), NSValue(YTXRestfulModelDBSerializingStruct)> */
 + (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
 
 + (nullable NSNumber *) currentMigrationVersion;
+
++ (BOOL) autoCreateTable;
 
 @optional
 /** 在这个方法内migrateWithVersion*/
@@ -69,13 +73,13 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 
 @required
 
-@property (nonatomic, copy, readonly, nonnull) NSString * path;
-
 @property (nonatomic, assign, readonly, nonnull) Class<YTXRestfulModelDBSerializing> modelClass;
 
 @property (nonnull, nonatomic, copy, readonly) NSString * primaryKey;
 
 + (nonnull instancetype) syncWithModelOfClass:(nonnull Class<YTXRestfulModelDBSerializing>) modelClass primaryKey:(nonnull NSString *) key;
+
++ (nonnull NSString *) path;
 
 - (nonnull NSString *) tableName;
 
