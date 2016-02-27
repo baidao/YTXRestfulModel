@@ -19,7 +19,7 @@ static NSString * suitName2 = @"com.baidao.ppp";
 SPEC_BEGIN(YTXRestfulModelUserDefaultSpec)
 
 describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
-    context(@"Model功能", ^{
+    context(@"Model异步功能", ^{
         beforeAll(^{
             //清空以便测试
             YTXTestModel *model1 = [YTXTestModel new];
@@ -30,9 +30,9 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
             YTXTestModel *model3 = [YTXTestModel new];
 
-            [model1 destroyStorage:nil];
-            [model2 destroyStorage:nil];
-            [model3 destroyStorage:nil];
+            [model1 destroyStorageSync:nil];
+            [model2 destroyStorageSync:nil];
+            [model3 destroyStorageSync:nil];
 
         });
 
@@ -256,7 +256,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         });
     });
 
-    context(@"Collection功能", ^{
+    context(@"Collection异步功能", ^{
         beforeAll(^{
             //清空以便测试
             YTXTestCollection *collection1 = [YTXTestCollection new];
@@ -267,9 +267,9 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
             YTXTestCollection *collection3 = [YTXTestCollection new];
 
-            [collection1 destroyStorage:nil];
-            [collection2 destroyStorage:nil];
-            [collection3 destroyStorage:nil];
+            [collection1 destroyStorageSync:nil];
+            [collection2 destroyStorageSync:nil];
+            [collection3 destroyStorageSync:nil];
         });
 
         it(@"保存缓存成功，自定义storageKey", ^{
@@ -317,13 +317,13 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
         it(@"删除缓存成功，使用storageKey", ^{
             YTXTestCollection *collection = [YTXTestCollection new];
-            __block YTXTestModel *ret = nil;
+            __block NSNumber *ret = @1;
             [[collection destroyStorageWithKey:@"storageKey4" param:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
             }];
-            [[expectFutureValue(ret) shouldEventually] equal:collection];
+            [[expectFutureValue(ret) shouldEventually] beNil];
         });
 
         it(@"删除缓存成功并且读不到，使用storageKey", ^{
@@ -435,13 +435,13 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
         it(@"删除缓存成功", ^{
             YTXTestCollection *collection1 = [YTXTestCollection new];
-            __block YTXTestCollection *ret = nil;
+            __block NSNumber *ret = @1;
             [[collection1 destroyStorage:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
             }];
-            [[expectFutureValue(ret) shouldEventually] equal:collection1];
+            [[expectFutureValue(ret) shouldEventually] beNil];
         });
 
         it(@"删除缓存成功并且读不到", ^{

@@ -91,6 +91,47 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
 
 
 #pragma mark storage
+/** GET */
+- (nonnull instancetype) fetchStorageSync:(nullable NSDictionary *) param
+{
+    return [self fetchStorageSyncWithKey:[self storageKey] withParam:param];
+}
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param
+{
+    return [self saveStorageSyncWithKey:[self storageKey] withParam:param];
+}
+
+/** DELETE */
+- (void) destroyStorageSync:(nullable NSDictionary *) param
+{
+    return [self destroyStorageSyncWithKey:[self storageKey] withParam:param];
+}
+
+/** GET */
+- (nonnull  instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+{
+    NSDictionary * dict = [self.storageSync fetchStorageSyncWithKey:storage param:param];
+    if (dict) {
+        [self transformerProxyOfReponse:dict error:nil];
+    }
+    return self;
+}
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+{
+    [self.storageSync saveStorageSyncWithKey:storage withObject:[self mergeSelfAndParameters:param] param:param];
+    return self;
+}
+
+/** DELETE */
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+{
+    [self.storageSync destroyStorageSyncWithKey:storage param:param];
+}
+
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
     return [self fetchStorageWithKey:[self storageKey] withParam:param];
@@ -144,14 +185,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
 
 - (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    [[self.storageSync destroyStorageWithKey:storage param: param] subscribeNext:^(NSDictionary * x) {
-        [subject sendNext:nil];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self.storageSync destroyStorageWithKey:storage param: param];
 }
 
 - (nonnull NSString *) storageKey

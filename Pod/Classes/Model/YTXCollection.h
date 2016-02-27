@@ -26,15 +26,39 @@
 
 - (nonnull instancetype) initWithModelClass:(nonnull Class)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
 
+/** GET */
+- (nonnull instancetype) fetchStorageSync:(nullable NSDictionary *) param;
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param;
+
+/** DELETE */
+- (void) destroyStorageSync:(nullable NSDictionary *) param;
+
+/** GET */
+- (nonnull instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+
+/** DELETE */
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+
+/** GET */
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
 
+/** POST / PUT */
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param;
 
+/** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
+
 /** GET */
 - (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
+
 /** POST / PUT */
 - (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
+
 /** DELETE */
 - (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 

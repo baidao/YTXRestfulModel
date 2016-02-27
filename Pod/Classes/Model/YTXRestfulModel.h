@@ -34,6 +34,24 @@
 /** 方便的直接取主键的值*/
 - (nullable id) primaryValue;
 
+/** GET */
+- (nonnull instancetype) fetchStorageSync:(nullable NSDictionary *) param;
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param;
+
+/** DELETE */
+- (void) destroyStorageSync:(nullable NSDictionary *) param;
+
+/** GET */
+- (nonnull instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+
+/** DELETE */
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
 
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param;

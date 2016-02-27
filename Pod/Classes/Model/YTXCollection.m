@@ -56,11 +56,56 @@ typedef enum {
 }
 
 #pragma mark storage
+/** GET */
+- (nonnull instancetype) fetchStorageSync:(nullable NSDictionary *) param
+{
+    return [self fetchStorageSyncWithKey:[self storageKey] withParam:param];
+}
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param
+{
+    return [self saveStorageSyncWithKey:[self storageKey] withParam:param];
+}
+
+/** DELETE */
+- (void) destroyStorageSync:(nullable NSDictionary *) param
+{
+    return [self destroyStorageSyncWithKey:[self storageKey] withParam:param];
+}
+
+/** GET */
+- (nonnull  instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+{
+    NSArray * x = [self.storageSync fetchStorageSyncWithKey:storage param:param];
+    if (x) {
+        NSArray * ret = [self transformerProxyOfReponse:x error:nil];
+        [self resetModels:ret];
+    }
+    return self;
+}
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+{
+    [self.storageSync saveStorageSyncWithKey:storage withObject:[self transformerProxyOfModels:[self.models copy]] param:param];
+
+    return self;
+}
+
+/** DELETE */
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+{
+    [self.storageSync destroyStorageSyncWithKey:storage param:param];
+}
+
+/** GET */
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
     return [self fetchStorageWithKey:[self storageKey] param:param];
 }
 
+/** POST / PUT */
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
     return [self saveStorageWithKey:[self storageKey] param:param];
@@ -111,16 +156,7 @@ typedef enum {
 
 - (RACSignal *)destroyStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync destroyStorageWithKey:storageKey param:param] subscribeNext:^(id x) {
-        @strongify(self);
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self.storageSync destroyStorageWithKey:storageKey param:param];
 }
 
 - (nonnull NSString *) storageKey
