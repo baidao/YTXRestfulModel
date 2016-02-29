@@ -46,7 +46,6 @@
     
     tmpDictionary[@"gender"] = [YTXRestfulModelFMDBSync valueWithStruct:genderStruct];
     
-    
     return tmpDictionary;
 }
 

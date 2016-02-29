@@ -12,7 +12,6 @@
 
 #import <objc/runtime.h>
 
-static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedPropertyKeysKey;
 
 @implementation YTXRestfulModel
 
@@ -336,10 +335,15 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     return subject;
 }
 
++ (nonnull NSString *) _tableKeyPathsCachedKey
+{
+    return [NSString stringWithFormat:@"YTX.%@", NSStringFromClass([self class])];
+}
+
 #pragma mark DB
 + (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
 {
-    NSDictionary<NSString *, NSValue *> * cachedKeys = objc_getAssociatedObject(self, YTXRestfulModelCachedPropertyKeysKey);
+    NSDictionary<NSString *, NSValue *> * cachedKeys = objc_getAssociatedObject(self, [[self _tableKeyPathsCachedKey] UTF8String]);
     if (cachedKeys != nil) return cachedKeys;
     
     NSMutableDictionary<NSString *, NSValue *> * properties =  [NSMutableDictionary dictionary];
@@ -352,11 +356,12 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
         char *propertyType = property_copyAttributeValue(property, "T");
         @onExit {
             free(attributes);
+            free(propertyType);
         };
         
         if (attributes->readonly && attributes->ivar == NULL) return;
         
-        NSString *modelProperyName = @(property_getName(property));
+        NSString *modelProperyName = [NSString stringWithUTF8String:property_getName(property)];
         NSString *columnName = [self JSONKeyPathsByPropertyKey][modelProperyName] ? : modelProperyName;
         
         const char * propertyClassName = [[YTXRestfulModelFMDBSync formateObjectType:propertyType] UTF8String];
@@ -370,6 +375,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
             isPrimaryKey,
             NO,
             nil,
+            NO,
             NO
         };
         
@@ -381,7 +387,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     
     // It doesn't really matter if we replace another thread's work, since we do
     // it atomically and the result should be the same.
-    objc_setAssociatedObject(self, YTXRestfulModelCachedPropertyKeysKey, properties, OBJC_ASSOCIATION_COPY);
+    objc_setAssociatedObject(self, [[self _tableKeyPathsCachedKey] UTF8String], properties, OBJC_ASSOCIATION_COPY);
     
     return properties;
 }

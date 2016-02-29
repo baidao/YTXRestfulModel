@@ -25,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelUserDefaultSpec.m; sourceTree = "<group>"; };
+		181817C21C843B1D00745529 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		1867C4C71C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelDB.m; sourceTree = "<group>"; };
 		1867C4C91C7EF01000D900E9 /* YTXTestStudentModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestStudentModel.h; sourceTree = "<group>"; };
 		1867C4CA1C7EF01000D900E9 /* YTXTestStudentModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestStudentModel.m; sourceTree = "<group>"; };
@@ -90,6 +91,7 @@
 		6003F58C195388D20070C39A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				181817C21C843B1D00745529 /* libsqlite3.tbd */,
 				6003F58D195388D20070C39A /* Foundation.framework */,
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
