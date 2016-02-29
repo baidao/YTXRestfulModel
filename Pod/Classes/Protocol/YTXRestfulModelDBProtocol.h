@@ -37,6 +37,8 @@ struct YTXRestfulModelDBSerializingStruct {
     
     const char * _Nullable defaultValue;
     
+    bool unique;
+    
     bool isForeignKey;
 
 };

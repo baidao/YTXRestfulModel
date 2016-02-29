@@ -1033,6 +1033,10 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         if (sstruct.defaultValue) {
             [columns appendFormat:@" DEFAULT %@", [NSString stringWithUTF8String:sstruct.defaultValue]];
         }
+        
+        if (sstruct.unique) {
+            [columns appendFormat:@" UNIQUE"];
+        }
 //        else {
 //            //设置默认值
 //            if ([sqlType isEqualToString:@"INTEGER"]) {
