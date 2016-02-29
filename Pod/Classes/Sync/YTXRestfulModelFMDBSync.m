@@ -16,7 +16,6 @@
 #import "NSString+YTXRestfulModelFMDBSync.h"
 #import "NSValue+YTXRestfulModelFMDBSync.h"
 
-#import <FMDB/FMDatabase+FTS3.h>
 #import <FMDB/FMDatabaseAdditions.h>
 #import <FMDB/FMDatabaseQueue.h>
 #import <objc/runtime.h>
