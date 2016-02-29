@@ -24,10 +24,6 @@ PODS:
     - AFNetworking/NSURLSession
   - FMDB (2.6):
     - FMDB/standard (= 2.6)
-  - FMDB/standalone (2.6):
-    - FMDB/standalone/default (= 2.6)
-  - FMDB/standalone/default (2.6):
-    - sqlite3
   - FMDB/standard (2.6)
   - Kiwi (2.4.0)
   - Mantle (1.5.7):
@@ -40,9 +36,6 @@ PODS:
   - ReactiveCocoa/no-arc (2.3.1)
   - ReactiveCocoa/UI (2.3.1):
     - ReactiveCocoa/Core
-  - sqlite3 (3.11.0):
-    - sqlite3/common (= 3.11.0)
-  - sqlite3/common (3.11.0)
   - YTKNetwork (0.3.0):
     - AFDownloadRequestOperation (~> 2.0)
     - AFNetworking (~> 2.0)
@@ -51,7 +44,6 @@ PODS:
     - YTKNetwork (~> 0.3.0)
   - YTXRestfulModel (0.4.0):
     - FMDB (~> 2.6)
-    - FMDB/standalone
     - Mantle (~> 1.5.4)
     - ReactiveCocoa (~> 2.3.1)
     - YTXRequest (~> 0.1.6)
@@ -71,9 +63,8 @@ SPEC CHECKSUMS:
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
   Mantle: 4af47cf9547a4d0ad145a48cd0be3b411a5ae2b8
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
-  sqlite3: ec9888870f3b020cf2fdd649ce69b014aed205ae
   YTKNetwork: 6c42c364ac9139bdd5659e4816fce29156ca8fa9
   YTXRequest: af02c852225b7c740a85f4ca0f3d09402949e2b4
-  YTXRestfulModel: eba020f4801ef6d0c36c769a5c6b861f2e86b45d
+  YTXRestfulModel: 099fdc311fe1f2ef9a55290912bb4235687e59c8
 
 COCOAPODS: 0.39.0
