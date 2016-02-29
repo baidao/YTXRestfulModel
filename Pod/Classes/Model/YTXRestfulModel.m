@@ -397,6 +397,24 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
 }
 
 /** GET */
+- (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
+{
+    NSError * currentError;
+    
+    NSDictionary * x = [self.dbSync fetchOneSync:param error:&currentError];
+    
+    if (x && currentError == nil ) {
+        [self transformerProxyOfReponse:x error:&currentError];
+    }
+    
+    if (error){
+        *error = currentError;
+    }
+    
+    return self;
+}
+
+/** GET */
 - (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
@@ -418,6 +436,28 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     }];
     
     return subject;
+}
+
+/**
+ * POST / PUT
+ * 数据库不存在时创建，否则更新
+ * 更新必须带主键
+ */
+- (nonnull instancetype) saveDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
+{
+    NSError * currentError;
+    
+    NSDictionary * x = [self.dbSync saveOneSync:param error:&currentError];
+    
+    if (x && currentError == nil ) {
+        [self transformerProxyOfReponse:x error:&currentError];
+    }
+    
+    if (error){
+        *error = currentError;
+    }
+    
+    return self;
 }
 
 /**
@@ -448,9 +488,30 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
 }
 
 /** DELETE */
+- (BOOL) destroyDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
+{
+    NSError * currentError;
+    
+    BOOL x = [self.dbSync destroyOneSync:param error:&currentError];
+    
+    if (error){
+        *error = currentError;
+    }
+    
+    return x;
+}
+
+/** DELETE */
 - (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
+    
+    [[self.dbSync destroyOne:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
+        [subject sendNext:x];
+        [subject sendCompleted];
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
     
     return subject;
 }

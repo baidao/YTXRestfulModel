@@ -92,6 +92,9 @@
 + (nullable NSNumber *) currentMigrationVersion;
 
 /** GET */
+- (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
+
+/** GET */
 - (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param;
 
 /**
@@ -99,8 +102,18 @@
   * 数据库不存在时创建，否则更新
   * 更新必须带主键
   */
+- (nonnull instancetype) saveDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
+
+/**
+ * POST / PUT
+ * 数据库不存在时创建，否则更新
+ * 更新必须带主键
+ */
 - (nonnull RACSignal *) saveDB:(nullable NSDictionary *)param;
 
+
+/** DELETE */
+- (BOOL) destroyDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 
 /** DELETE */
 - (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param;
