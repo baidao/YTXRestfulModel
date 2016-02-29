@@ -115,9 +115,8 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     NSDictionary * dict = [self.storageSync fetchStorageSyncWithKey:storage param:param];
     if (dict) {
         NSError * error;
-        
+        [self transformerProxyOfReponse:dict error:&error];
         if (!error) {
-            [self transformerProxyOfReponse:dict error:&error];
             return self;
         }
 
