@@ -317,18 +317,18 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nullable NSDictionary *) saveOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
 {
     __block NSDictionary * ret = nil;
-    
+    __block NSError * currentError;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         id value = param[self.primaryKey];
         if (value == nil || ![self _isExitWithDB:db primaryKeyValue:value]) {
             //不存在 需要创建
-            [db executeUpdate:[self sqlForCreateOneWithParam:param] withErrorAndBindings:error];
+            [db executeUpdate:[self sqlForCreateOneWithParam:param] withErrorAndBindings:&currentError];
         }
         else {
             //存在 更新
-            [db executeUpdate:[self sqlForUpdateOneWithParam:param[self.primaryKey]] withErrorAndBindings:error];
+            [db executeUpdate:[self sqlForUpdateOneWithParam:param[self.primaryKey]] withErrorAndBindings:&currentError];
         }
-        if (!error) {
+        if (!currentError) {
             NSString * sqliteString = nil;
             if (value != nil){
                 // 有主键，再把结果查出来
@@ -355,7 +355,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             ret = [self dictionaryWithFMResultSet:rs error:error];
             
             if (!ret) {
-                *error = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
+                currentError = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
                 return;
             }
         }
@@ -365,12 +365,16 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         
     }];
     
+    if (error) {
+        *error = currentError;
+    }
+    
     return ret;
 }
 
 - (nonnull RACSignal *) saveOne:(nullable NSDictionary *)param
 {
-    NSError * error;
+    NSError * error = nil;
     
     NSDictionary * ret = [self saveOneSync:param error:&error];
     
@@ -381,15 +385,20 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (BOOL) destroyOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 {
     __block BOOL result = YES;
+    __block NSError * currentError;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         id value = param[self.primaryKey];
         NSAssert(value != nil,@"必须在param找到主键的value");
-        [db executeUpdate:[self sqlForDeleteOneWithPrimaryKeyValue:param[self.primaryKey]] withErrorAndBindings:error];
-        if (error) {
+        [db executeUpdate:[self sqlForDeleteOneWithPrimaryKeyValue:param[self.primaryKey]] withErrorAndBindings:&currentError];
+        if (currentError) {
             *rollback = YES;
             result = NO;
         }
     }];
+    
+    if (error) {
+        *error = currentError;
+    }
     
     return result;
 }
@@ -408,13 +417,19 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (BOOL) destroyAllSyncWithError:(NSError * _Nullable * _Nullable) error
 {
     __block BOOL result = YES;
+    __block NSError * currentError;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        [db executeUpdate:[self sqlForDeleteAll] withErrorAndBindings:error];
-        if (error) {
+        [db executeUpdate:[self sqlForDeleteAll] withErrorAndBindings:&currentError];
+        if (currentError) {
             *rollback = YES;
             result = NO;
         }
     }];
+    
+    if (error) {
+        *error = currentError;
+    }
+    
     return result;
 }
 
@@ -562,7 +577,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     NSError * currentError;
     
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions] error:&currentError] ;
+    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions] error:&currentError];
     
     if (error)
     {
@@ -587,7 +602,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     NSError * currentError;
     
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError] ;
+    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
     
     if (error)
     {
@@ -611,7 +626,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     NSError * currentError;
     
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError] ;
+    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
     
     if (error)
     {
@@ -636,7 +651,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     NSError * currentError;
     
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions] error:&currentError] ;
+    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions] error:&currentError];
     
     if (error)
     {
@@ -661,7 +676,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     NSError * currentError;
     
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError] ;
+    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
     
     if (error)
     {
@@ -685,7 +700,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     NSError * currentError;
     
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError] ;
+    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
     
     if (error)
     {
@@ -798,21 +813,25 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nullable NSDictionary *) _fetchOneWithSqliteStringSync:(nonnull NSString *) sqliteString error:(NSError * _Nonnull * _Nonnull) error
 {
     __block NSDictionary * ret;
-    
+    __block NSError * currentError;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         FMResultSet* rs = [db executeQuery:sqliteString];
         
-        ret = [self dictionaryWithFMResultSet:rs error:error];
+        ret = [self dictionaryWithFMResultSet:rs error:&currentError];
         
-        if (error) {
+        if (currentError) {
             *rollback = YES;
             return;
         }
         if (!ret) {
-            *error = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
+            currentError = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
         }
         
     }];
+    
+    if (error) {
+        *error = currentError;
+    }
     
     return ret;
 }
@@ -828,21 +847,27 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nullable NSArray<NSDictionary *> *) _fetchMultipleWithSqliteStringSync:(nonnull NSString *) sqliteString error:(NSError * _Nonnull * _Nonnull) error
 {
     __block NSArray * ret;
+    __block NSError * currentError;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         FMResultSet * rs = [db executeQuery:sqliteString];
         
-        ret = [self arrayWithFMResultSet:rs error:error];
+        ret = [self arrayWithFMResultSet:rs error:&currentError];
         
-        if (error) {
+        if (currentError) {
             *rollback = YES;
             return;
         }
         if (!ret) {
-            *error = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
+            currentError = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
             return;
         }
         
     }];
+    
+    if (error) {
+        *error = currentError;
+    }
+    
     return ret;
 }
 
@@ -875,63 +900,81 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     [[self migrationBlocks] addObject:entity];
 }
 
-- (nonnull NSError *) createColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct
+- (BOOL) createColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error
 {
-    __block NSError *error = nil;
+    __block NSError *currentError = nil;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        [db executeUpdate:[self sqlForAlterAddColumnWithStruct:sstruct] withErrorAndBindings:&error];
-        if (error) {
+        [db executeUpdate:[self sqlForAlterAddColumnWithStruct:sstruct] withErrorAndBindings:&currentError];
+        if (currentError) {
             *rollback = YES;
         }
     }];
     
-    return error;
+    if (error) {
+        *error = currentError;
+    }
+    
+    return currentError == nil;
 }
 
 
-- (nonnull NSError *) dropColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct
+- (BOOL) dropColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error
 {
-    __block NSError *error = nil;
+    __block NSError *currentError = nil;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         
-        [db executeUpdate:[self sqlForAlterDropColumnWithStruct:sstruct] withErrorAndBindings:&error];
-        if (error) {
+        [db executeUpdate:[self sqlForAlterDropColumnWithStruct:sstruct] withErrorAndBindings:&currentError];
+        if (currentError) {
             *rollback = YES;
         }
     }];
     
-    return error;
+    if (error) {
+        *error = currentError;
+    }
+    
+    return currentError == nil;
 }
 
-- (nonnull NSError *) changeCollumnOldStructSync:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct
+- (BOOL) changeCollumnOldStructSync:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct error:(NSError * _Nullable * _Nullable)error
 {
-    __block NSError *error = nil;
+    __block NSError *currentError = nil;
     
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        [db executeUpdate:[self sqlForAlterChangeColumnWithOldStruct:oldStruct newStruct:newStruct] withErrorAndBindings:&error];
-        if (error) {
+        [db executeUpdate:[self sqlForAlterChangeColumnWithOldStruct:oldStruct newStruct:newStruct] withErrorAndBindings:&currentError];
+        if (currentError) {
             *rollback = YES;
         }
     }];
     
-    return error;
+    if (error) {
+        *error = currentError;
+    }
+    
+    return currentError == nil;
 }
 
 - (nonnull RACSignal *) createColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct
 {
-    return [self _createRACSingalWithNext:nil error:[self createColumnWithStructSync:sstruct]];
+    NSError *error = nil;
+    [self createColumnWithStructSync:sstruct error:&error];
+    return [self _createRACSingalWithNext:nil error:error];
 }
 
 - (nonnull RACSignal *) dropColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct
 {
-    return [self _createRACSingalWithNext:nil error:[self dropColumnWithStructSync:sstruct]];
+    NSError *error = nil;
+    [self dropColumnWithStructSync:sstruct error:&error];
+    return [self _createRACSingalWithNext:nil error:error];
 }
 
 - (nonnull RACSignal *) changeCollumnOldStruct:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct
 {
-    return [self _createRACSingalWithNext:nil error:[self changeCollumnOldStructSync:oldStruct toNewStruct:newStruct]];
+    NSError *error = nil;
+    [self changeCollumnOldStructSync:oldStruct toNewStruct:newStruct error:&error];
+    return [self _createRACSingalWithNext:nil error:error];
 }
 
 #pragma mark sql string
