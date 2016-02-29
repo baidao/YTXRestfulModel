@@ -57,36 +57,40 @@ typedef enum {
 
 #pragma mark storage
 /** GET */
-- (nonnull instancetype) fetchStorageSync:(nullable NSDictionary *) param
+- (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param
 {
-    return [self fetchStorageSyncWithKey:[self storageKey] withParam:param];
+    return [self fetchStorageSyncWithKey:[self storageKey] param:param];
 }
 
 /** POST / PUT */
 - (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param
 {
-    return [self saveStorageSyncWithKey:[self storageKey] withParam:param];
+    return [self saveStorageSyncWithKey:[self storageKey] param:param];
 }
 
 /** DELETE */
 - (void) destroyStorageSync:(nullable NSDictionary *) param
 {
-    return [self destroyStorageSyncWithKey:[self storageKey] withParam:param];
+    return [self destroyStorageSyncWithKey:[self storageKey] param:param];
 }
 
 /** GET */
-- (nonnull  instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+- (nullable instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
 {
     NSArray * x = [self.storageSync fetchStorageSyncWithKey:storage param:param];
     if (x) {
+        NSError * error;
         NSArray * ret = [self transformerProxyOfReponse:x error:nil];
-        [self resetModels:ret];
+        if (!error) {
+            [self resetModels:ret];
+            return self;
+        }
     }
-    return self;
+    return nil;
 }
 
 /** POST / PUT */
-- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
 {
     [self.storageSync saveStorageSyncWithKey:storage withObject:[self transformerProxyOfModels:[self.models copy]] param:param];
 
@@ -94,7 +98,7 @@ typedef enum {
 }
 
 /** DELETE */
-- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
 {
     [self.storageSync destroyStorageSyncWithKey:storage param:param];
 }
@@ -114,7 +118,8 @@ typedef enum {
 /** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
-    return [self destroyStorageWithKey:[self storageKey] param:param];}
+    return [self destroyStorageWithKey:[self storageKey] param:param];
+}
 
 - (RACSignal *)fetchStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {

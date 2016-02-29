@@ -35,7 +35,7 @@
 - (nullable id) primaryValue;
 
 /** GET */
-- (nonnull instancetype) fetchStorageSync:(nullable NSDictionary *) param;
+- (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
 
 /** POST / PUT */
 - (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param;
@@ -44,13 +44,13 @@
 - (void) destroyStorageSync:(nullable NSDictionary *) param;
 
 /** GET */
-- (nonnull instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+- (nullable instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param;
 
 /** POST / PUT */
-- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param;
 
 /** DELETE */
-- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param;
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param;
 
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
 
@@ -58,11 +58,11 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
 
-- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
 
-- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
 /** DELETE */
-- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
 
 /** 在拉到数据转mantle的时候用 */
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;

@@ -92,63 +92,69 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
 
 #pragma mark storage
 /** GET */
-- (nonnull instancetype) fetchStorageSync:(nullable NSDictionary *) param
+- (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param
 {
-    return [self fetchStorageSyncWithKey:[self storageKey] withParam:param];
+    return [self fetchStorageSyncWithKey:[self storageKey] param:param];
 }
 
 /** POST / PUT */
 - (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param
 {
-    return [self saveStorageSyncWithKey:[self storageKey] withParam:param];
+    return [self saveStorageSyncWithKey:[self storageKey] param:param];
 }
 
 /** DELETE */
 - (void) destroyStorageSync:(nullable NSDictionary *) param
 {
-    return [self destroyStorageSyncWithKey:[self storageKey] withParam:param];
+    return [self destroyStorageSyncWithKey:[self storageKey] param:param];
 }
 
 /** GET */
-- (nonnull  instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+- (nullable instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
 {
     NSDictionary * dict = [self.storageSync fetchStorageSyncWithKey:storage param:param];
     if (dict) {
-        [self transformerProxyOfReponse:dict error:nil];
+        NSError * error;
+        
+        if (!error) {
+            [self transformerProxyOfReponse:dict error:&error];
+            return self;
+        }
+
     }
-    return self;
+    return nil;
 }
 
 /** POST / PUT */
-- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
 {
     [self.storageSync saveStorageSyncWithKey:storage withObject:[self mergeSelfAndParameters:param] param:param];
     return self;
 }
 
 /** DELETE */
-- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *) param
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
 {
     [self.storageSync destroyStorageSyncWithKey:storage param:param];
 }
 
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
-    return [self fetchStorageWithKey:[self storageKey] withParam:param];
+    return [self fetchStorageWithKey:[self storageKey] param:param];
 }
 
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
-    return [self saveStorageWithKey:[self storageKey] withParam:param];
+    return [self saveStorageWithKey:[self storageKey] param:param];
 }
 
 /** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
-    return [self destroyStorageWithKey:[self storageKey] withParam:param];
+    return [self destroyStorageWithKey:[self storageKey] param:param];
 }
 
-- (nonnull RACSignal *)fetchStorageWithKey:(NSString *)storage withParam:(NSDictionary *)param
+- (nonnull RACSignal *)fetchStorageWithKey:(NSString *)storage param:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
@@ -169,7 +175,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     return subject;
 }
 
-- (nonnull RACSignal *)saveStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
+- (nonnull RACSignal *)saveStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
@@ -183,7 +189,7 @@ static void *YTXRestfulModelCachedPropertyKeysKey = &YTXRestfulModelCachedProper
     return subject;
 }
 
-- (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage withParam:(nullable NSDictionary *)param
+- (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
 {
     return [self.storageSync destroyStorageWithKey:storage param: param];
 }
