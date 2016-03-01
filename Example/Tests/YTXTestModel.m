@@ -45,6 +45,17 @@
     return  self;
 }
 
+//mantle Transoformer
++ (MTLValueTransformer *) bodyJSONTransformer
+{
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString * body) {
+        return body;
+    } reverseBlock:^(NSString * body) {
+        return body;
+    }];
+}
+
+
 @end
 
 @implementation YTXTestCommentModel
