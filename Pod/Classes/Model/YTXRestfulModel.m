@@ -93,19 +93,19 @@
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param
 {
-    return [self fetchStorageSyncWithKey:[self storageKey] param:param];
+    return [self fetchStorageSyncWithKey:[self storageKeyWithParam:param] param:param];
 }
 
 /** POST / PUT */
 - (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param
 {
-    return [self saveStorageSyncWithKey:[self storageKey] param:param];
+    return [self saveStorageSyncWithKey:[self storageKeyWithParam:param] param:param];
 }
 
 /** DELETE */
 - (void) destroyStorageSync:(nullable NSDictionary *) param
 {
-    return [self destroyStorageSyncWithKey:[self storageKey] param:param];
+    return [self destroyStorageSyncWithKey:[self storageKeyWithParam:param] param:param];
 }
 
 /** GET */
@@ -138,25 +138,25 @@
 
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
-    return [self fetchStorageWithKey:[self storageKey] param:param];
+    return [self fetchStorageWithKey:[self storageKeyWithParam:param] param:param];
 }
 
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
-    return [self saveStorageWithKey:[self storageKey] param:param];
+    return [self saveStorageWithKey:[self storageKeyWithParam:param] param:param];
 }
 
 /** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
-    return [self destroyStorageWithKey:[self storageKey] param:param];
+    return [self destroyStorageWithKey:[self storageKeyWithParam:param] param:param];
 }
 
 - (nonnull RACSignal *)fetchStorageWithKey:(NSString *)storage param:(NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.storageSync fetchStorageWithKey:storage param: param] subscribeNext:^(NSDictionary * x) {
+    [[self.storageSync fetchStorageWithKey:storage param:param] subscribeNext:^(NSDictionary * x) {
         @strongify(self);
         NSError * error = nil;
         [self transformerProxyOfReponse:x error:&error];
@@ -189,12 +189,17 @@
 
 - (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
 {
-    return [self.storageSync destroyStorageWithKey:storage param: param];
+    return [self.storageSync destroyStorageWithKey:storage param:param];
 }
 
-- (nonnull NSString *) storageKey
+- (nonnull NSString *) storageKeyWithParam:(nullable NSDictionary *) param
 {
-    return [NSString stringWithFormat:@"EFSModel+%@", NSStringFromClass([self class])];
+    NSDictionary * dict = [self mergeSelfAndParameters:param];
+    id primaryKeyValue = dict[[[self class] syncPrimaryKey]];
+    
+    NSAssert(primaryKeyValue != nil, @"Stroage必须找到主键的值");
+    
+    return [NSString stringWithFormat:@"EFSModel+%@+%@", NSStringFromClass([self class]), [primaryKeyValue description]];
 }
 
 #pragma mark remote

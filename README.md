@@ -74,6 +74,14 @@ model.storageSync = [YTXRestfulModelXXXFileStorageSync new];
 
   }];
 
+  YTXTestModel * storageTestModel = [[YTXTestModel alloc] init];
+  storageTestModel.keyId = @1;
+  [[storageTestModel fetchStorage:nil] subscribeNext:^(YTXTestModel *responseModel) {
+
+  } error:^(NSError *error) {
+
+  }];
+
   YTXTestModel * testModel = [[YTXTestModel alloc] init];
   testModel.title = @"ytx test hahahaha";
   testModel.body = @"teststeststesettsetsetttsetttest";
