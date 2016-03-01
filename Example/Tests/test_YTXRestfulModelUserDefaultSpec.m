@@ -668,10 +668,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model4.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName4];
             model4.keyId = @2007;
             
-            [[[[[[model1 saveStorage:nil] flattenMap:^RACStream *(id value) {
+            [[[[[model1 saveStorage:nil] flattenMap:^RACStream *(id value) {
                 return [model3 fetchStorage:nil];
-            }] flattenMap:^RACStream *(id value) {
-                return [model2 fetchStorage:nil];
             }] flattenMap:^RACStream *(id value) {
                 return [model2 saveStorage:nil];
             }] flattenMap:^RACStream *(id value) {
