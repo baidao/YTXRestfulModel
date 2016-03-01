@@ -20,6 +20,12 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
     __block FMDatabaseQueue *dbQueue = [FMDatabaseQueue databaseQueueWithPath:[YTXRestfulModelFMDBSync path]];
     
     context(@"初始化", ^{
+        it(@"确认主键，表名", ^{
+            YTXTestStudentModel * student = [YTXTestStudentModel new];
+            [[[student.dbSync tableName] should] beNonNil];
+            [[[student.dbSync primaryKey] should] beNonNil];
+        });
+        
         it(@"创建model，创建后数据库存在", ^{
             __block BOOL ret = NO;
             YTXTestStudentModel * student = [YTXTestStudentModel new];
@@ -82,7 +88,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             [[@(idStruct.autoincrement) should] equal:@YES];
             
             NSValue * friendNamesValue = studentTableKeyPath[@"friendNames"];
-            [[idValue should] beNonNil];
+            [[friendNamesValue should] beNonNil];
             struct YTXRestfulModelDBSerializingStruct friendNamesStruct = [YTXRestfulModelFMDBSync structWithValue:friendNamesValue];
             [[[NSString stringWithUTF8String:friendNamesStruct.objectClass] should] equal:@"NSArray"];
             [[[NSString stringWithUTF8String:friendNamesStruct.columnName] should] equal:@"friendNames"];
@@ -92,7 +98,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             [[@(friendNamesStruct.autoincrement) should] equal:@NO];
             
             NSValue * genderValue = studentTableKeyPath[@"gender"];
-            [[idValue should] beNonNil];
+            [[genderValue should] beNonNil];
             struct YTXRestfulModelDBSerializingStruct genderStruct = [YTXRestfulModelFMDBSync structWithValue:genderValue];
             [[[NSString stringWithUTF8String:genderStruct.objectClass] should] equal:@"Q"];
             [[[NSString stringWithUTF8String:genderStruct.columnName] should] equal:@"gender"];
@@ -100,11 +106,50 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             [[[NSString stringWithUTF8String:genderStruct.defaultValue] should] equal:@"1"];
             [[@(genderStruct.isPrimaryKey) should] equal:@NO];
             [[@(genderStruct.autoincrement) should] equal:@NO];
-
+            
+            NSValue * pointValue = studentTableKeyPath[@"point"];
+            [[pointValue should] beNonNil];
+            struct YTXRestfulModelDBSerializingStruct pointStruct = [YTXRestfulModelFMDBSync structWithValue:pointValue];
+            [[[NSString stringWithUTF8String:pointStruct.objectClass] should] equal:@"CGPoint"];
+            [[[NSString stringWithUTF8String:pointStruct.columnName] should] equal:@"point"];
+            [[[NSString stringWithUTF8String:pointStruct.modelName] should] equal:@"point"];
+            [[@(pointStruct.defaultValue == nil) should] equal:@YES];
+            [[@(pointStruct.isPrimaryKey) should] equal:@NO];
+            [[@(pointStruct.autoincrement) should] equal:@NO];
         });
         
         it(@"查看数据库表Columns", ^{
             YTXTestStudentModel * student = [YTXTestStudentModel new];
+            __block NSDictionary *columns;
+            [dbQueue inDatabase:^(FMDatabase *db) {
+                NSString *sql = [NSString stringWithFormat:@"SELECT * FROM %@", [student.dbSync tableName]];
+                FMResultSet* rs = [db executeQuery:sql];
+                columns = [[rs columnNameToIndexMap] copy];
+            }];
+            
+            [[columns[@"id"] should] beNonNil];
+            [[columns[@"identify"] should] beNil];
+            [[columns[@"name"] should] beNonNil];
+            [[columns[@"birthday"] should] beNonNil];
+            [[columns[@"iq"] should] beNonNil];
+            [[columns[@"friendnames"] should] beNonNil];
+            [[columns[@"properties"] should] beNonNil];
+            [[columns[@"startschooldate"] should] beNonNil];
+            [[columns[@"age"] should] beNonNil];
+            [[columns[@"stupid"] should] beNonNil];
+            [[columns[@"floatnumber"] should] beNonNil];
+            [[columns[@"gender"] should] beNonNil];
+            [[columns[@"score"] should] beNonNil];
+            [[columns[@"point"] should] beNonNil];
+            
+            NSDictionary<NSString *, NSValue *> * studentTableKeyPath = [YTXTestStudentModel tableKeyPathsByPropertyKey];
+            
+            for (NSString *key in studentTableKeyPath) {
+                [[columns[[key lowercaseString]] should] beNonNil];
+            }
+        });
+        
+        it(@"", ^{
             
         });
     });

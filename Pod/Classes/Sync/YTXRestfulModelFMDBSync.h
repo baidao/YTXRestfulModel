@@ -56,9 +56,6 @@
 /** DELETE Model with primary key */
 - (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param;
 
-/** GET Foreign Model with primary key */
-//- (nonnull RACSignal *) fetchForeignModelWithPrimaryKeyValue:(nonnull id) primaryKeyValue foreignTableName:(nonnull NSString *)foreignTableName param:(nullable NSDictionary *)param;
-
 /** GET */
 - (nullable NSDictionary *) fetchTopOneSyncWithError:(NSError * _Nullable * _Nullable) error;;
 
@@ -79,6 +76,12 @@
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable) error;
+
+/** GET Foreign Model with primary key */
+- (nonnull NSArray<NSDictionary *> *) fetchForeignWithNameSync:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param;
+
+/** GET Foreign Model with primary key */
+- (nonnull RACSignal *) fetchForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param;
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull RACSignal *) fetchAll;
@@ -186,9 +189,6 @@
 
 + (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct;
 + (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value;
-
-/** 格式化objc的类名 @\"NSString\" -> NSString */
-+ (nonnull NSString * ) formateObjectType:(const char * _Nonnull) objcType;
 
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key equal:(nonnull id) value;
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key greatThan:(nonnull id) value;

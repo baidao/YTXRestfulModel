@@ -24,6 +24,6 @@ typedef NS_ENUM(NSUInteger, Gender) {
 @property (nonatomic, assign) float floatNumber;
 @property (nonatomic, assign) Gender gender;
 @property (nonatomic, assign) double score;
-@property (nonnull, nonatomic, strong) NSValue * value;
+@property (nonatomic, assign) CGPoint point;
 
 @end

@@ -39,7 +39,8 @@ struct YTXRestfulModelDBSerializingStruct {
     
     bool unique;
     
-    bool isForeignKey;
+    /** 外键 */
+    const char * _Nullable foreignClassName;
 
 };
 
@@ -111,9 +112,6 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 /** DELETE Model with primary key */
 - (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param;
 
-/** GET Foreign Model with primary key */
-//- (nonnull RACSignal *) fetchForeignModelWithPrimaryKeyValue:(nonnull id) primaryKeyValue foreignTableName:(nonnull NSString *)foreignTableName param:(nullable NSDictionary *)param;
-
 /** GET */
 - (nullable NSDictionary *) fetchTopOneSyncWithError:(NSError * _Nullable * _Nullable) error;
 
@@ -131,6 +129,12 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 
 /** DELETE All Model with primary key */
 - (nonnull RACSignal *) destroyAll;
+
+/** GET Foreign Model with primary key */
+- (nonnull NSArray<NSDictionary *> *) fetchForeignWithNameSync:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param;
+
+/** GET Foreign Model with primary key */
+- (nonnull RACSignal *) fetchForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param;
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable) error;

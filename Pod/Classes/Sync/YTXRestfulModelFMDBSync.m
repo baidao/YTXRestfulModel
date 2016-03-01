@@ -530,6 +530,19 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return ret;
 }
 
+/** GET Foreign Model with primary key */
+- (nonnull NSArray<NSDictionary *> *) fetchForeignWithNameSync:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
+{
+    
+    
+    return nil;
+}
+
+/** GET Foreign Model with primary key */
+- (nonnull RACSignal *) fetchForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
+{
+    return nil;
+}
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull RACSignal *) fetchAll
@@ -1275,24 +1288,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 + (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct
 {
     return [NSValue value:&sstruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
-}
-
-+ (nonnull NSString *) formateObjectType:(const char * _Nonnull) objcType
-{
-    if (!objcType || !strlen(objcType)) return nil;
-    NSString* type = [NSString stringWithCString:objcType encoding:NSUTF8StringEncoding];
-    
-    switch (objcType[0]) {
-        case '@':
-            type = [type substringWithRange:NSMakeRange(2, strlen(objcType)-3)];
-            break;
-        case '{':
-            type = [type substringWithRange:NSMakeRange(1, strchr(objcType, '=')-objcType-1)];
-            break;
-        default:
-            break;
-    }
-    return type;
 }
 
 + (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value

@@ -8,6 +8,8 @@
 
 #import "YTXRestfulModel.h"
 
+#import "NSValue+YTXRestfulModelFMDBSync.h"
+
 #import <Mantle/MTLEXTRuntimeExtensions.h>
 
 #import <objc/runtime.h>
@@ -367,9 +369,14 @@
         if (attributes->readonly && attributes->ivar == NULL) return;
         
         NSString *modelProperyName = [NSString stringWithUTF8String:property_getName(property)];
+        
+        if ([modelProperyName isEqualToString:@"dbSync"] || [modelProperyName isEqualToString:@"remoteSync"] || [modelProperyName isEqualToString:@"storageSync"]) {
+            return;
+        }
+        
         NSString *columnName = [self JSONKeyPathsByPropertyKey][modelProperyName] ? : modelProperyName;
         
-        const char * propertyClassName = [[YTXRestfulModelFMDBSync formateObjectType:propertyType] UTF8String];
+        const char * propertyClassName = [[NSValue formateObjectType:propertyType] UTF8String];
         
         BOOL isPrimaryKey = [modelProperyName isEqualToString:[self primaryKey]];
         
@@ -381,7 +388,7 @@
             NO,
             nil,
             NO,
-            NO
+            nil
         };
         
         
