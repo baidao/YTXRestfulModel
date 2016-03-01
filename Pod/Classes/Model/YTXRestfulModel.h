@@ -118,5 +118,11 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param;
 
+/** GET Foreign Models with primary key */
+- (nonnull NSArray<NSDictionary *> *) fetchDBForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param;
+
+/** GET Foreign Models with primary key */
+- (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param;
+
 
 @end

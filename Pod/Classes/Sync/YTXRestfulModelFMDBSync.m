@@ -529,19 +529,47 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     return ret;
 }
-
-/** GET Foreign Model with primary key */
-- (nonnull NSArray<NSDictionary *> *) fetchForeignWithNameSync:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
+/** GET Foreign Models with primary key */
+- (nonnull NSArray<NSDictionary *> *) fetchForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
 {
+    NSDictionary<NSString *, NSValue *> * map =  [modelClass tableKeyPathsByPropertyKey];
+    NSString * primaryKey = nil;
+    NSString * foreignKey = nil;
     
     
-    return nil;
+    for (NSValue * value in map.allValues) {
+        struct YTXRestfulModelDBSerializingStruct valueStruct = [YTXRestfulModelFMDBSync structWithValue:value];
+        if (valueStruct.isPrimaryKey) {
+            primaryKey = [NSString stringWithUTF8String:valueStruct.columnName];
+        }
+        if (valueStruct.foreignClassName && [NSStringFromClass(self.modelClass) isEqualToString:[NSString stringWithUTF8String:valueStruct.foreignClassName ]] ) {
+            foreignKey = [NSString stringWithUTF8String:valueStruct.columnName];
+        }
+    }
+    
+    NSAssert(primaryKey != nil, @"传入的modelClass的tableKeyPathsByPropertyKey需要定义主键");
+    
+    YTXRestfulModelFMDBSync * sync = [YTXRestfulModelFMDBSync syncWithModelOfClass:modelClass primaryKey:primaryKey];
+    
+    NSError * currentError;
+    
+    NSArray<NSDictionary *> * ret = [sync fetchMultipleSyncWithError:&currentError whereAllTheConditionsAreMet: [YTXRestfulModelFMDBSync sqliteStringWhere:foreignKey equal:[value sqliteValue]] ];
+    
+    
+    if (error) {
+        *error = currentError;
+    }
+    
+    return ret;
 }
 
-/** GET Foreign Model with primary key */
-- (nonnull RACSignal *) fetchForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
+/** GET Foreign Models with primary key */
+- (nonnull RACSignal *) fetchForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value param:(nullable NSDictionary *)param
 {
-    return nil;
+    NSError * error;
+    NSArray<NSDictionary *> * ret = [self fetchForeignSyncWithModelClass:modelClass primaryKeyValue:value error:&error param:param];
+    
+    return [self _createRACSingalWithNext:ret error:error];
 }
 
 /** ORDER BY primaryKey ASC*/

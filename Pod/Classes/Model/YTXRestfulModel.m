@@ -534,4 +534,28 @@
     return subject;
 }
 
+/** GET Foreign Models with primary key */
+- (nonnull NSArray<NSDictionary *> *) fetchDBForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
+{
+    NSDictionary * dict = [self mergeSelfAndParameters:param];
+    
+    id primaryKeyValue = dict[[[self class] syncPrimaryKey]];
+    
+    NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
+    
+    return [self.dbSync fetchForeignSyncWithModelClass:modelClass primaryKeyValue:primaryKeyValue error:error param:dict];
+}
+
+/** GET Foreign Models with primary key */
+- (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
+{
+    NSDictionary * dict = [self mergeSelfAndParameters:param];
+    
+    id primaryKeyValue = dict[[[self class] syncPrimaryKey]];
+    
+    NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
+    
+    return [self.dbSync fetchForeignWithModelClass:modelClass primaryKeyValue:primaryKeyValue param:dict];
+}
+
 @end

@@ -77,11 +77,11 @@
 /** ORDER BY primaryKey ASC*/
 - (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable) error;
 
-/** GET Foreign Model with primary key */
-- (nonnull NSArray<NSDictionary *> *) fetchForeignWithNameSync:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param;
+/** GET Foreign Models with primary key */
+- (nonnull NSArray<NSDictionary *> *) fetchForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param;
 
-/** GET Foreign Model with primary key */
-- (nonnull RACSignal *) fetchForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param;
+/** GET Foreign Models with primary key */
+- (nonnull RACSignal *) fetchForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value param:(nullable NSDictionary *)param;
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull RACSignal *) fetchAll;
