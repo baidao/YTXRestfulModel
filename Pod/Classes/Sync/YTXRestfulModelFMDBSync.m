@@ -208,7 +208,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
                 continue;
             }
             
-            id value = [cls objectForSqliteString:stringValue objectType: objectTypeString];
+            id value = [cls objectForSqliteString:stringValue objectType: [NSString stringWithUTF8String:sstruct.objectClass]];
             
             if (value != nil) {
                 [ret setObject:value forKey:modelPropertyName];
@@ -256,7 +256,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
                     continue;
                 }
             
-                id value = [cls objectForSqliteString:stringValue objectType:objectTypeString];
+                id value = [cls objectForSqliteString:stringValue objectType:[NSString stringWithUTF8String:sstruct.objectClass]];
             
                 if (value != nil) {
                     [dict setObject:value forKey:modelPropertyName];
@@ -326,7 +326,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         }
         else {
             //存在 更新
-            [db executeUpdate:[self sqlForUpdateOneWithParam:param[self.primaryKey]] withErrorAndBindings:&currentError];
+            [db executeUpdate:[self sqlForUpdateOneWithParam:param] withErrorAndBindings:&currentError];
         }
         if (!currentError) {
             NSString * sqliteString = nil;
@@ -1126,9 +1126,9 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         id value = param[key];
         NSString * strValue = [value sqliteValue];
         
-        if (!propertyMap[lowerKey]) continue;
+        if (!propertyMap[key]) continue;
         
-        struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:propertyMap[lowerKey]];
+        struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:propertyMap[key]];
         NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
         
         if (!typeMap[typeKey]) continue;
@@ -1157,11 +1157,18 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     BOOL first = YES;
     
     for (NSString* key in [param allKeys]) {
+        if ([key isEqualToString:primaryKey]) continue;
+        
         NSString * lowerKey = [key lowercaseString];
         id value = param[key];
         NSString * strValue = [value sqliteValue];
-        NSString* typeKey = NSStringFromClass( [value class] );
-        if (!typeMap[typeKey] || !propertyMap[lowerKey]) continue;
+        
+        if (!propertyMap[key]) continue;
+        
+        struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:propertyMap[key]];
+        NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
+        
+        if (!typeMap[typeKey]) continue;
         
         if (value) {
             if (!first) {

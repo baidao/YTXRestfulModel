@@ -419,7 +419,7 @@
 {
     NSError * currentError;
     
-    NSDictionary * x = [self.dbSync fetchOneSync:param error:&currentError];
+    NSDictionary * x = [self.dbSync fetchOneSync:[self mergeSelfAndParameters:param] error:&currentError];
     
     if (x && currentError == nil ) {
         [self transformerProxyOfReponse:x error:&currentError];
@@ -465,7 +465,7 @@
 {
     NSError * currentError;
     
-    NSDictionary * x = [self.dbSync saveOneSync:param error:&currentError];
+    NSDictionary * x = [self.dbSync saveOneSync:[self mergeSelfAndParameters:param] error:&currentError];
     
     if (x && currentError == nil ) {
         [self transformerProxyOfReponse:x error:&currentError];
@@ -487,7 +487,7 @@
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.dbSync saveOne:[self mergeSelfAndParameters:param]] subscribeNext:^(NSDictionary * x) {
+    [[self.dbSync saveOne:[self mergeSelfAndParameters:[self mergeSelfAndParameters:param]]] subscribeNext:^(NSDictionary * x) {
         @strongify(self);
         NSError * error = nil;
         [self transformerProxyOfReponse:x error:&error];
@@ -510,7 +510,7 @@
 {
     NSError * currentError;
     
-    BOOL x = [self.dbSync destroyOneSync:param error:&currentError];
+    BOOL x = [self.dbSync destroyOneSync:[self mergeSelfAndParameters:param] error:&currentError];
     
     if (error){
         *error = currentError;

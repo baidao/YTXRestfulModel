@@ -16,7 +16,7 @@
 }
 + (nullable id) objectForSqliteString:(nonnull NSString *) sqlstring objectType:(nonnull NSString *) type
 {
-    return [NSDate dateWithTimeIntervalSince1970:[sqlstring doubleValue]];;
+    return @([sqlstring doubleValue]);
 }
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "NSArray+YTXRestfulModelFMDBSync.h"
+#import "NSObject+YTXRestfulModelFMDBSync.h"
 
 @implementation NSArray (YTXRestfulModelFMDBSync)
 
@@ -22,7 +23,7 @@
         return nil;
     }
     
-    return jsonStr;
+    return [jsonStr sqliteValue];
 }
 + (nullable id) objectForSqliteString:(nonnull NSString *) sqlstring objectType:(nonnull NSString *) type
 {

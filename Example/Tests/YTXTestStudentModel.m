@@ -22,6 +22,14 @@
     return model;
 }
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        _IQ = @"100";
+    }
+    return self;
+}
+
 + (NSDictionary *)JSONKeyPathsByPropertyKey
 {
     return @{@"identify": @"id"};
@@ -60,6 +68,14 @@
 }
 
 + (MTLValueTransformer *)startSchoolDateJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *timestamp) {
+        return [NSDate dateWithTimeIntervalSince1970: timestamp.longLongValue / 1000];
+    } reverseBlock:^(NSDate *date) {
+        return @((SInt64)(date.timeIntervalSince1970 * 1000));
+    }];
+}
+
++ (MTLValueTransformer *)birthdayJSONTransformer {
     return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *timestamp) {
         return [NSDate dateWithTimeIntervalSince1970: timestamp.longLongValue / 1000];
     } reverseBlock:^(NSDate *date) {
