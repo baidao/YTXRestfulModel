@@ -335,7 +335,6 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
         });
         
         it(@"查询非自增ID的数据", ^{
-            
             YTXTestTeacherModel *testTeacherTwo = [YTXTestTeacherModel new];
             testTeacherTwo.identify = @2;
             
@@ -345,11 +344,84 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             [[error should] beNil];
             [[testTeacherTwo.birthday should] equal:@(brithday.timeIntervalSince1970)];
         });
+        
+        it(@"删除数据库记录", ^{
+            YTXTestTeacherModel *testTeacherTwo = [YTXTestTeacherModel new];
+            testTeacherTwo.identify = @2;
+            
+            NSError * error;
+            [testTeacherTwo destroyDBSync:nil error:&error];
+            [[error should] beNil];
+            
+            [testTeacherTwo fetchDBSync:nil error:&error];
+            [[error should] beNonNil];
+        });
+    });
+    
+    context(@"异步方法", ^{
+        __block NSNumber * studentDacula = nil;
+        
+        it(@"增加INSERT", ^{
+            YTXTestStudentModel *testStudent = [YTXTestStudentModel new];
+            testStudent.name = @"Dacula";
+            
+            __block YTXTestStudentModel *ret;
+            [[testStudent saveDB:nil] subscribeNext:^(id x) {
+                ret = x;
+                studentDacula = ret.identify;
+            }];
+            
+            [[expectFutureValue(ret) shouldEventually] equal:testStudent];
+        });
+        
+        it(@"查询SELECT", ^{
+            YTXTestStudentModel *testStudent = [YTXTestStudentModel new];
+            testStudent.identify = studentDacula;
+            
+            __block YTXTestStudentModel *ret;
+            [[testStudent fetchDB:nil] subscribeNext:^(id x) {
+                ret = x;
+            }];
+            
+            [[expectFutureValue(ret) shouldEventually] equal:testStudent];
+            [[expectFutureValue(ret.identify) shouldEventually] equal:studentDacula];
+            [[expectFutureValue(ret.name) shouldEventually] equal:@"Dacula"];
+        });
+        
+        it(@"修改UPDATE", ^{
+            YTXTestStudentModel *testStudent = [YTXTestStudentModel new];
+            testStudent.identify = studentDacula;
+            testStudent.age = 99999;
+            
+            __block YTXTestStudentModel *ret;
+            [[testStudent saveDB:nil] subscribeNext:^(id x) {
+                ret = x;
+            }];
+            
+            [[expectFutureValue(ret) shouldEventually] equal:testStudent];
+            [[expectFutureValue(ret.identify) shouldEventually] equal:studentDacula];
+            [[expectFutureValue(ret.name) shouldEventually] equal:@"Dacula"];
+            [[expectFutureValue(@(ret.age)) shouldEventually] equal:@99999];
+        });
+        
+        it(@"删除DELETE", ^{
+            YTXTestStudentModel *testStudent = [YTXTestStudentModel new];
+            testStudent.identify = studentDacula;
+            
+            __block BOOL ret;
+            [[testStudent destroyDB:nil] subscribeNext:^(id x) {
+                ret = x;
+            }];
+            
+            [[expectFutureValue(@(ret)) shouldEventually] equal:@YES];
+        });
     });
 
     afterAll(^{
-        YTXRestfulModelFMDBSync * sync = [YTXRestfulModelFMDBSync syncWithModelOfClass:[YTXTestStudentModel class] primaryKey:@"id"];
-        [sync dropTable];
+        YTXRestfulModelFMDBSync * studentSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:[YTXTestStudentModel class] primaryKey:@"id"];
+        [studentSync dropTable];
+        YTXRestfulModelFMDBSync * teacherSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:[YTXTestTeacherModel class] primaryKey:@"id"];
+        [teacherSync dropTable];
     });
 
 });
