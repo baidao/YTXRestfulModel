@@ -67,8 +67,11 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull NSError *) createTable
 {
-    BOOL alreadyCreated = objc_getAssociatedObject(self, [[self _tableCreatedCachedKey] UTF8String]);
-    if (alreadyCreated) return nil;
+    NSMutableDictionary<NSString *, NSNumber *> * registerTableMap = [[self class]_sharedRegisterTableMap];
+    
+    if (registerTableMap[[self tableName]] != nil) {
+        return nil;
+    }
     
     __block NSError * error;
     [self.fmdbQueue inDatabase:^(FMDatabase *db) {
@@ -82,7 +85,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             success = [db executeUpdate:sql withErrorAndBindings:&error];
             if (success) {
                 [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
-                objc_setAssociatedObject(self, [[self _tableCreatedCachedKey] UTF8String], @YES, OBJC_ASSOCIATION_COPY);
+                registerTableMap[[self tableName]] = @1;
             }
         }
     }];
@@ -133,7 +136,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         BOOL success = [db executeUpdate:[self sqlForDropTable] withErrorAndBindings:&error];
         
         if (success) {
-            objc_setAssociatedObject(self, [[self _tableCreatedCachedKey] UTF8String], @YES, OBJC_ASSOCIATION_COPY);
+            NSMutableDictionary<NSString *, NSNumber *> * registerTableMap = [[self class]_sharedRegisterTableMap];
+            [registerTableMap removeObjectForKey:[self tableName]];
         }
     }];
 
@@ -1150,8 +1154,14 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return NSStringFromClass(self.modelClass);
 }
 
-- (nonnull NSString *)_tableCreatedCachedKey {
-    return [NSString stringWithFormat:@"YTX.%@", NSStringFromClass(self.modelClass)];
++ (nonnull NSMutableDictionary<NSString *, NSNumber *> *)_sharedRegisterTableMap
+{
+    static dispatch_once_t onceToken;
+    static NSMutableDictionary<NSString *, NSNumber *> * map;
+    dispatch_once(&onceToken, ^{
+        map = [NSMutableDictionary dictionary];
+    });
+    return map;
 }
 
 + (NSString *)path
