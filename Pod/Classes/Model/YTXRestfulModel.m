@@ -45,7 +45,7 @@
 }
 
 
-
+//Mantle的model属性和目标源属性的映射表。DBSync也会使用。
 + (NSDictionary *)JSONKeyPathsByPropertyKey
 {
     return @{};
@@ -69,6 +69,7 @@
     return self;
 }
 
+//主键名。在Model上的名字
 + (nonnull NSString *)primaryKey
 {
     return @"keyId";
