@@ -38,17 +38,18 @@ typedef enum {
 
 }
 
-- (instancetype)initWithModelClass:(Class)modelClass
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass
 {
     return [self initWithModelClass:modelClass userDefaultSuiteName:nil];
 }
 
-- (instancetype)initWithModelClass:(Class)modelClass userDefaultSuiteName:(NSString *) suiteName
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass userDefaultSuiteName:(NSString *) suiteName
 {
     if(self = [super init])
     {
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
+        self.dbSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:modelClass primaryKey:[modelClass syncPrimaryKey]];
         self.modelClass = modelClass;
         self.models = @[];
     }
@@ -288,6 +289,67 @@ typedef enum {
         else {
             [subject sendError:error];
         }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+#pragma mark db
+- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error
+{
+    NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
+{
+    NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error soryBy:sortBy orderBy:columnName];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (BOOL) destroyDBSyncAllWithError:(NSError * _Nullable * _Nullable) error
+{
+    return [self.dbSync destroyAllSyncWithError:error];
+}
+
+- (nonnull RACSignal *)fetchDBAll
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchAll] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) destroyDBAll
+{
+    RACSubject * subject = [RACSubject subject];
+    [[self.dbSync destroyAll] subscribeNext:^(id x) {
+        [subject sendNext:x];
+        [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
     }];

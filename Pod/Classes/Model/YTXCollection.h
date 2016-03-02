@@ -8,6 +8,7 @@
 
 #import "YTXRestfulModelUserDefaultStorageSync.h"
 #import "YTXRestfulModelYTXRequestRemoteSync.h"
+#import "YTXRestfulModelFMDBSync.h"
 
 #import "YTXRestfulModel.h"
 
@@ -20,12 +21,14 @@
 
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelStorageProtocol> storageSync;
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelRemoteProtocol> remoteSync;
+@property (nonnull, nonatomic, strong) id<YTXRestfulModelDBProtocol> dbSync;
 
 
-- (nonnull instancetype) initWithModelClass:(nonnull Class)modelClass;
+- (nonnull instancetype) initWithModelClass:(nonnull Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass;
 
-- (nonnull instancetype) initWithModelClass:(nonnull Class)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
+- (nonnull instancetype) initWithModelClass:(nonnull Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
 
+#pragma mark storage
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
 
@@ -62,7 +65,7 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 
-
+#pragma mark remote
 /* RACSignal return Tuple( self, Arrary<Model> ) **/
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
 
@@ -71,6 +74,19 @@
 
 /* RACSignal return self **/
 - (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
+
+#pragma mark db
+- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable) error;
+
+- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+
+- (BOOL) destroyDBSyncAllWithError:(NSError * _Nullable * _Nullable) error;
+
+/* RACSignal return self **/
+- (nonnull RACSignal *) fetchDBAll;
+
+/* RACSignal return BOOL **/
+- (nonnull RACSignal *) destroyDBAll;
 
 - (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfReponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error;
 

@@ -16,6 +16,8 @@
 
 /** 需要告诉我主键PrimaryKey是什么 */
 + (nonnull NSString *) primaryKey;
+
++ (nonnull NSString *)syncPrimaryKey;
 /** 知道主键后我可以方便的直接取Value */
 - (nullable id) primaryValue;
 /** 要用keyId判断 */
