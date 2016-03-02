@@ -427,18 +427,11 @@
 /** GET */
 - (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
 {
-    NSError * currentError;
+    NSDictionary * x = [self.dbSync fetchOneSync:[self mergeSelfAndParameters:param] error:error];
     
-    NSDictionary * x = [self.dbSync fetchOneSync:[self mergeSelfAndParameters:param] error:&currentError];
-    
-    if (x && currentError == nil ) {
-        [self transformerProxyOfReponse:x error:&currentError];
+    if (x && *error == nil ) {
+        [self transformerProxyOfReponse:x error:error];
     }
-    
-    if (error){
-        *error = currentError;
-    }
-    
     return self;
 }
 
@@ -473,16 +466,10 @@
  */
 - (nonnull instancetype) saveDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
 {
-    NSError * currentError;
+    NSDictionary * x = [self.dbSync saveOneSync:[self mergeSelfAndParameters:param] error:error];
     
-    NSDictionary * x = [self.dbSync saveOneSync:[self mergeSelfAndParameters:param] error:&currentError];
-    
-    if (x && currentError == nil ) {
-        [self transformerProxyOfReponse:x error:&currentError];
-    }
-    
-    if (error){
-        *error = currentError;
+    if (x && *error == nil ) {
+        [self transformerProxyOfReponse:x error:error];
     }
     
     return self;
@@ -518,15 +505,7 @@
 /** DELETE */
 - (BOOL) destroyDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
 {
-    NSError * currentError;
-    
-    BOOL x = [self.dbSync destroyOneSync:[self mergeSelfAndParameters:param] error:&currentError];
-    
-    if (error){
-        *error = currentError;
-    }
-    
-    return x;
+    return [self.dbSync destroyOneSync:[self mergeSelfAndParameters:param] error:error];
 }
 
 /** DELETE */

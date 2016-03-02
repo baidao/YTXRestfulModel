@@ -67,6 +67,9 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull NSError *) createTable
 {
+    BOOL alreadyCreated = objc_getAssociatedObject(self, [[self _tableCreatedCachedKey] UTF8String]);
+    if (alreadyCreated) return nil;
+    
     __block NSError * error;
     [self.fmdbQueue inDatabase:^(FMDatabase *db) {
         NSNumber * currentVersion = [self.modelClass currentMigrationVersion];
@@ -79,6 +82,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             success = [db executeUpdate:sql withErrorAndBindings:&error];
             if (success) {
                 [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
+                objc_setAssociatedObject(self, [[self _tableCreatedCachedKey] UTF8String], @YES, OBJC_ASSOCIATION_COPY);
             }
         }
     }];
@@ -126,7 +130,11 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     __block NSError *error = nil;
 
     [self.fmdbQueue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:[self sqlForDropTable] withErrorAndBindings:&error];
+        BOOL success = [db executeUpdate:[self sqlForDropTable] withErrorAndBindings:&error];
+        
+        if (success) {
+            objc_setAssociatedObject(self, [[self _tableCreatedCachedKey] UTF8String], @YES, OBJC_ASSOCIATION_COPY);
+        }
     }];
 
     return error;
@@ -253,15 +261,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     id value = param[self.primaryKey];
     NSAssert(value != nil,@"必须在param找到主键的value");
 
-    NSError * currentError;
-
-    NSDictionary * ret = [self _fetchOneWithSqliteStringSync:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]] error:&currentError];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchOneWithSqliteStringSync:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]] error:error];
 }
 
 /** GET Model with primary key */
@@ -416,15 +416,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** GET */
 - (nullable NSDictionary *) fetchTopOneSyncWithError:(NSError * _Nullable * _Nullable) error;
 {
-    NSError * currentError;
-
-    NSDictionary * ret = [self _fetchOneWithSqliteStringSync:[self sqlForSelectTopOneOrderBy:self.primaryKey] error:&currentError];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchOneWithSqliteStringSync:[self sqlForSelectTopOneOrderBy:self.primaryKey] error:error];
 }
 
 /** GET */
@@ -434,17 +426,9 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 }
 
 /** GET */
-- (nullable NSDictionary *) fetchLatestOneSyncWithError:(NSError * _Nullable * _Nullable) error;
+- (nullable NSDictionary *) fetchLatestOneSyncWithError:(NSError * _Nullable * _Nullable) error
 {
-    NSError * currentError;
-
-    NSDictionary * ret = [self _fetchOneWithSqliteStringSync:[self sqlForSelectLatestOneOrderBy:self.primaryKey] error:&currentError];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchOneWithSqliteStringSync:[self sqlForSelectLatestOneOrderBy:self.primaryKey] error:error];
 }
 
 /** GET */
@@ -467,16 +451,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
 
     va_end(args);
-
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectAllSoryBy:sortBy orderBy:columnNames] error:&currentError];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectAllSoryBy:sortBy orderBy:columnNames] error:error];
 }
 
 - (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
@@ -488,15 +463,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
     va_end(args);
 
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWithStart:start count:count soryBy:sortBy orderBy:columnNames] error:&currentError];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWithStart:start count:count soryBy:sortBy orderBy:columnNames] error:error];
 }
 /** GET Foreign Models with primary key */
 - (nonnull NSArray<NSDictionary *> *) fetchForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
@@ -520,16 +487,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
     YTXRestfulModelFMDBSync * sync = [YTXRestfulModelFMDBSync syncWithModelOfClass:modelClass primaryKey:primaryKey];
 
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [sync fetchMultipleSyncWithError:&currentError whereAllTheConditionsAreMet: [YTXRestfulModelFMDBSync sqliteStringWhere:foreignKey equal:[value sqliteValue]] ];
-
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return ret;
+    return [sync fetchMultipleSyncWithError:error whereAllTheConditionsAreMet: [YTXRestfulModelFMDBSync sqliteStringWhere:foreignKey equal:[value sqliteValue]] ];
 }
 
 /** GET Foreign Models with primary key */
@@ -584,17 +542,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
 
     va_end(args);
-
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions] error:&currentError];
-
-    if (error)
-    {
-        *error = currentError;
-    }
-
-    return ret;
+    
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions] error:error];
 }
 
 /**
@@ -610,16 +559,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
     va_end(args);
 
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
-
-    if (error)
-    {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
 /**
@@ -634,16 +574,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
     va_end(args);
 
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
-
-    if (error)
-    {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
 /**
@@ -659,16 +590,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
     va_end(args);
 
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions] error:&currentError];
-
-    if (error)
-    {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions] error:error];
 }
 
 /**
@@ -683,17 +605,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
 
     va_end(args);
-
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
-
-    if (error)
-    {
-        *error = currentError;
-    }
-
-    return ret;
+    
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
 /**
@@ -708,16 +621,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
     va_end(args);
 
-    NSError * currentError;
-
-    NSArray<NSDictionary *> * ret = [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:&currentError];
-
-    if (error)
-    {
-        *error = currentError;
-    }
-
-    return ret;
+    return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
 
@@ -820,7 +724,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
-- (nullable NSDictionary *) _fetchOneWithSqliteStringSync:(nonnull NSString *) sqliteString error:(NSError * _Nonnull * _Nonnull) error
+- (nullable NSDictionary *) _fetchOneWithSqliteStringSync:(nonnull NSString *) sqliteString error:(NSError * _Nullable * _Nullable) error
 {
     __block NSDictionary * ret;
     __block NSError * currentError;
@@ -1241,9 +1145,13 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 #pragma mark other
 
-- (nonnull NSString *) tableName;
+- (nonnull NSString *) tableName
 {
     return NSStringFromClass(self.modelClass);
+}
+
+- (nonnull NSString *)_tableCreatedCachedKey {
+    return [NSString stringWithFormat:@"YTX.%@", NSStringFromClass(self.modelClass)];
 }
 
 + (NSString *)path
