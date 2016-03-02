@@ -225,6 +225,14 @@ struct YTXRestfulModelDBSerializingStruct dataStruct = {
 };
 ```
 
+开启自动创建数据库表
+```objective-c
++ (BOOL) autoCreateTable
+{
+    return YES;
+}
+```
+
 定义DB的Column的Struct
 ```objective-c
 struct YTXRestfulModelDBSerializingStruct {

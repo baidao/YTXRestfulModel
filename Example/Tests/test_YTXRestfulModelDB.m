@@ -8,6 +8,7 @@
 
 #import "YTXTestModel.h"
 #import "YTXTestStudentModel.h"
+#import "YTXTestTeacherModel.h"
 
 #import <YTXRestfulModel/YTXRestfulModelDBProtocol.h>
 #import <YTXRestfulModel/YTXRestfulModelFMDBSync.h>
@@ -273,7 +274,77 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             [[@(studentNew.point.x) should] equal:@6.5];
             [[@(studentNew.point.y) should] equal:@5];
         });
+        
+        it(@"确认unique是否正确", ^{
+            YTXTestStudentModel * studentOne = [YTXTestStudentModel new];
+            studentOne.name = @"Mary";
+            studentOne.score = 159;
+            YTXTestStudentModel * studentTwo = [YTXTestStudentModel new];
+            studentTwo.name = @"Jack";
+            studentTwo.score = 159;
+            
+            NSError * error;
+            [studentOne saveDBSync:nil error:&error];
+            [[error should] beNil];
+            [studentTwo saveDBSync:nil error:&error];
+            [[error should] beNonNil];
+        });
 
+        it(@"确认DefaultValue是否正确", ^{
+            YTXTestTeacherModel *testTeacher = [YTXTestTeacherModel new];
+            testTeacher.identify = @1;
+            testTeacher.birthday = brithday;
+    
+            NSError * error;
+            [testTeacher saveDBSync:nil error:&error];
+            
+            [[error should] beNil];
+            [[testTeacher.name should] equal:@"Edward"];
+        });
+        
+        it(@"确认自增ID", ^{
+            YTXTestStudentModel * studentOne = [YTXTestStudentModel new];
+            studentOne.name = @"Mary";
+            studentOne.score = 10;
+            YTXTestStudentModel * studentTwo = [YTXTestStudentModel new];
+            studentTwo.name = @"Jack";
+            studentTwo.score = 22;
+            
+            NSError * error;
+            [studentOne saveDBSync:nil error:&error];
+            [[error should] beNil];
+            [studentTwo saveDBSync:nil error:&error];
+            [[error should] beNil];
+    
+            [[@([studentOne.identify integerValue] + 1) should] equal:studentTwo.identify];
+        });
+        
+        it(@"确认非自增ID", ^{
+            YTXTestTeacherModel *testTeacher = [YTXTestTeacherModel new];
+            testTeacher.identify = @1;
+            testTeacher.birthday = brithday;
+            YTXTestTeacherModel *testTeacherTwo = [YTXTestTeacherModel new];
+            testTeacherTwo.identify = @2;
+            testTeacherTwo.birthday = brithday;
+            
+            NSError * error;
+            [testTeacher saveDBSync:nil error:&error];
+            [testTeacherTwo saveDBSync:nil error:&error];
+            
+            [[error should] beNil];
+        });
+        
+        it(@"查询非自增ID的数据", ^{
+            
+            YTXTestTeacherModel *testTeacherTwo = [YTXTestTeacherModel new];
+            testTeacherTwo.identify = @2;
+            
+            NSError * error;
+            [testTeacherTwo fetchDBSync:nil error:&error];
+            
+            [[error should] beNil];
+            [[testTeacherTwo.birthday should] equal:@(brithday.timeIntervalSince1970)];
+        });
     });
 
     afterAll(^{

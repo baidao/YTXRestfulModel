@@ -277,17 +277,35 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 {
     __block NSDictionary * ret = nil;
     __block NSError * currentError;
+    __block BOOL success;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
+        NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+        
+        NSValue * primaryKeyStructValue = map[self.primaryKey];
+        
+        NSAssert(primaryKeyStructValue != nil, @"必须找到主键struct");
+        
+        struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = [YTXRestfulModelFMDBSync structWithValue:primaryKeyStructValue];
+        
+        NSAssert(primaryKeyStruct.isPrimaryKey, @"主键struct的isPrimaryKey必须为真");
+        
         id value = param[self.primaryKey];
-        if (value == nil || ![self _isExitWithDB:db primaryKeyValue:value]) {
-            //不存在 需要创建
-            [db executeUpdate:[self sqlForCreateOneWithParam:param] withErrorAndBindings:&currentError];
+        NSString *saveSqlString;
+        
+        if (value != nil && [self _isExitWithDB:db primaryKeyValue:value])
+        {
+            saveSqlString = [self sqlForUpdateOneWithParam:param];
         }
         else {
-            //存在 更新
-            [db executeUpdate:[self sqlForUpdateOneWithParam:param] withErrorAndBindings:&currentError];
+            if (!primaryKeyStruct.autoincrement) {
+                NSAssert(value != nil, @"如果不是自增的情况，更新或者创建都需要主键。");
+            }
+            saveSqlString = [self sqlForCreateOneWithParam:param];
         }
-        if (!currentError) {
+
+        success = [db executeUpdate:saveSqlString withErrorAndBindings:&currentError];
+        
+        if (!currentError && success) {
             NSString * sqliteString = nil;
             if (value != nil){
                 // 有主键，再把结果查出来
@@ -296,18 +314,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             else {
                 // 没有主键
                 sqliteString = [self sqlForSelectLatestOneOrderBy:self.primaryKey];
-
-                //                NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
-
-                //                NSValue * primaryKeyStructValue = map[self.primaryKey];
-                //
-                //                struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = [YTXRestfulModelFMDBSync structWithValue:primaryKeyStructValue];
-                //                if (primaryKeyStruct.autoincrement) {
-                //                    //自增的情况下
-                //                }
-                //                else {
-                //
-                //                }
             }
 
             FMResultSet* rs = [db executeQuery:sqliteString];
@@ -326,6 +332,10 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
     if (error) {
         *error = currentError;
+        
+        if (!success && currentError == nil) {
+            *error = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeUnkonw userInfo:nil];
+        }
     }
 
     return ret;

@@ -46,8 +46,11 @@
     
     struct YTXRestfulModelDBSerializingStruct genderStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[@"gender"]];
     genderStruct.defaultValue = [[@(GenderFemale) sqliteValue] UTF8String];
-    
     tmpDictionary[@"gender"] = [YTXRestfulModelFMDBSync valueWithStruct:genderStruct];
+    
+    struct YTXRestfulModelDBSerializingStruct scoreStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[@"score"]];
+    scoreStruct.unique = YES;
+    tmpDictionary[@"score"] = [YTXRestfulModelFMDBSync valueWithStruct:scoreStruct];
     
     return tmpDictionary;
 }

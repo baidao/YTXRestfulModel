@@ -11,7 +11,8 @@
 #import <Foundation/Foundation.h>
 
 typedef enum : NSUInteger {
-    YTXRestfulModelDBErrorCodeNotFound = 404
+    YTXRestfulModelDBErrorCodeNotFound = 404,
+    YTXRestfulModelDBErrorCodeUnkonw = 9999
 } YTXRestfulModelDBErrorCode;
 
 typedef enum : NSUInteger {
