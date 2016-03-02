@@ -140,7 +140,7 @@ model.storageSync = [YTXRestfulModelXXXFileStorageSync new];
 
 ```
 
-## Model的转换参考[Mantl](https://github.com/Mantle/Mantle/tree/1.5.7)
+## Model的转换参考[Mantle](https://github.com/Mantle/Mantle/tree/1.5.7)
 
 ## 安装
 
