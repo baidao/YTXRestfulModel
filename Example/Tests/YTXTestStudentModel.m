@@ -44,11 +44,6 @@
 {
     NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [[super tableKeyPathsByPropertyKey] mutableCopy];
     
-    NSValue *primaryKeyValue = tmpDictionary[[self syncPrimaryKey]];
-    struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = [YTXRestfulModelFMDBSync structWithValue:primaryKeyValue];
-    primaryKeyStruct.autoincrement = YES;
-    tmpDictionary[[self syncPrimaryKey]] = [YTXRestfulModelFMDBSync valueWithStruct:primaryKeyStruct];
-    
     struct YTXRestfulModelDBSerializingStruct genderStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[@"gender"]];
     genderStruct.defaultValue = [[@(GenderFemale) sqliteValue] UTF8String];
     

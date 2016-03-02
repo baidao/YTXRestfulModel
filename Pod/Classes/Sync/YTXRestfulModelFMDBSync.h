@@ -186,6 +186,7 @@
 - (BOOL) changeCollumnOldStructSync:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct error:(NSError * _Nullable * _Nullable)error;
 
 // Tools
++ (nonnull NSDictionary<NSString *, NSArray<NSString * > * > *) mapOfCTypeToSqliteType;
 
 + (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct;
 + (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value;

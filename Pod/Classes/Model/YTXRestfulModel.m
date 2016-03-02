@@ -358,6 +358,8 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
+    NSDictionary<NSString *, NSArray<NSString * > * > * cTypeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
+    
     [[self class] performSelector:NSSelectorFromString(@"enumeratePropertiesUsingBlock:") withObject:^(objc_property_t property, BOOL *stop) {
         mtl_propertyAttributes *attributes = mtl_copyPropertyAttributes(property);
         char *propertyType = property_copyAttributeValue(property, "T");
@@ -390,6 +392,13 @@
             NO,
             nil
         };
+        
+        if (isPrimaryKey){
+             NSArray<NSString * > *  sqliteTypeArr = cTypeMap[ [NSString stringWithUTF8String:propertyClassName] ];
+            if (sqliteTypeArr != nil && ( [sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"] ) ){
+                dataStruct.autoincrement = YES;
+            }
+        }
         
         
         [properties setObject:[NSValue value:&dataStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)] forKey:columnName];
