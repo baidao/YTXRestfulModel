@@ -9,6 +9,7 @@
 #import "YTXTestModel.h"
 #import "YTXTestStudentModel.h"
 #import "YTXTestTeacherModel.h"
+#import "YTXTestStudentCollection.h"
 
 #import <YTXRestfulModel/YTXRestfulModelDBProtocol.h>
 #import <YTXRestfulModel/YTXRestfulModelFMDBSync.h>
@@ -372,6 +373,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             }];
             
             [[expectFutureValue(ret) shouldEventually] equal:testStudent];
+            [[expectFutureValue(studentDacula) shouldEventually] beNonNil];
         });
         
         it(@"查询SELECT", ^{
@@ -414,6 +416,121 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             }];
             
             [[expectFutureValue(@(ret)) shouldEventually] equal:@YES];
+        });
+    });
+    
+    context(@"collection同步方法", ^{
+        beforeAll(^{
+            YTXTestStudentModel * studentOne = [YTXTestStudentModel new];
+            studentOne.name = @"Yahhh";
+            studentOne.score = 4;
+            
+            YTXTestStudentModel * studentTwo = [YTXTestStudentModel new];
+            studentTwo.name = @"YTX";
+            studentTwo.score = 325;
+            
+            NSError * error;
+            [studentOne saveDBSync:nil error:&error];
+            [studentTwo saveDBSync:nil error:&error];
+        });
+        
+        it(@"取所有数据", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncAllWithError:&error];
+            [[error should] beNil];
+            [[@(studentCollection.models.count > 0) should] equal:@YES];
+        });
+        
+        it(@"取所有数据并按score降序排序", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncAllWithError:&error soryBy:YTXRestfulModelDBSortByDESC orderBy:@"score", nil];
+            [[error should] beNil];
+            [[@(studentCollection.models.count > 0) should] equal:@YES];
+            for (int i = 0; i < studentCollection.models.count - 1; i++) {
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score > ((YTXTestStudentModel *)studentCollection.models[i + 1]).score) should] equal:@YES];
+            }
+        });
+        
+        it(@"从跳过2条数据开始取3条数据，按主键顺序排序", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncMultipleWithError:&error start:2 count:3 soryBy:YTXRestfulModelDBSortByASC orderBy:[YTXTestStudentModel syncPrimaryKey], nil];
+            [[error should] beNil];
+            [[((YTXTestStudentModel *)studentCollection.models[0]).identify should] equal:@3];
+            [[@(studentCollection.models.count == 3) should] equal:@YES];
+        });
+        
+        it(@"多条件查询数据IQ='100' score>=10", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMet:[YTXRestfulModelFMDBSync sqliteStringWhere:@"IQ" equal:@100], [YTXRestfulModelFMDBSync sqliteStringWhere:@"score" greatThanOrEqaul:@10], [YTXRestfulModelFMDBSync sqliteStringWhere:@"name" like:@"Y%"], nil];
+            [[error should] beNil];
+            for (YTXTestStudentModel *student in studentCollection.models) {
+                [[student.IQ should] equal:@"100"];
+                [[student.name should] equal:@"YTX"];
+                [[@(student.score >= 10) should] equal:@YES];
+            }
+        });
+        
+        it(@"查询IQ='100' score>=10，并按score倒序排序", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetWithSoryBy:YTXRestfulModelDBSortByDESC orderBy:@"score" conditions:@"IQ = '100'", @"score >= 10", nil];
+            [[error should] beNil];
+            for (int i = 0; i < studentCollection.models.count - 1; i++) {
+                [[((YTXTestStudentModel *)studentCollection.models[i]).IQ should] equal:@"100"];
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score >= 10) should] equal:@YES];
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score > ((YTXTestStudentModel *)studentCollection.models[i + 1]).score) should] equal:@YES];
+            }
+        });
+        
+        it(@"查询IQ='100' score>=10，并按score倒序排序，从第三行开始查两个", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetWithStart:2 count:2 soryBy:YTXRestfulModelDBSortByDESC orderBy:@"score" conditions:@"IQ = '100'", @"score >= 10", nil];
+            [[error should] beNil];
+            [[@(studentCollection.models.count == 2) should] equal:@YES];
+            for (int i = 0; i < studentCollection.models.count - 1; i++) {
+                [[((YTXTestStudentModel *)studentCollection.models[i]).IQ should] equal:@"100"];
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score >= 10) should] equal:@YES];
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score > ((YTXTestStudentModel *)studentCollection.models[i + 1]).score) should] equal:@YES];
+            }
+        });
+        
+        it(@"查询部分满足条件", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMet:[YTXRestfulModelFMDBSync sqliteStringWhere:@"IQ" equal:@100], @"score >= 10", [YTXRestfulModelFMDBSync sqliteStringWhere:@"name" like:@"Yah%"], nil];
+            [[error should] beNil];
+            for (YTXTestStudentModel *student in studentCollection.models) {
+                [[@(student.score >= 10 || [student.IQ isEqualToString:@"100"] || [student.name isEqualToString:@"Yahhh"]) should] equal:@YES];
+            }
+        });
+        
+        it(@"查询部分满足 IQ='100' OR score>=10，并按score升序排序", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMetWithSoryBy:YTXRestfulModelDBSortByASC orderBy:@"score" conditions:@"IQ = '100'", @"score >= 10", nil];
+            [[error should] beNil];
+            for (int i = 0; i < studentCollection.models.count - 1; i++) {
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score >= 10 || [((YTXTestStudentModel *)studentCollection.models[i]).IQ isEqualToString:@"100"] ) should] equal:@YES];
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score < ((YTXTestStudentModel *)studentCollection.models[i + 1]).score) should] equal:@YES];
+            }
+        });
+        
+        it(@"查询部分满足 IQ='100' OR score>=10，并按score升序排序，从第零行开始查三个", ^{
+            YTXTestStudentCollection *studentCollection = [YTXTestStudentCollection new];
+            NSError * error;
+            [studentCollection fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMetWithStart:0 count:3 soryBy:YTXRestfulModelDBSortByASC orderBy:@"score" conditions:@"IQ = '100'", @"score >= 10", nil];
+            [[error should] beNil];
+            [[@(studentCollection.models.count == 3) should] equal:@YES];
+            for (int i = 0; i < studentCollection.models.count - 1; i++) {
+                [[((YTXTestStudentModel *)studentCollection.models[i]).IQ should] equal:@"100"];
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score >= 10 || [((YTXTestStudentModel *)studentCollection.models[i]).IQ isEqualToString:@"100"] ) should] equal:@YES];
+                [[@(((YTXTestStudentModel *)studentCollection.models[i]).score < ((YTXTestStudentModel *)studentCollection.models[i + 1]).score) should] equal:@YES];
+            }
         });
     });
 

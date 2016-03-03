@@ -312,9 +312,11 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
     
     va_end(args);
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
     
     NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error soryBy:sortBy orderBy:columnNames];
     
@@ -330,9 +332,11 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
     
     va_end(args);
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
     
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error start:start count:count soryBy:sortBy orderBy:columnNames];
     
@@ -348,7 +352,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -361,16 +365,16 @@ typedef enum {
     return self;
 }
 
-- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * )condition, ...
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
-    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy condtions:conditions];
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions];
     
     if (x && *error == nil) {
         [self resetModels:[self transformerProxyOfReponse:x error:error]];
@@ -379,16 +383,16 @@ typedef enum {
     return self;
 }
 
-- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
-    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy condtions:conditions];
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions];
     
     if (x && *error == nil) {
         [self resetModels:[self transformerProxyOfReponse:x error:error]];
@@ -402,7 +406,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -415,16 +419,16 @@ typedef enum {
     return self;
 }
 
-- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  condtions:(nonnull NSString * )condition, ...
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
-    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy condtions:conditions];
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions];
     
     if (x && *error == nil) {
         [self resetModels:[self transformerProxyOfReponse:x error:error]];
@@ -433,16 +437,16 @@ typedef enum {
     return self;
 }
 
-- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
-    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy condtions:conditions];
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions];
     
     if (x && *error == nil) {
         [self resetModels:[self transformerProxyOfReponse:x error:error]];
@@ -482,7 +486,9 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
     
     va_end(args);
     
@@ -510,7 +516,9 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
     
     va_end(args);
     
@@ -538,7 +546,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -561,18 +569,18 @@ typedef enum {
     return subject;
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy condtions:conditions] subscribeNext:^(id x) {
+    [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
         [self resetModels:[self transformerProxyOfReponse:x error:&error]];
@@ -589,18 +597,18 @@ typedef enum {
     return subject;
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy condtions:conditions] subscribeNext:^(id x) {
+    [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
         [self resetModels:[self transformerProxyOfReponse:x error:&error]];
@@ -622,7 +630,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -645,18 +653,18 @@ typedef enum {
     return subject;
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy condtions:conditions] subscribeNext:^(id x) {
+    [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
         [self resetModels:[self transformerProxyOfReponse:x error:&error]];
@@ -673,18 +681,18 @@ typedef enum {
     return subject;
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy condtions:conditions] subscribeNext:^(id x) {
+    [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
         [self resetModels:[self transformerProxyOfReponse:x error:&error]];
