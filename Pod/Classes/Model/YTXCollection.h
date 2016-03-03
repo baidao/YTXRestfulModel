@@ -78,12 +78,42 @@
 #pragma mark db
 - (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable) error;
 
-- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
 
-- (BOOL) destroyDBSyncAllWithError:(NSError * _Nullable * _Nullable) error;
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger)start count:(NSUInteger)count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMet:(nonnull NSString * )condition, ...;
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * )condition, ...;
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...;
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...;
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  condtions:(nonnull NSString * )condition, ...;
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...;
+
+- (BOOL) destroyDBSyncAllWithError:(NSError * _Nullable * _Nullable)error;
 
 /* RACSignal return self **/
 - (nonnull RACSignal *) fetchDBAll;
+
+- (nonnull RACSignal *) fetchDBAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
+
+- (nonnull RACSignal *) fetchDBMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMet:(nonnull NSString * )condition, ...;
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * )condition, ...;
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...;
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...;
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * )condition, ...;
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * )condition, ...;
 
 /* RACSignal return BOOL **/
 - (nonnull RACSignal *) destroyDBAll;

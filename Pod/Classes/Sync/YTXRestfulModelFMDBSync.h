@@ -87,82 +87,82 @@
 - (nonnull RACSignal *) fetchAll;
 
 
-- (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+- (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
 
-- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
 
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
 
-- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...;
+- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
 
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMet:(nonnull NSString * ) condition, ...;
 
 /**
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...;
-
-/**
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...;
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMet:(nonnull NSString * ) condition, ...;
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  condtions:(nonnull NSString * ) condition, ...;
-
-/**
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...;
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions;
 
 /**
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSString * ) condition, ...;
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSArray<NSString *> * )conditions;
+
+/**
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  condtions:(nonnull NSArray<NSString *> * )conditions;
+
+/**
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
+ */
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions;
 
 /**
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...;
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions;
+
+/**
+ * ORDER BY primaryKey ASC
+ * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
+ */
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSArray<NSString *> * )conditions;
 
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...;
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions;
 
 /**
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * ) condition, ...;
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions;
 
 /**
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...;
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSArray<NSString *> * )conditions;
 
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...;
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions;
 
 //Migration
 

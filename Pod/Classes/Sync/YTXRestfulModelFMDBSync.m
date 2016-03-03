@@ -444,29 +444,16 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** ORDER BY primaryKey ASC*/
 - (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable) error
 {
-    return [self fetchAllSyncWithError:error soryBy:YTXRestfulModelDBSortByASC orderBy:[self primaryKey]];
+    return [self fetchAllSyncWithError:error soryBy:YTXRestfulModelDBSortByASC orderBy:@[[self primaryKey]]];
 }
 
-- (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
+- (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames
 {
-    va_list args;
-    va_start(args, columnName);
-
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectAllSoryBy:sortBy orderBy:columnNames] error:error];
 }
 
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames
 {
-    va_list args;
-    va_start(args, columnName);
-
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWithStart:start count:count soryBy:sortBy orderBy:columnNames] error:error];
 }
 /** GET Foreign Models with primary key */
@@ -506,31 +493,17 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** ORDER BY primaryKey ASC*/
 - (nonnull RACSignal *) fetchAll
 {
-    return [self fetchAllSoryBy:YTXRestfulModelDBSortByASC orderBy:[self primaryKey]];
+    return [self fetchAllSoryBy:YTXRestfulModelDBSortByASC orderBy:@[[self primaryKey]]];
 }
 
-- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
+- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames
 {
-    va_list args;
-    va_start(args, columnName);
-
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString:[self sqlForSelectAllSoryBy:sortBy orderBy:columnNames]];
 }
 
 
-- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
+- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames
 {
-    va_list args;
-    va_start(args, columnName);
-
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWithStart:start count:count soryBy:sortBy orderBy:columnNames]];
 }
 
@@ -538,15 +511,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMet:(nonnull NSString * ) condition, ...
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-    
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions] error:error];
 }
 
@@ -554,30 +520,16 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
@@ -585,15 +537,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMet:(nonnull NSString * ) condition, ...
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions] error:error];
 }
 
@@ -601,30 +546,16 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  condtions:(nonnull NSString * ) condition, ...
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-    
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...
+- (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
@@ -633,15 +564,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions]];
 }
 
@@ -650,15 +574,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
@@ -666,15 +583,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
@@ -683,15 +593,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions]];
 }
 
@@ -700,15 +603,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
  * ORDER BY primaryKey ASC
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
@@ -716,15 +612,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /**
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSString * ) condition, ...
+- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy condtions:(nonnull NSArray<NSString *> * )conditions
 {
-    va_list args;
-    va_start(args, condition);
-
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args];
-
-    va_end(args);
-
     return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions]];
 }
 
