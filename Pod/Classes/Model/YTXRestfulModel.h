@@ -7,10 +7,9 @@
 //
 
 #import "YTXRestfulModelProtocol.h"
-#import "YTXRestfulModelUserDefaultStorageSync.h"
-#import "YTXRestfulModelYTXRequestRemoteSync.h"
-#import "YTXRestfulModelFMDBSync.h"
-
+#import "YTXRestfulModelStorageProtocol.h"
+#import "YTXRestfulModelRemoteProtocol.h"
+#import "YTXRestfulModelDBProtocol.h"
 #import <Mantle/Mantle.h>
 #import <Foundation/Foundation.h>
 
@@ -34,6 +33,16 @@
 /** 方便的直接取主键的值*/
 - (nullable id) primaryValue;
 
+/** 在拉到数据转mantle的时候用 */
+- (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+
+/** 在拉到数据转外部mantle对象的时候用 */
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+
+/** 将自身转化为Dictionary，然后对传入参数进行和自身属性的融合。自身的属性优先级最高，不可被传入参数修改。 */
+- (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param;
+
+#ifdef YTX_STORAGESYNC_EXISTS
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
 
@@ -64,15 +73,9 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
 
-/** 在拉到数据转mantle的时候用 */
-- (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+#endif
 
-/** 在拉到数据转外部mantle对象的时候用 */
-- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
-
-/** 将自身转化为Dictionary，然后对传入参数进行和自身属性的融合。自身的属性优先级最高，不可被传入参数修改。 */
-- (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param;
-
+#ifdef YTX_REMOTESYNC_EXISTS
 /** :id/comment 这种形式的时候使用GET; modelClass is MTLModel*/
 - (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
 
@@ -83,9 +86,11 @@
 - (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param;
 /** DELETE */
 - (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param;
+#endif
 
-
-// DB
+#ifdef YTX_DBSYNC_EXISTS
+/** 主键是否自增，默认为YES */
++ (BOOL) isPrimaryKeyAutoincrement;
 
 /** 若主键是NSNumber 将会默认设置为自增的 */
 + (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
@@ -125,5 +130,6 @@
 /** GET Foreign Models with primary key */
 - (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param;
 
+#endif
 
 @end

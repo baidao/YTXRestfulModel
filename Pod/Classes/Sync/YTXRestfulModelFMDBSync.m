@@ -789,7 +789,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull NSString *) sqlForCreatingTable
 {
-    NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+    NSMutableDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
 
     NSValue * primaryKeyStructValue = map[self.primaryKey];
 
@@ -808,6 +808,16 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSMutableString* columns = [NSMutableString string];
     BOOL beAssignPrimaryKey = YES;
 
+    if ([self.modelClass isPrimaryKeyAutoincrement]) {
+        NSArray<NSString * > *  sqliteTypeArr = [[self class] mapOfCTypeToSqliteType][ [NSString stringWithUTF8String:primaryKeyStruct.objectClass] ];
+        
+        if (!primaryKeyStruct.autoincrement && sqliteTypeArr != nil && ( [sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"] )){
+            primaryKeyStruct.autoincrement = YES;
+            map[self.primaryKey] = [YTXRestfulModelFMDBSync valueWithStruct:primaryKeyStruct];
+        }
+    }
+    
+    
     BOOL first = YES;
     for (NSValue * value in map.allValues) {
         struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:value];

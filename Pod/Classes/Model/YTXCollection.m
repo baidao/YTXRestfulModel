@@ -9,6 +9,18 @@
 #import "YTXCollection.h"
 #import "YTXRestfulModel.h"
 
+#ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
+#import "YTXRestfulModelUserDefaultStorageSync.h"
+#endif
+
+#ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
+#import "YTXRestfulModelYTXRequestRemoteSync.h"
+#endif
+
+#ifdef YTX_FMDBSYNC_EXISTS
+#import "YTXRestfulModelFMDBSync.h"
+#endif
+
 #import <Mantle/Mantle.h>
 
 typedef enum {
@@ -29,8 +41,18 @@ typedef enum {
 {
     if(self = [super init])
     {
+        
+#ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
+#endif
+        
+#ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
+#endif
+        
+#ifdef YTX_FMDBSYNC_EXISTS
+        self.dbSync = [YTXRestfulModelFMDBSync new];
+#endif
         self.modelClass = [YTXRestfulModel class];
         self.models = @[];
     }
@@ -38,18 +60,35 @@ typedef enum {
 
 }
 
-- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, MTLJSONSerializing
+#ifdef YTX_FMDBSYNC_EXISTS
+                                    , YTXRestfulModelDBSerializing
+#endif
+                                    >)modelClass
 {
     return [self initWithModelClass:modelClass userDefaultSuiteName:nil];
 }
 
-- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass userDefaultSuiteName:(NSString *) suiteName
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, MTLJSONSerializing
+#ifdef YTX_FMDBSYNC_EXISTS
+                                    , YTXRestfulModelDBSerializing
+#endif
+                                    >)modelClass userDefaultSuiteName:(NSString *) suiteName
 {
     if(self = [super init])
     {
+        
+#ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
+#endif
+        
+#ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
+#endif
+        
+#ifdef YTX_FMDBSYNC_EXISTS
         self.dbSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:modelClass primaryKey:[modelClass syncPrimaryKey]];
+#endif
         self.modelClass = modelClass;
         self.models = @[];
     }
@@ -312,11 +351,11 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
     
     va_end(args);
     
-    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
     
     NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error soryBy:sortBy orderBy:columnNames];
     
@@ -332,11 +371,11 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
     
     va_end(args);
     
-    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
     
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error start:start count:count soryBy:sortBy orderBy:columnNames];
     
@@ -352,7 +391,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -370,7 +409,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -388,7 +427,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -406,7 +445,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -424,7 +463,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -442,7 +481,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -486,9 +525,9 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
     
-    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
     
     va_end(args);
     
@@ -516,9 +555,9 @@ typedef enum {
     va_list args;
     va_start(args, columnName);
     
-    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
     
-    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
     
     va_end(args);
     
@@ -546,7 +585,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -574,7 +613,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -602,7 +641,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -630,7 +669,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -658,7 +697,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -686,7 +725,7 @@ typedef enum {
     va_list args;
     va_start(args, condition);
     
-    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
     
     va_end(args);
     
@@ -844,6 +883,30 @@ typedef enum {
 - (void)reverseModels
 {
     [self resetModels:self.models.reverseObjectEnumerator.allObjects];
+}
+
+- (nonnull NSArray *) arrayWithArgs:(va_list) args firstArgument:(nullable id)firstArgument
+{
+    if (firstArgument == nil) {
+        return @[];
+    }
+    
+    NSMutableArray * array = [NSMutableArray arrayWithObject:firstArgument];
+    id arg = nil;
+    while ((arg = va_arg(args,id))) {
+        [array addObject:arg];
+    }
+    return array;
+}
+
+- (nonnull NSArray *) arrayOfMappedArgsWithOriginArray:(nonnull NSArray *)originArray
+{
+    NSDictionary * propertiesMap = [self.modelClass JSONKeyPathsByPropertyKey];
+    NSMutableArray *retArray = [NSMutableArray array];
+    for (id arg in originArray) {
+        [retArray addObject:propertiesMap[arg] ?: arg];
+    }
+    return retArray;
 }
 
 @end

@@ -8,7 +8,18 @@
 
 #import "YTXRestfulModel.h"
 
+#ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
+#import "YTXRestfulModelUserDefaultStorageSync.h"
+#endif
+
+#ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
+#import "YTXRestfulModelYTXRequestRemoteSync.h"
+#endif
+
+#ifdef YTX_FMDBSYNC_EXISTS
+#import "YTXRestfulModelFMDBSync.h"
 #import "NSValue+YTXRestfulModelFMDBSync.h"
+#endif
 
 #import <Mantle/MTLEXTRuntimeExtensions.h>
 
@@ -21,9 +32,17 @@
 {
     if(self = [super init])
     {
+#ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
+#endif
+        
+#ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync syncWithPrimaryKey: [[self class] syncPrimaryKey]];
+#endif
+        
+#ifdef YTX_FMDBSYNC_EXISTS
         self.dbSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:[self class] primaryKey: [[self class] syncPrimaryKey]];
+#endif
     }
     return self;
 }
@@ -349,6 +368,11 @@
 }
 
 #pragma mark DB
++ (BOOL) isPrimaryKeyAutoincrement
+{
+    return YES;
+}
+
 + (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
 {
     NSDictionary<NSString *, NSValue *> * cachedKeys = objc_getAssociatedObject(self, [[self _tableKeyPathsCachedKey] UTF8String]);
@@ -358,8 +382,6 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    
-    NSDictionary<NSString *, NSArray<NSString * > * > * cTypeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
     
     [[self class] performSelector:NSSelectorFromString(@"enumeratePropertiesUsingBlock:") withObject:^(objc_property_t property, BOOL *stop) {
         mtl_propertyAttributes *attributes = mtl_copyPropertyAttributes(property);
@@ -379,7 +401,7 @@
         
         NSString *columnName = [self JSONKeyPathsByPropertyKey][modelProperyName] ? : modelProperyName;
         
-        const char * propertyClassName = [[NSValue formateObjectType:propertyType] UTF8String];
+        const char * propertyClassName = [[[self class] formateObjectType:propertyType] UTF8String];
         
         BOOL isPrimaryKey = [modelProperyName isEqualToString:[self primaryKey]];
         
@@ -393,14 +415,6 @@
             NO,
             nil
         };
-        
-        if (isPrimaryKey){
-             NSArray<NSString * > *  sqliteTypeArr = cTypeMap[ [NSString stringWithUTF8String:propertyClassName] ];
-            if (sqliteTypeArr != nil && ( [sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"] ) ){
-                dataStruct.autoincrement = YES;
-            }
-        }
-        
         
         [properties setObject:[NSValue value:&dataStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)] forKey:columnName];
     }];
@@ -545,6 +559,25 @@
     NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
     
     return [self.dbSync fetchForeignWithModelClass:modelClass primaryKeyValue:primaryKeyValue param:dict];
+}
+
+#pragma mark - tools
++ (nonnull NSString*) formateObjectType:(const char* _Nonnull )objcType
+{
+    if (!objcType || !strlen(objcType)) return nil;
+    NSString* type = [NSString stringWithCString:objcType encoding:NSUTF8StringEncoding];
+    
+    switch (objcType[0]) {
+        case '@':
+            type = [type substringWithRange:NSMakeRange(2, strlen(objcType)-3)];
+            break;
+        case '{':
+            type = [type substringWithRange:NSMakeRange(1, strchr(objcType, '=')-objcType-1)];
+            break;
+        default:
+            break;
+    }
+    return type;
 }
 
 @end

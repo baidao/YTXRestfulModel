@@ -35,15 +35,14 @@
 {
     NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [[super tableKeyPathsByPropertyKey] mutableCopy];
     
-    id primaryValue = [self syncPrimaryKey];
-    struct YTXRestfulModelDBSerializingStruct primaryStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[primaryValue]];
-    primaryStruct.autoincrement = NO;
-    tmpDictionary[primaryValue] = [YTXRestfulModelFMDBSync valueWithStruct:primaryStruct];
+    struct YTXRestfulModelDBSerializingStruct nameStruct;
     
-    struct YTXRestfulModelDBSerializingStruct nameStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[@"name"]];
+    [tmpDictionary[@"name"] getValue:&nameStruct];
+    
     nameStruct.defaultValue = [[@"Edward" sqliteValue] UTF8String];
-    tmpDictionary[@"name"] = [YTXRestfulModelFMDBSync valueWithStruct:nameStruct];
     
+    tmpDictionary[@"name"] = [NSValue value:&nameStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
+
     return tmpDictionary;
 }
 
@@ -55,6 +54,11 @@
 + (BOOL) autoCreateTable
 {
     return YES;
+}
+
++ (BOOL) isPrimaryKeyAutoincrement
+{
+    return NO;
 }
 
 @end

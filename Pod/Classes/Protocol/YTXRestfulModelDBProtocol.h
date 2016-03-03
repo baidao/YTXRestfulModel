@@ -54,6 +54,8 @@ struct YTXRestfulModelDBSerializingStruct {
 
 + (BOOL) autoCreateTable;
 
++ (BOOL) isPrimaryKeyAutoincrement;
+
 @optional
 /** 在这个方法内migrateWithVersion*/
 + (void) dbWillMigrate;
@@ -220,7 +222,6 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
 - (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSArray<NSString *> * )conditions;
-
 
 //Migration
 

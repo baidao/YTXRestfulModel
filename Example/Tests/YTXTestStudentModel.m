@@ -44,13 +44,22 @@
 {
     NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [[super tableKeyPathsByPropertyKey] mutableCopy];
     
-    struct YTXRestfulModelDBSerializingStruct genderStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[@"gender"]];
-    genderStruct.defaultValue = [[@(GenderFemale) sqliteValue] UTF8String];
-    tmpDictionary[@"gender"] = [YTXRestfulModelFMDBSync valueWithStruct:genderStruct];
+    struct YTXRestfulModelDBSerializingStruct genderStruct;
     
-    struct YTXRestfulModelDBSerializingStruct scoreStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[@"score"]];
+    [tmpDictionary[@"gender"] getValue:&genderStruct];
+    
+    genderStruct.defaultValue = [[@(GenderFemale) sqliteValue] UTF8String];
+    
+    tmpDictionary[@"gender"] = [NSValue value:&genderStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
+    
+    
+    struct YTXRestfulModelDBSerializingStruct scoreStruct;
+    
+    [tmpDictionary[@"score"] getValue:&scoreStruct];
+    
     scoreStruct.unique = YES;
-    tmpDictionary[@"score"] = [YTXRestfulModelFMDBSync valueWithStruct:scoreStruct];
+    
+    tmpDictionary[@"score"] = [NSValue value:&scoreStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
     
     return tmpDictionary;
 }
