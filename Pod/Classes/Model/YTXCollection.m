@@ -38,17 +38,18 @@ typedef enum {
 
 }
 
-- (instancetype)initWithModelClass:(Class)modelClass
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass
 {
     return [self initWithModelClass:modelClass userDefaultSuiteName:nil];
 }
 
-- (instancetype)initWithModelClass:(Class)modelClass userDefaultSuiteName:(NSString *) suiteName
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, YTXRestfulModelDBSerializing>)modelClass userDefaultSuiteName:(NSString *) suiteName
 {
     if(self = [super init])
     {
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
+        self.dbSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:modelClass primaryKey:[modelClass syncPrimaryKey]];
         self.modelClass = modelClass;
         self.models = @[];
     }
@@ -56,11 +57,60 @@ typedef enum {
 }
 
 #pragma mark storage
+/** GET */
+- (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param
+{
+    return [self fetchStorageSyncWithKey:[self storageKey] param:param];
+}
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSync:(nullable NSDictionary *) param
+{
+    return [self saveStorageSyncWithKey:[self storageKey] param:param];
+}
+
+/** DELETE */
+- (void) destroyStorageSync:(nullable NSDictionary *) param
+{
+    return [self destroyStorageSyncWithKey:[self storageKey] param:param];
+}
+
+/** GET */
+- (nullable instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
+{
+    NSArray * x = [self.storageSync fetchStorageSyncWithKey:storage param:param];
+    if (x) {
+        NSError * error;
+        NSArray * ret = [self transformerProxyOfReponse:x error:nil];
+        if (!error) {
+            [self resetModels:ret];
+            return self;
+        }
+    }
+    return nil;
+}
+
+/** POST / PUT */
+- (nonnull instancetype) saveStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
+{
+    [self.storageSync saveStorageSyncWithKey:storage withObject:[self transformerProxyOfModels:[self.models copy]] param:param];
+
+    return self;
+}
+
+/** DELETE */
+- (void) destroyStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
+{
+    [self.storageSync destroyStorageSyncWithKey:storage param:param];
+}
+
+/** GET */
 - (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
 {
     return [self fetchStorageWithKey:[self storageKey] param:param];
 }
 
+/** POST / PUT */
 - (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
 {
     return [self saveStorageWithKey:[self storageKey] param:param];
@@ -69,7 +119,8 @@ typedef enum {
 /** DELETE */
 - (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
 {
-    return [self destroyStorageWithKey:[self storageKey] param:param];}
+    return [self destroyStorageWithKey:[self storageKey] param:param];
+}
 
 - (RACSignal *)fetchStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
@@ -111,16 +162,7 @@ typedef enum {
 
 - (RACSignal *)destroyStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync destroyStorageWithKey:storageKey param:param] subscribeNext:^(id x) {
-        @strongify(self);
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    return [self.storageSync destroyStorageWithKey:storageKey param:param];
 }
 
 - (nonnull NSString *) storageKey
@@ -247,6 +289,432 @@ typedef enum {
         else {
             [subject sendError:error];
         }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+#pragma mark db
+- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error
+{
+    NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) columnName, ...
+{
+    va_list args;
+    va_start(args, columnName);
+    
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    
+    va_end(args);
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error soryBy:sortBy orderBy:columnNames];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger)start count:(NSUInteger)count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
+{
+    va_list args;
+    va_start(args, columnName);
+    
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    
+    va_end(args);
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error start:start count:count soryBy:sortBy orderBy:columnNames];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMet:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMet:conditions];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error whereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMet:conditions];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy  conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (nonnull instancetype) fetchDBSyncMultipleWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions];
+    
+    if (x && *error == nil) {
+        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+    }
+    
+    return self;
+}
+
+- (BOOL) destroyDBSyncAllWithError:(NSError * _Nullable * _Nullable) error
+{
+    return [self.dbSync destroyAllSyncWithError:error];
+}
+
+- (nonnull RACSignal *)fetchDBAll
+{
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchAll] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
+{
+    va_list args;
+    va_start(args, columnName);
+    
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchAllSoryBy:sortBy orderBy:columnNames] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
+{
+    va_list args;
+    va_start(args, columnName);
+    
+    NSArray * columnNames = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:columnName];
+    
+    columnNames = [YTXRestfulModelFMDBSync arrayOfMappedArgsWithOriginArray:columnNames propertiesMap:[self.modelClass JSONKeyPathsByPropertyKey]];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchMultipleWith:start count:count soryBy:sortBy orderBy:columnNames] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMet:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchMultipleWhereAllTheConditionsAreMet:conditions] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMet:conditions] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [YTXRestfulModelFMDBSync arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    return subject;
+}
+
+- (nonnull RACSignal *) destroyDBAll
+{
+    RACSubject * subject = [RACSubject subject];
+    [[self.dbSync destroyAll] subscribeNext:^(id x) {
+        [subject sendNext:x];
+        [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
     }];

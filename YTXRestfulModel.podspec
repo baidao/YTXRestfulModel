@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "YTXRestfulModel"
-  s.version          = "0.3.0"
+  s.version          = "0.4.0"
   s.summary          = "YTXRestfulModel 提供了restful的功能"
 
 # This description is used to generate tags and improve search results.
@@ -37,6 +37,7 @@ Pod::Spec.new do |s|
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'AFNetworking', '~> 2.3'
   s.dependency 'YTXRequest', '~> 0.1.6'
-  s.dependency 'Mantle', '~> 1.5.4'
+  s.dependency 'Mantle', '~> 1.5.7'
   s.dependency 'ReactiveCocoa', '~> 2.3.1'
+  s.dependency 'FMDB', '~> 2.6'
 end

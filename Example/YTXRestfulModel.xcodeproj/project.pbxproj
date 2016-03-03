@@ -9,19 +9,30 @@
 /* Begin PBXBuildFile section */
 		0CB946391C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */; };
 		0F25239CF239C579ECA71D4D /* libPods-YTXRestfulModel_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A3F7B8EAF39E8022B0C758 /* libPods-YTXRestfulModel_Tests.a */; };
+		1867C4C81C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m in Sources */ = {isa = PBXBuildFile; fileRef = 1867C4C71C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m */; };
+		1867C4CB1C7EF01000D900E9 /* YTXTestStudentModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1867C4CA1C7EF01000D900E9 /* YTXTestStudentModel.m */; };
+		1867C4CE1C7EF62A00D900E9 /* YTXTestHumanModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1867C4CD1C7EF62A00D900E9 /* YTXTestHumanModel.m */; };
 		18E9FFF61C702CA500143B68 /* db.json in Resources */ = {isa = PBXBuildFile; fileRef = 18E9FFF51C702CA500143B68 /* db.json */; };
 		6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
+		621EE9721C88013C0033A211 /* YTXTestStudentCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 621EE9711C88013C0033A211 /* YTXTestStudentCollection.m */; };
 		624C05891C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C05881C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m */; };
 		624C058C1C55E9E900C40CE6 /* YTXTestCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */; };
 		624C058F1C55EB0500C40CE6 /* YTXTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058E1C55EB0500C40CE6 /* YTXTestModel.m */; };
 		624C05911C55EDC200C40CE6 /* service.json in Resources */ = {isa = PBXBuildFile; fileRef = 624C05901C55EDC200C40CE6 /* service.json */; };
+		625D8E311C868DD8003A6F81 /* YTXTestTeacherModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 625D8E301C868DD8003A6F81 /* YTXTestTeacherModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelUserDefaultSpec.m; sourceTree = "<group>"; };
+		181817C21C843B1D00745529 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		1867C4C71C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelDB.m; sourceTree = "<group>"; };
+		1867C4C91C7EF01000D900E9 /* YTXTestStudentModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestStudentModel.h; sourceTree = "<group>"; };
+		1867C4CA1C7EF01000D900E9 /* YTXTestStudentModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestStudentModel.m; sourceTree = "<group>"; };
+		1867C4CC1C7EF62A00D900E9 /* YTXTestHumanModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestHumanModel.h; sourceTree = "<group>"; };
+		1867C4CD1C7EF62A00D900E9 /* YTXTestHumanModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestHumanModel.m; sourceTree = "<group>"; };
 		18E9FFF51C702CA500143B68 /* db.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = db.json; sourceTree = "<group>"; };
 		44BA7F8968B8D7FBB1291584 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -32,12 +43,16 @@
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
+		621EE9701C88013C0033A211 /* YTXTestStudentCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestStudentCollection.h; sourceTree = "<group>"; };
+		621EE9711C88013C0033A211 /* YTXTestStudentCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestStudentCollection.m; sourceTree = "<group>"; };
 		624C05881C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelRemote.m; sourceTree = "<group>"; };
 		624C058A1C55E9E900C40CE6 /* YTXTestCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestCollection.h; sourceTree = "<group>"; };
 		624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestCollection.m; sourceTree = "<group>"; };
 		624C058D1C55EB0500C40CE6 /* YTXTestModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestModel.h; sourceTree = "<group>"; };
 		624C058E1C55EB0500C40CE6 /* YTXTestModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestModel.m; sourceTree = "<group>"; };
 		624C05901C55EDC200C40CE6 /* service.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = service.json; sourceTree = "<group>"; };
+		625D8E2F1C868DD8003A6F81 /* YTXTestTeacherModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestTeacherModel.h; sourceTree = "<group>"; };
+		625D8E301C868DD8003A6F81 /* YTXTestTeacherModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestTeacherModel.m; sourceTree = "<group>"; };
 		A604D77080C13B2F999253FF /* Pods-YTXRestfulModel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YTXRestfulModel_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YTXRestfulModel_Tests/Pods-YTXRestfulModel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		B49B4CC15A25D49DB32DA99D /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		C00D7C8B97513F9E766D02BD /* YTXRestfulModel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = YTXRestfulModel.podspec; path = ../YTXRestfulModel.podspec; sourceTree = "<group>"; };
@@ -82,6 +97,7 @@
 		6003F58C195388D20070C39A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				181817C21C843B1D00745529 /* libsqlite3.tbd */,
 				6003F58D195388D20070C39A /* Foundation.framework */,
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
@@ -96,11 +112,20 @@
 			children = (
 				624C05881C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m */,
 				0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */,
+				1867C4C71C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 				624C058A1C55E9E900C40CE6 /* YTXTestCollection.h */,
 				624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */,
 				624C058D1C55EB0500C40CE6 /* YTXTestModel.h */,
 				624C058E1C55EB0500C40CE6 /* YTXTestModel.m */,
+				1867C4CC1C7EF62A00D900E9 /* YTXTestHumanModel.h */,
+				1867C4CD1C7EF62A00D900E9 /* YTXTestHumanModel.m */,
+				1867C4C91C7EF01000D900E9 /* YTXTestStudentModel.h */,
+				1867C4CA1C7EF01000D900E9 /* YTXTestStudentModel.m */,
+				625D8E2F1C868DD8003A6F81 /* YTXTestTeacherModel.h */,
+				625D8E301C868DD8003A6F81 /* YTXTestTeacherModel.m */,
+				621EE9701C88013C0033A211 /* YTXTestStudentCollection.h */,
+				621EE9711C88013C0033A211 /* YTXTestStudentCollection.m */,
 				18E9FFF51C702CA500143B68 /* db.json */,
 				624C05901C55EDC200C40CE6 /* service.json */,
 			);
@@ -258,9 +283,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1867C4CE1C7EF62A00D900E9 /* YTXTestHumanModel.m in Sources */,
 				624C05891C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m in Sources */,
+				625D8E311C868DD8003A6F81 /* YTXTestTeacherModel.m in Sources */,
 				0CB946391C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m in Sources */,
+				1867C4C81C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m in Sources */,
+				621EE9721C88013C0033A211 /* YTXTestStudentCollection.m in Sources */,
 				624C058C1C55E9E900C40CE6 /* YTXTestCollection.m in Sources */,
+				1867C4CB1C7EF01000D900E9 /* YTXTestStudentModel.m in Sources */,
 				624C058F1C55EB0500C40CE6 /* YTXTestModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -31,7 +31,7 @@
     return @{@"keyId": @"id"};
 }
 
-- (NSString *)primaryKey
++ (NSString *)primaryKey
 {
     return @"keyId";
 }
@@ -44,6 +44,17 @@
     }
     return  self;
 }
+
+//mantle Transoformer
++ (MTLValueTransformer *) bodyJSONTransformer
+{
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString * body) {
+        return body;
+    } reverseBlock:^(NSString * body) {
+        return body;
+    }];
+}
+
 
 @end
 
