@@ -40,26 +40,23 @@
     return @"identify";
 }
 
-+ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
++ (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey
 {
-    NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [super tableKeyPathsByPropertyKey];
+    NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * tmpDictionary = [super tableKeyPathsByPropertyKey];
     
-    struct YTXRestfulModelDBSerializingStruct genderStruct;
+    YTXRestfulModelDBSerializingModel * genderStruct = tmpDictionary[@"gender"];
+
     
-    [tmpDictionary[@"gender"] getValue:&genderStruct];
+    genderStruct.defaultValue = [@(GenderFemale) sqliteValue];
     
-    genderStruct.defaultValue = [[@(GenderFemale) sqliteValue] UTF8String];
-    
-    tmpDictionary[@"gender"] = [NSValue value:&genderStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
+    tmpDictionary[@"gender"] = genderStruct;
     
     
-    struct YTXRestfulModelDBSerializingStruct scoreStruct;
-    
-    [tmpDictionary[@"score"] getValue:&scoreStruct];
+    YTXRestfulModelDBSerializingModel * scoreStruct = tmpDictionary[@"score"];
     
     scoreStruct.unique = YES;
     
-    tmpDictionary[@"score"] = [NSValue value:&scoreStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
+    tmpDictionary[@"score"] = scoreStruct;
     
     return tmpDictionary;
 }

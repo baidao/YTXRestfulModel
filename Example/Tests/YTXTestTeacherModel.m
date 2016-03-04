@@ -31,17 +31,15 @@
     return @"identify";
 }
 
-+ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
++ (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey
 {
-    NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [super tableKeyPathsByPropertyKey];
+    NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * tmpDictionary = [super tableKeyPathsByPropertyKey];
     
-    struct YTXRestfulModelDBSerializingStruct nameStruct;
+    YTXRestfulModelDBSerializingModel * nameStruct = tmpDictionary[@"name"];
     
-    [tmpDictionary[@"name"] getValue:&nameStruct];
+    nameStruct.defaultValue = [@"Edward" sqliteValue];
     
-    nameStruct.defaultValue = [[@"Edward" sqliteValue] UTF8String];
-    
-    tmpDictionary[@"name"] = [NSValue value:&nameStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
+    tmpDictionary[@"name"] = nameStruct;
 
     return tmpDictionary;
 }

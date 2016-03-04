@@ -173,25 +173,22 @@
 /** 大于currentMigrationVersion将会依次执行*/
 - (void) migrate:(nonnull YTXRestfulModelDBMigrationEntity *) entity;
 
-- (nonnull RACSignal *) createColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct;
+- (nonnull RACSignal *) createColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
 
-- (nonnull RACSignal *) dropColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct;
+- (nonnull RACSignal *) dropColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
 
-- (nonnull RACSignal *) changeCollumnOldStruct:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct;
+- (nonnull RACSignal *) changeCollumnOldStruct:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct;
 
-- (BOOL) createColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) createColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL) dropColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) dropColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL) changeCollumnOldStructSync:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) changeCollumnOldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error;
 
 // Tools
 + (nonnull NSDictionary<NSString *, NSArray<NSString * > * > *) mapOfCTypeToSqliteType;
 + (nonnull NSArray *) arrayWithArgs:(va_list) args firstArgument:(nullable id)firstArgument;
 + (nonnull NSArray *) arrayOfMappedArgsWithOriginArray:(nonnull NSArray *)originArray propertiesMap:(nonnull NSDictionary *)propertiesMap;
-
-+ (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct;
-+ (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value;
 
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key equal:(nonnull id) value;
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key greatThan:(nonnull id) value;

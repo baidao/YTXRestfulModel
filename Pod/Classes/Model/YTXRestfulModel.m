@@ -25,39 +25,9 @@
 
 #import <objc/runtime.h>
 
-@interface TablePropertyMapManager : NSObject
-
-@property (nonatomic, strong) NSMutableDictionary * map;
-
-+ (nonnull instancetype) shared;
+@implementation YTXRestfulModelDBSerializingModel
 
 @end
-
-@implementation TablePropertyMapManager
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        self.map = [NSMutableDictionary dictionary];
-    }
-    return self;
-}
-
-+ (nonnull instancetype) shared
-{
-    static dispatch_once_t onceToken;
-    static TablePropertyMapManager * manager;
-    dispatch_once(&onceToken, ^{
-        manager = [TablePropertyMapManager new];
-    });
-    return manager;
-}
-
-@end
-
-
-
 
 @implementation YTXRestfulModel
 
@@ -395,9 +365,9 @@
     return subject;
 }
 
-+ (nonnull NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSValue *> *> *) _tableKeyPathsByPropertyKeyMap
++ (nonnull NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *> *) _tableKeyPathsByPropertyKeyMap
 {
-    static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSValue *> *> * map;
+    static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *> * map;
     
     if (map == nil) {
         map = [NSMutableDictionary dictionary];
@@ -417,15 +387,15 @@
     return YES;
 }
 
-+ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
++ (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey
 {
-    NSMutableDictionary<NSString *, NSValue *> * cachedKeys = [TablePropertyMapManager shared].map[[self _tableKeyPathsCachedKey]];
+    NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * cachedKeys = [self _tableKeyPathsByPropertyKeyMap][[self _tableKeyPathsCachedKey]];
     
     if (cachedKeys != nil) {
         return cachedKeys;
     }
     
-    NSMutableDictionary<NSString *, NSValue *> * properties =  [NSMutableDictionary dictionary];
+    __block NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * properties =  [NSMutableDictionary dictionary];
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -448,7 +418,7 @@
         
         NSString *columnName = [self JSONKeyPathsByPropertyKey][modelProperyName] ? : modelProperyName;
         
-        const char * propertyClassName = [[[self class] formateObjectType:propertyType] UTF8String];
+        NSString * propertyClassName = [[self class] formateObjectType:propertyType];
         
         BOOL isPrimaryKey = [modelProperyName isEqualToString:[self primaryKey]];
         
@@ -457,24 +427,20 @@
             isPrimaryKeyAutoincrement = [self isPrimaryKeyAutoincrement];
         }
         
-        struct YTXRestfulModelDBSerializingStruct dataStruct = {
-            propertyClassName,
-            [columnName UTF8String],
-            [modelProperyName UTF8String],
-            isPrimaryKey,
-            isPrimaryKeyAutoincrement,
-            nil,
-            NO,
-            nil
-        };
+        YTXRestfulModelDBSerializingModel * dbsm = [YTXRestfulModelDBSerializingModel new];
+        dbsm.objectClass = propertyClassName;
+        dbsm.columnName = columnName;
+        dbsm.modelName = modelProperyName;
+        dbsm.isPrimaryKey = isPrimaryKey;
+        dbsm.autoincrement = isPrimaryKeyAutoincrement;
+        dbsm.unique = NO;
         
-        [properties setObject:[NSValue value:&dataStruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)] forKey:columnName];
+        [properties setObject:dbsm forKey:columnName];
     }];
 #pragma clang diagnostic pop
-    
-    
-    [TablePropertyMapManager shared].map[[self _tableKeyPathsCachedKey]] = properties;
-    
+
+    [self _tableKeyPathsByPropertyKeyMap][[self _tableKeyPathsCachedKey]] = properties;
+ 
     return properties;
 }
 

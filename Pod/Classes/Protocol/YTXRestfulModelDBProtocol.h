@@ -22,33 +22,33 @@ typedef enum : NSUInteger {
     YTXRestfulModelDBSortByASC
 } YTXRestfulModelDBSortBy;
 
-struct YTXRestfulModelDBSerializingStruct {
-    /** 数据类型 */
-    const char * _Nonnull objectClass;
-    
-    /** 表名 */
-    const char * _Nullable  columnName;
-    
-    /** Model原始的属性名字 */
-    const char * _Nonnull  modelName;
-    
-    bool isPrimaryKey;
-    
-    bool autoincrement;
-    
-    const char * _Nullable defaultValue;
-    
-    bool unique;
-    
-    /** 外键类名 可以使用fetchForeignWithName */
-    const char * _Nullable foreignClassName;
+@interface YTXRestfulModelDBSerializingModel : NSObject
 
-};
+@property (nonatomic, nonnull, copy) NSString * objectClass;
+
+/** 表名 */
+@property (nonatomic, nonnull, copy) NSString *  columnName;
+
+/** Model原始的属性名字 */
+@property (nonatomic, nonnull, copy) NSString *  modelName;
+
+@property (nonatomic, assign) BOOL isPrimaryKey;
+
+@property (nonatomic, assign) BOOL autoincrement;
+
+@property (nonatomic, assign) BOOL unique;
+
+@property (nonatomic, nonnull, copy) NSString * defaultValue;
+
+/** 外键类名 可以使用fetchForeignWithName */
+@property (nonatomic, nonnull, copy) NSString * foreignClassName;
+
+@end
 
 @protocol YTXRestfulModelDBSerializing <NSObject>
 
 /** NSDictionary<ColumnName(lowerCase), NSValue(YTXRestfulModelDBSerializingStruct)> */
-+ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
++ (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey;
 
 + (nullable NSNumber *) currentMigrationVersion;
 
@@ -232,17 +232,17 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 /** 大于currentMigrationVersion将会依次执行，数字越大越后执行*/
 - (void) migrate:(nonnull YTXRestfulModelDBMigrationEntity *) entity;
 
-- (nonnull RACSignal *) createColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct;
+- (nonnull RACSignal *) createColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
 
-- (nonnull RACSignal *) dropColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct;
+- (nonnull RACSignal *) dropColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
 
-- (nonnull RACSignal *) changeCollumnOldStruct:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct;
+- (nonnull RACSignal *) changeCollumnOldStruct:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct;
 
-- (BOOL) createColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) createColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL) dropColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) dropColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL) changeCollumnOldStructSync:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) changeCollumnOldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error;
 
 @optional
 

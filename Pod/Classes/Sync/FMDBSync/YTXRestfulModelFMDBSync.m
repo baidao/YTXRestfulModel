@@ -147,7 +147,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nullable NSDictionary *) dictionaryWithFMResultSet:(FMResultSet *) rs error:(NSError * _Nullable * _Nullable) error
 {
     NSArray* columns = [[rs columnNameToIndexMap] allKeys];
-    NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+    NSDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
     NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
     NSMutableDictionary * ret = nil;
 
@@ -165,11 +165,11 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
             NSString * columnName = [columns objectAtIndex:index];
 
-            struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[key]];
+            YTXRestfulModelDBSerializingModel * sstruct = map[key];
 
-            NSString * objectTypeString = typeMap[[NSString stringWithUTF8String:sstruct.objectClass]][0];
+            NSString * objectTypeString = typeMap[sstruct.objectClass][0];
 
-            NSString * modelPropertyName = [NSString stringWithUTF8String:sstruct.columnName];
+            NSString * modelPropertyName = sstruct.columnName;
 
             Class cls = NSClassFromString(objectTypeString);
 
@@ -179,7 +179,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
                 continue;
             }
 
-            id value = [cls objectForSqliteString:stringValue objectType: [NSString stringWithUTF8String:sstruct.objectClass]];
+            id value = [cls objectForSqliteString:stringValue objectType: sstruct.objectClass];
 
             if (value != nil) {
                 [ret setObject:value forKey:modelPropertyName];
@@ -197,7 +197,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nullable NSArray<NSDictionary *> *) arrayWithFMResultSet:(FMResultSet *) rs error:(NSError * _Nullable * _Nullable) error
 {
     NSArray* columns = [[rs columnNameToIndexMap] allKeys];
-    NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+    NSDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
     NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
     NSMutableArray<NSMutableDictionary *> * ret = [NSMutableArray array];
 
@@ -213,11 +213,11 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
             NSString * columnName = [columns objectAtIndex:index];
 
-            struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:map[key]];
+            YTXRestfulModelDBSerializingModel * sstruct = map[key];
 
-            NSString * objectTypeString = typeMap[[NSString stringWithUTF8String:sstruct.objectClass]][0];
+            NSString * objectTypeString = typeMap[sstruct.objectClass][0];
 
-            NSString * modelPropertyName = [NSString stringWithUTF8String:sstruct.columnName];
+            NSString * modelPropertyName = sstruct.columnName;
 
             Class cls = NSClassFromString(objectTypeString);
 
@@ -227,7 +227,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
                 continue;
             }
 
-            id value = [cls objectForSqliteString:stringValue objectType:[NSString stringWithUTF8String:sstruct.objectClass]];
+            id value = [cls objectForSqliteString:stringValue objectType:sstruct.objectClass];
 
             if (value != nil) {
                 [dict setObject:value forKey:modelPropertyName];
@@ -284,13 +284,11 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     __block NSError * currentError;
     __block BOOL success;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        NSDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+        NSDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
         
-        NSValue * primaryKeyStructValue = map[self.primaryKey];
+        YTXRestfulModelDBSerializingModel * primaryKeyStruct = map[self.primaryKey];
         
-        NSAssert(primaryKeyStructValue != nil, @"必须找到主键struct");
-        
-        struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = [YTXRestfulModelFMDBSync structWithValue:primaryKeyStructValue];
+        NSAssert(primaryKeyStruct != nil, @"必须找到主键struct");
         
         NSAssert(primaryKeyStruct.isPrimaryKey, @"主键struct的isPrimaryKey必须为真");
         
@@ -460,18 +458,17 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** GET Foreign Models with primary key */
 - (nonnull NSArray<NSDictionary *> *) fetchForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
 {
-    NSDictionary<NSString *, NSValue *> * map =  [modelClass tableKeyPathsByPropertyKey];
+    NSDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * map =  [modelClass tableKeyPathsByPropertyKey];
     NSString * primaryKey = nil;
     NSString * foreignKey = nil;
 
 
-    for (NSValue * value in map.allValues) {
-        struct YTXRestfulModelDBSerializingStruct valueStruct = [YTXRestfulModelFMDBSync structWithValue:value];
+    for (YTXRestfulModelDBSerializingModel * valueStruct in map.allValues) {
         if (valueStruct.isPrimaryKey) {
-            primaryKey = [NSString stringWithUTF8String:valueStruct.columnName];
+            primaryKey = valueStruct.columnName;
         }
-        if (valueStruct.foreignClassName && [NSStringFromClass(self.modelClass) isEqualToString:[NSString stringWithUTF8String:valueStruct.foreignClassName ]] ) {
-            foreignKey = [NSString stringWithUTF8String:valueStruct.columnName];
+        if (valueStruct.foreignClassName && [NSStringFromClass(self.modelClass) isEqualToString:valueStruct.foreignClassName ] ) {
+            foreignKey = valueStruct.columnName;
         }
     }
 
@@ -708,7 +705,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     [[self migrationBlocks] addObject:entity];
 }
 
-- (BOOL) createColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error
+- (BOOL) createColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error
 {
     __block NSError *currentError = nil;
 
@@ -727,7 +724,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 }
 
 
-- (BOOL) dropColumnWithStructSync:(struct YTXRestfulModelDBSerializingStruct)sstruct error:(NSError * _Nullable * _Nullable)error
+- (BOOL) dropColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error
 {
     __block NSError *currentError = nil;
 
@@ -746,7 +743,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return currentError == nil;
 }
 
-- (BOOL) changeCollumnOldStructSync:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct error:(NSError * _Nullable * _Nullable)error
+- (BOOL) changeCollumnOldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error
 {
     __block NSError *currentError = nil;
 
@@ -764,21 +761,21 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return currentError == nil;
 }
 
-- (nonnull RACSignal *) createColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct
+- (nonnull RACSignal *) createColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct
 {
     NSError *error = nil;
     [self createColumnWithStructSync:sstruct error:&error];
     return [self _createRACSingalWithNext:nil error:error];
 }
 
-- (nonnull RACSignal *) dropColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct)sstruct
+- (nonnull RACSignal *) dropColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct
 {
     NSError *error = nil;
     [self dropColumnWithStructSync:sstruct error:&error];
     return [self _createRACSingalWithNext:nil error:error];
 }
 
-- (nonnull RACSignal *) changeCollumnOldStruct:(struct YTXRestfulModelDBSerializingStruct) oldStruct toNewStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct
+- (nonnull RACSignal *) changeCollumnOldStruct:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct
 {
     NSError *error = nil;
     [self changeCollumnOldStructSync:oldStruct toNewStruct:newStruct error:&error];
@@ -789,14 +786,12 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull NSString *) sqlForCreatingTable
 {
-    NSMutableDictionary<NSString *, NSValue *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+    NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
 
-    NSValue * primaryKeyStructValue = map[self.primaryKey];
-
-    NSAssert(primaryKeyStructValue != nil, @"必须找到主键struct");
-
-    struct YTXRestfulModelDBSerializingStruct primaryKeyStruct = [YTXRestfulModelFMDBSync structWithValue:primaryKeyStructValue];
-
+    YTXRestfulModelDBSerializingModel * primaryKeyStruct = map[self.primaryKey];
+    
+    NSAssert(primaryKeyStruct != nil, @"必须找到主键struct");
+    
     NSAssert(primaryKeyStruct.isPrimaryKey, @"主键struct的isPrimaryKey必须为真");
 
     //Table Name
@@ -809,7 +804,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     BOOL beAssignPrimaryKey = YES;
 
     if ([self.modelClass isPrimaryKeyAutoincrement]) {
-        NSArray<NSString * > *  sqliteTypeArr = [[self class] mapOfCTypeToSqliteType][ [NSString stringWithUTF8String:primaryKeyStruct.objectClass] ];
+        NSArray<NSString * > *  sqliteTypeArr = [[self class] mapOfCTypeToSqliteType][ primaryKeyStruct.objectClass ];
         
         if (primaryKeyStruct.autoincrement) {
             NSAssert([sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"], @"自增的类型必须是NSNumber或者转为INTEGER");
@@ -823,11 +818,10 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     
     
     BOOL first = YES;
-    for (NSValue * value in map.allValues) {
-        struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:value];
-        NSString* key = [NSString stringWithUTF8String:sstruct.columnName ? : sstruct.modelName];
+    for (YTXRestfulModelDBSerializingModel * sstruct in map.allValues) {
+        NSString* key = sstruct.columnName ? : sstruct.modelName;
 
-        NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
+        NSString* typeKey = sstruct.objectClass;
         //TODO:外键
         if (!typeMap[typeKey]) continue;
 
@@ -853,7 +847,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         }
         //提供默认值
         if (sstruct.defaultValue) {
-            [columns appendFormat:@" DEFAULT %@", [NSString stringWithUTF8String:sstruct.defaultValue]];
+            [columns appendFormat:@" DEFAULT %@", sstruct.defaultValue];
         }
 
         if (sstruct.unique) {
@@ -896,7 +890,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull NSString *) sqlForCreateOneWithParam:(NSDictionary *) param
 {
-    NSDictionary<NSString *, NSValue *> * propertyMap = [self.modelClass tableKeyPathsByPropertyKey];
+    NSDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * propertyMap = [self.modelClass tableKeyPathsByPropertyKey];
     NSMutableString* columns = [NSMutableString string];
     NSMutableString* values = [NSMutableString string];
     NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
@@ -909,8 +903,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
         if (!propertyMap[key]) continue;
 
-        struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:propertyMap[key]];
-        NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
+        YTXRestfulModelDBSerializingModel * sstruct = propertyMap[key];
+        NSString* typeKey = sstruct.objectClass;
 
         if (!typeMap[typeKey]) continue;
 
@@ -930,7 +924,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
 - (nonnull NSString *) sqlForUpdateOneWithParam:(NSDictionary *) param
 {
-    NSDictionary<NSString *, NSValue *> * propertyMap = [self.modelClass tableKeyPathsByPropertyKey];
+    NSDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * propertyMap = [self.modelClass tableKeyPathsByPropertyKey];
     NSMutableString* updateString = [NSMutableString string];
     NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
     NSString* primaryKey = [self primaryKey];
@@ -946,8 +940,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 
         if (!propertyMap[key]) continue;
 
-        struct YTXRestfulModelDBSerializingStruct sstruct = [YTXRestfulModelFMDBSync structWithValue:propertyMap[key]];
-        NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
+        YTXRestfulModelDBSerializingModel * sstruct = propertyMap[key];
+        NSString* typeKey = sstruct.objectClass;
 
         if (!typeMap[typeKey]) continue;
 
@@ -970,32 +964,32 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return [NSString stringWithFormat:@"DELETE FROM %@ WHERE %@=%@", [self tableName], [self primaryKey], valueString];
 }
 
-- (nonnull NSString *) sqlForAlterAddColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct
+- (nonnull NSString *) sqlForAlterAddColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *) sstruct
 {
     NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
-    NSString* typeKey = [NSString stringWithUTF8String:(sstruct.objectClass)];
+    NSString* typeKey = sstruct.objectClass;
     NSString* sqlType = typeMap[typeKey][1];
 
-    return [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ %@ %@", [self tableName], [NSString stringWithUTF8String:sstruct.columnName ],
+    return [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ %@ %@", [self tableName], sstruct.columnName,
             sqlType,
-            sstruct.defaultValue? [NSString stringWithFormat:@" DEFAULT %@", [NSString stringWithUTF8String:sstruct.defaultValue]] : @""
+            sstruct.defaultValue? [NSString stringWithFormat:@" DEFAULT %@", sstruct.defaultValue] : @""
 
     ];
 }
 
-- (nonnull NSString *) sqlForAlterDropColumnWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct
+- (nonnull NSString *) sqlForAlterDropColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *) sstruct
 {
-    return [NSString stringWithFormat:@"ALTER TABLE %@ DROP COLUMN %@", [self tableName], [NSString stringWithUTF8String:sstruct.columnName]];
+    return [NSString stringWithFormat:@"ALTER TABLE %@ DROP COLUMN %@", [self tableName], sstruct.columnName];
 }
 
-- (nonnull NSString *) sqlForAlterChangeColumnWithOldStruct:(struct YTXRestfulModelDBSerializingStruct) oldStruct newStruct:(struct YTXRestfulModelDBSerializingStruct) newStruct
+- (nonnull NSString *) sqlForAlterChangeColumnWithOldStruct:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct newStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct
 {
     NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
-    NSString* typeKey = [NSString stringWithUTF8String:(newStruct.objectClass)];
+    NSString* typeKey = newStruct.objectClass;
     NSString* sqlType = typeMap[typeKey][1];
 
-    return [NSString stringWithFormat:@"ALTER TABLE %@ CHANGE COLUMN %@ %@ %@ %@", [self tableName], [NSString stringWithUTF8String:oldStruct.columnName], [NSString stringWithUTF8String:newStruct.columnName], sqlType,
-            newStruct.defaultValue? [NSString stringWithFormat:@" DEFAULT %@", [NSString stringWithUTF8String:newStruct.defaultValue]] : @""  ];
+    return [NSString stringWithFormat:@"ALTER TABLE %@ CHANGE COLUMN %@ %@ %@ %@", [self tableName], oldStruct.columnName, newStruct.columnName, sqlType,
+            newStruct.defaultValue? [NSString stringWithFormat:@" DEFAULT %@", newStruct.defaultValue] : @""  ];
 }
 
 - (nonnull NSString *) sqlForDeleteAll
@@ -1165,20 +1159,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         [retArray addObject:propertiesMap[arg] ?: arg];
     }
     return retArray;
-}
-
-+ (nonnull NSValue *) valueWithStruct:(struct YTXRestfulModelDBSerializingStruct) sstruct
-{
-    return [NSValue value:&sstruct withObjCType:@encode(struct YTXRestfulModelDBSerializingStruct)];
-}
-
-+ (struct YTXRestfulModelDBSerializingStruct) structWithValue:(nonnull NSValue *) value
-{
-    struct YTXRestfulModelDBSerializingStruct sstruct;
-
-    [value getValue:&sstruct];
-
-    return sstruct;
 }
 
 + (nonnull NSString *) migrationVersionKeyWithClassOfModel: (Class) modelClass

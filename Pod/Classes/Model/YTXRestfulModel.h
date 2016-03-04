@@ -90,7 +90,7 @@ NSAssert(self.__SYNC__ != nil, @"应该在pod中安装此__SYNC__", @"__SYNC__")
 + (BOOL) isPrimaryKeyAutoincrement;
 
 /** 若主键是NSNumber 将会默认设置为自增的 */
-+ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
++ (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey;
 
 + (nullable NSNumber *) currentMigrationVersion;
 
