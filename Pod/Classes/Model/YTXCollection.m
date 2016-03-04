@@ -905,19 +905,19 @@ typedef enum {
 
 - (id<YTXRestfulModelStorageProtocol>)storageSync
 {
-    YTXAssertSyncExists(storageSync);
+    YTXAssertSyncExists(_storageSync, @"StorageSync");
     return _storageSync;
 }
 
 -(id<YTXRestfulModelDBProtocol>)dbSync
 {
-    YTXAssertSyncExists(dbSync);
+    YTXAssertSyncExists(_dbSync, @"DBSync");
     return _dbSync;
 }
 
 -(id<YTXRestfulModelRemoteProtocol>)remoteSync
 {
-    YTXAssertSyncExists(remoteSync);
+    YTXAssertSyncExists(_remoteSync, @"RemoteSync");
     return _remoteSync;
 }
 

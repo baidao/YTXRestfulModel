@@ -13,8 +13,8 @@
 #import <Mantle/Mantle.h>
 #import <Foundation/Foundation.h>
 
-#define YTXAssertSyncExists(__SYNC__) \
-NSAssert(self.__SYNC__ != nil, @"应该在pod中安装此__SYNC__", @"__SYNC__");\
+#define YTXAssertSyncExists(__SYNC__, __DESC__) \
+NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @"pod 'YTXRestfulModel', :path => '../', :subspecs => [ 'FMDBSync', 'UserDefaultStorageSync']");\
 
 @interface YTXRestfulModel : MTLModel <YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>
 

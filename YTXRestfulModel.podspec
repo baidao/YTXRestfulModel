@@ -26,19 +26,21 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, '7.0'
   s.requires_arc = true
+  
+  s.subspec "Default" do |ss|
+    ss.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
+    ss.dependency 'Mantle', '~> 1.5.7'
+    ss.dependency 'ReactiveCocoa', '~> 2.3.1'
+  end
 
-  DBType      = "DBSYNC"
-  RemoteType  = "REMOTESYNC"
-  StorageType = "STORAGESYNC"
-
-  YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",    :type => RemoteType,   :dependency => [{:name => "YTXRequest",  :version => "~> 0.1.6" }] }
-  FMDBSync               = { :spec_name => "FMDBSync",                :type => DBType,       :dependency => [{:name => "FMDB",        :version => "~> 2.6"   }] }
-  UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync",  :type => StorageType                                                                    }
+  YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",     :dependency => [{:name => "YTXRequest",  :version => "~> 0.1.6" }] }
+  FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",        :version => "~> 2.6"   }] }
+  UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync",                                                                      }
 
   $all_names = []
 
   $all_sync = [YTXRequestRemoteSync, FMDBSync, UserDefaultStorageSync]
-
+  
   $all_sync.each do |sync_spec|
     s.subspec sync_spec[:spec_name] do |ss|
 
@@ -48,17 +50,11 @@ Pod::Spec.new do |s|
 
       sources = ["Pod/Classes/Sync/#{specname}/**/*"]
 
-      name_prefix_header_contents = "#define YTX_#{specname.upcase}_EXISTS 1"
-
-      type_prefix_header_contents = ""
-
-      if sync_spec[:type]
-        type_prefix_header_contents = "#define YTX_#{sync_spec[:type].upcase}_EXISTS 1"
-      end
-
-      ss.prefix_header_contents = name_prefix_header_contents, type_prefix_header_contents
+      ss.prefix_header_contents = "#define YTX_#{specname.upcase}_EXISTS 1"
       
       ss.source_files = sources
+      
+      ss.dependency 'YTXRestfulModel/Default'
 
       if sync_spec[:dependency]
         sync_spec[:dependency].each do |dep|
@@ -69,9 +65,10 @@ Pod::Spec.new do |s|
     end
   end
 
-  s.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
-  s.dependency 'Mantle', '~> 1.5.7'
-  s.dependency 'ReactiveCocoa', '~> 2.3.1'
+#  s.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
+#  s.dependency 'Mantle', '~> 1.5.7'
+#  s.dependency 'ReactiveCocoa', '~> 2.3.1'
+  s.default_subspec = 'Default'
 
   spec_names = $all_names[0...-1].join(", ") + " 和 " + $all_names[-1]
 

@@ -42,30 +42,20 @@ PODS:
   - YTXRequest (0.1.7):
     - AFNetworking (~> 2.6.3)
     - YTKNetwork (~> 0.3.0)
-  - YTXRestfulModel (0.5.0):
+  - YTXRestfulModel/Default (0.5.0):
     - Mantle (~> 1.5.7)
     - ReactiveCocoa (~> 2.3.1)
-    - YTXRestfulModel/FMDBSync (= 0.5.0)
-    - YTXRestfulModel/UserDefaultStorageSync (= 0.5.0)
-    - YTXRestfulModel/YTXRequestRemoteSync (= 0.5.0)
   - YTXRestfulModel/FMDBSync (0.5.0):
     - FMDB (~> 2.6)
-    - Mantle (~> 1.5.7)
-    - ReactiveCocoa (~> 2.3.1)
+    - YTXRestfulModel/Default
   - YTXRestfulModel/UserDefaultStorageSync (0.5.0):
-    - Mantle (~> 1.5.7)
-    - ReactiveCocoa (~> 2.3.1)
-  - YTXRestfulModel/YTXRequestRemoteSync (0.5.0):
-    - Mantle (~> 1.5.7)
-    - ReactiveCocoa (~> 2.3.1)
-    - YTXRequest (~> 0.1.6)
+    - YTXRestfulModel/Default
 
 DEPENDENCIES:
   - Kiwi
-  - YTXRestfulModel (from `../`)
+  - YTXRequest (~> 0.1.7)
   - YTXRestfulModel/FMDBSync (from `../`)
   - YTXRestfulModel/UserDefaultStorageSync (from `../`)
-  - YTXRestfulModel/YTXRequestRemoteSync (from `../`)
 
 EXTERNAL SOURCES:
   YTXRestfulModel:
@@ -80,6 +70,6 @@ SPEC CHECKSUMS:
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
   YTKNetwork: 6c42c364ac9139bdd5659e4816fce29156ca8fa9
   YTXRequest: af02c852225b7c740a85f4ca0f3d09402949e2b4
-  YTXRestfulModel: f572e2b06167cdde2c35065666131f2e532fff1b
+  YTXRestfulModel: a20c075456b80894ad69bfefc0b30896c680b1c9
 
 COCOAPODS: 0.39.0
