@@ -263,8 +263,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** GET Model with primary key */
 - (nullable NSDictionary *) fetchOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 {
-    id value = param[self.primaryKey];
-    NSAssert(value != nil,@"必须在param找到主键的value");
+    NSAssert(param[self.primaryKey] != nil,@"必须在param找到主键的value");
 
     return [self _fetchOneWithSqliteStringSync:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]] error:error];
 }
@@ -272,8 +271,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 /** GET Model with primary key */
 - (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param
 {
-    id value = param[self.primaryKey];
-    NSAssert(value != nil,@"必须在param找到主键的value");
+    NSAssert(param[self.primaryKey] != nil,@"必须在param找到主键的value");
     return [self _fetchOneWithSqliteString:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]]];
 }
 
@@ -359,8 +357,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     __block BOOL result = YES;
     __block NSError * currentError;
     [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        id value = param[self.primaryKey];
-        NSAssert(value != nil,@"必须在param找到主键的value");
+        NSAssert(param[self.primaryKey] != nil,@"必须在param找到主键的value");
         [db executeUpdate:[self sqlForDeleteOneWithPrimaryKeyValue:param[self.primaryKey]] withErrorAndBindings:&currentError];
         if (currentError) {
             *rollback = YES;
@@ -808,12 +805,8 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         
         if (primaryKeyStruct.autoincrement) {
             NSAssert([sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"], @"自增的类型必须是NSNumber或者转为INTEGER");
+            [sqliteTypeArr count];
         }
-        
-//        if (!primaryKeyStruct.autoincrement && sqliteTypeArr != nil && ( [sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"] )){
-//            primaryKeyStruct.autoincrement = YES;
-//            map[self.primaryKey] = [YTXRestfulModelFMDBSync valueWithStruct:primaryKeyStruct];
-//        }
     }
     
     
@@ -1136,20 +1129,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             return @"ASC";
             break;
     }
-}
-
-+ (nonnull NSArray *) arrayWithArgs:(va_list) args firstArgument:(nullable id)firstArgument
-{
-    if (firstArgument == nil) {
-        return @[];
-    }
-    
-    NSMutableArray * array = [NSMutableArray arrayWithObject:firstArgument];
-    id arg = nil;
-    while ((arg = va_arg(args,id))) {
-        [array addObject:arg];
-    }
-    return array;
 }
 
 + (nonnull NSArray *) arrayOfMappedArgsWithOriginArray:(nonnull NSArray *)originArray propertiesMap:(nonnull NSDictionary *)propertiesMap

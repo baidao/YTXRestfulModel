@@ -187,7 +187,6 @@
 
 // Tools
 + (nonnull NSDictionary<NSString *, NSArray<NSString * > * > *) mapOfCTypeToSqliteType;
-+ (nonnull NSArray *) arrayWithArgs:(va_list) args firstArgument:(nullable id)firstArgument;
 + (nonnull NSArray *) arrayOfMappedArgsWithOriginArray:(nonnull NSArray *)originArray propertiesMap:(nonnull NSDictionary *)propertiesMap;
 
 + (nonnull NSString * ) sqliteStringWhere:(nonnull NSString *) key equal:(nonnull id) value;
