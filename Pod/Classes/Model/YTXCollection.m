@@ -23,6 +23,7 @@
 
 #import <Mantle/Mantle.h>
 
+
 typedef enum {
     RESET,
     ADD,
@@ -60,20 +61,12 @@ typedef enum {
 
 }
 
-- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, MTLJSONSerializing
-#ifdef YTX_FMDBSYNC_EXISTS
-                                    , YTXRestfulModelDBSerializing
-#endif
-                                    >)modelClass
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>)modelClass
 {
     return [self initWithModelClass:modelClass userDefaultSuiteName:nil];
 }
 
-- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, MTLJSONSerializing
-#ifdef YTX_FMDBSYNC_EXISTS
-                                    , YTXRestfulModelDBSerializing
-#endif
-                                    >)modelClass userDefaultSuiteName:(NSString *) suiteName
+- (instancetype)initWithModelClass:(Class<YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>)modelClass userDefaultSuiteName:(NSString *) suiteName
 {
     if(self = [super init])
     {
@@ -117,6 +110,7 @@ typedef enum {
 /** GET */
 - (nullable instancetype) fetchStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param
 {
+
     NSArray * x = [self.storageSync fetchStorageSyncWithKey:storage param:param];
     if (x) {
         NSError * error;
@@ -907,6 +901,24 @@ typedef enum {
         [retArray addObject:propertiesMap[arg] ?: arg];
     }
     return retArray;
+}
+
+- (id<YTXRestfulModelStorageProtocol>)storageSync
+{
+    YTXAssertSyncExists(storageSync);
+    return _storageSync;
+}
+
+-(id<YTXRestfulModelDBProtocol>)dbSync
+{
+    YTXAssertSyncExists(dbSync);
+    return _dbSync;
+}
+
+-(id<YTXRestfulModelRemoteProtocol>)remoteSync
+{
+    YTXAssertSyncExists(remoteSync);
+    return _remoteSync;
 }
 
 @end

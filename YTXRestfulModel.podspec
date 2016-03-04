@@ -27,8 +27,6 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
-
   DBType      = "DBSYNC"
   RemoteType  = "REMOTESYNC"
   StorageType = "STORAGESYNC"
@@ -50,8 +48,6 @@ Pod::Spec.new do |s|
 
       sources = ["Pod/Classes/Sync/#{specname}/**/*"]
 
-      ss.source_files = sources
-
       name_prefix_header_contents = "#define YTX_#{specname.upcase}_EXISTS 1"
 
       type_prefix_header_contents = ""
@@ -61,6 +57,8 @@ Pod::Spec.new do |s|
       end
 
       ss.prefix_header_contents = name_prefix_header_contents, type_prefix_header_contents
+      
+      ss.source_files = sources
 
       if sync_spec[:dependency]
         sync_spec[:dependency].each do |dep|
@@ -71,7 +69,7 @@ Pod::Spec.new do |s|
     end
   end
 
-
+  s.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
   s.dependency 'Mantle', '~> 1.5.7'
   s.dependency 'ReactiveCocoa', '~> 2.3.1'
 

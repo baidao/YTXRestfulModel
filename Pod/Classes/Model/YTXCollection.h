@@ -16,11 +16,7 @@
 
 @interface YTXCollection : NSObject
 
-@property (nonnull, nonatomic, assign) Class<YTXRestfulModelProtocol, MTLJSONSerializing
-#ifdef YTX_FMDBSYNC_EXISTS
-, YTXRestfulModelDBSerializing
-#endif
-> modelClass;
+@property (nonnull, nonatomic, assign) Class<YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing> modelClass;
 @property (nonnull, nonatomic, strong, readonly) NSArray * models;
 
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelStorageProtocol> storageSync;
@@ -28,19 +24,10 @@
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelDBProtocol> dbSync;
 
 
-- (nonnull instancetype) initWithModelClass:(nonnull Class<YTXRestfulModelProtocol, MTLJSONSerializing
-#ifdef YTX_FMDBSYNC_EXISTS
-                                             , YTXRestfulModelDBSerializing
-#endif
-                                             >)modelClass;
+- (nonnull instancetype) initWithModelClass:(nonnull Class<YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>)modelClass;
 
-- (nonnull instancetype) initWithModelClass:(nonnull Class<YTXRestfulModelProtocol, MTLJSONSerializing
-#ifdef YTX_FMDBSYNC_EXISTS
-                                             , YTXRestfulModelDBSerializing
-#endif
-                                             >)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
+- (nonnull instancetype) initWithModelClass:(nonnull Class<YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
 
-#ifdef YTX_STORAGESYNC_EXISTS
 #pragma mark storage
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
@@ -78,9 +65,6 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 
-#endif
-
-#ifdef YTX_REMOTESYNC_EXISTS
 #pragma mark remote
 /* RACSignal return Tuple( self, Arrary<Model> ) **/
 - (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
@@ -90,9 +74,7 @@
 
 /* RACSignal return self **/
 - (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
-#endif
 
-#ifdef YTX_DBSYNC_EXISTS
 #pragma mark db
 - (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable) error;
 
@@ -135,7 +117,6 @@
 
 /* RACSignal return BOOL **/
 - (nonnull RACSignal *) destroyDBAll;
-#endif
 
 - (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfReponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error;
 

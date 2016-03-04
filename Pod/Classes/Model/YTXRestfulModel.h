@@ -13,6 +13,9 @@
 #import <Mantle/Mantle.h>
 #import <Foundation/Foundation.h>
 
+#define YTXAssertSyncExists(__SYNC__) \
+NSAssert(self.__SYNC__ != nil, @"应该在pod中安装此__SYNC__", @"__SYNC__");\
+
 @interface YTXRestfulModel : MTLModel <YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>
 
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelStorageProtocol> storageSync;
@@ -42,7 +45,6 @@
 /** 将自身转化为Dictionary，然后对传入参数进行和自身属性的融合。自身的属性优先级最高，不可被传入参数修改。 */
 - (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param;
 
-#ifdef YTX_STORAGESYNC_EXISTS
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
 
@@ -73,9 +75,6 @@
 /** DELETE */
 - (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
 
-#endif
-
-#ifdef YTX_REMOTESYNC_EXISTS
 /** :id/comment 这种形式的时候使用GET; modelClass is MTLModel*/
 - (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
 
@@ -86,9 +85,7 @@
 - (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param;
 /** DELETE */
 - (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param;
-#endif
 
-#ifdef YTX_DBSYNC_EXISTS
 /** 主键是否自增，默认为YES */
 + (BOOL) isPrimaryKeyAutoincrement;
 
@@ -129,7 +126,5 @@
 
 /** GET Foreign Models with primary key */
 - (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param;
-
-#endif
 
 @end

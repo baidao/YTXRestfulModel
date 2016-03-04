@@ -475,9 +475,6 @@
     
     [TablePropertyMapManager shared].map[[self _tableKeyPathsCachedKey]] = properties;
     
-    NSMutableDictionary * dict = [TablePropertyMapManager shared].map;
-    
-    
     return properties;
 }
 
@@ -631,6 +628,25 @@
             break;
     }
     return type;
+}
+
+
+- (id<YTXRestfulModelStorageProtocol>)storageSync
+{
+    YTXAssertSyncExists(storageSync);
+    return _storageSync;
+}
+
+-(id<YTXRestfulModelDBProtocol>)dbSync
+{
+    YTXAssertSyncExists(dbSync);
+    return _dbSync;
+}
+
+-(id<YTXRestfulModelRemoteProtocol>)remoteSync
+{
+    YTXAssertSyncExists(remoteSync);
+    return _remoteSync;
 }
 
 @end
