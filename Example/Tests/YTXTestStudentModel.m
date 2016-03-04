@@ -42,7 +42,7 @@
 
 + (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
 {
-    NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [[super tableKeyPathsByPropertyKey] mutableCopy];
+    NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [super tableKeyPathsByPropertyKey];
     
     struct YTXRestfulModelDBSerializingStruct genderStruct;
     

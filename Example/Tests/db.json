@@ -43,38 +43,31 @@
       "id": 7
     },
     {
-      "body": "teststeststesettsetsetttsetttest",
-      "title": "ytx test hahahaha",
+      "body": "I Love You",
+      "dbSync": "<YTXRestfulModelFMDBSync: 0x7fd9b9674fa0>",
+      "title": "同一个",
       "userId": 1,
       "id": 8
     },
     {
-      "body": "teststeststesettsetsetttsetttest",
-      "title": "ytx test hahahaha",
+      "body": "I Love You",
+      "dbSync": "<YTXRestfulModelFMDBSync: 0x7fe83173ed50>",
+      "title": "同一个",
       "userId": 1,
       "id": 9
     },
     {
-      "title": "更新了",
+      "body": "I Love You",
+      "dbSync": "<YTXRestfulModelFMDBSync: 0x7fe9abf0e770>",
+      "title": "同一个",
+      "userId": 1,
       "id": 10
     },
     {
-      "body": "teststeststesettsetsetttsetttest",
-      "title": "ytx test hahahaha",
+      "body": "I Love You",
+      "title": "Hello World",
       "userId": 1,
       "id": 11
-    },
-    {
-      "body": "teststeststesettsetsetttsetttest",
-      "title": "ytx test hahahaha",
-      "userId": 1,
-      "id": 12
-    },
-    {
-      "body": "teststeststesettsetsetttsetttest",
-      "title": "ytx test hahahaha",
-      "userId": 1,
-      "id": 13
     }
   ],
   "comments": [

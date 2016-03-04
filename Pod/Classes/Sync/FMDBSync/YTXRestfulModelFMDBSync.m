@@ -811,10 +811,14 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     if ([self.modelClass isPrimaryKeyAutoincrement]) {
         NSArray<NSString * > *  sqliteTypeArr = [[self class] mapOfCTypeToSqliteType][ [NSString stringWithUTF8String:primaryKeyStruct.objectClass] ];
         
-        if (!primaryKeyStruct.autoincrement && sqliteTypeArr != nil && ( [sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"] )){
-            primaryKeyStruct.autoincrement = YES;
-            map[self.primaryKey] = [YTXRestfulModelFMDBSync valueWithStruct:primaryKeyStruct];
+        if (primaryKeyStruct.autoincrement) {
+            NSAssert([sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"], @"自增的类型必须是NSNumber或者转为INTEGER");
         }
+        
+//        if (!primaryKeyStruct.autoincrement && sqliteTypeArr != nil && ( [sqliteTypeArr[1] isEqualToString:@"INTEGER"] || [sqliteTypeArr[0] isEqualToString:@"NSNumber"] )){
+//            primaryKeyStruct.autoincrement = YES;
+//            map[self.primaryKey] = [YTXRestfulModelFMDBSync valueWithStruct:primaryKeyStruct];
+//        }
     }
     
     

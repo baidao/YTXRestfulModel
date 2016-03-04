@@ -16,7 +16,11 @@
 
 @interface YTXCollection : NSObject
 
-@property (nonnull, nonatomic, assign) Class<YTXRestfulModelProtocol, MTLJSONSerializing> modelClass;
+@property (nonnull, nonatomic, assign) Class<YTXRestfulModelProtocol, MTLJSONSerializing
+#ifdef YTX_FMDBSYNC_EXISTS
+, YTXRestfulModelDBSerializing
+#endif
+> modelClass;
 @property (nonnull, nonatomic, strong, readonly) NSArray * models;
 
 @property (nonnull, nonatomic, strong) id<YTXRestfulModelStorageProtocol> storageSync;

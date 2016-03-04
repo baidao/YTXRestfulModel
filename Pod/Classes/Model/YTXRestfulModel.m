@@ -25,6 +25,39 @@
 
 #import <objc/runtime.h>
 
+@interface TablePropertyMapManager : NSObject
+
+@property (nonatomic, strong) NSMutableDictionary * map;
+
++ (nonnull instancetype) shared;
+
+@end
+
+@implementation TablePropertyMapManager
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.map = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
+
++ (nonnull instancetype) shared
+{
+    static dispatch_once_t onceToken;
+    static TablePropertyMapManager * manager;
+    dispatch_once(&onceToken, ^{
+        manager = [TablePropertyMapManager new];
+    });
+    return manager;
+}
+
+@end
+
+
+
 
 @implementation YTXRestfulModel
 
@@ -362,6 +395,17 @@
     return subject;
 }
 
++ (nonnull NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSValue *> *> *) _tableKeyPathsByPropertyKeyMap
+{
+    static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSValue *> *> * map;
+    
+    if (map == nil) {
+        map = [NSMutableDictionary dictionary];
+    }
+    
+    return map;
+}
+
 + (nonnull NSString *) _tableKeyPathsCachedKey
 {
     return [NSString stringWithFormat:@"YTX.%@", NSStringFromClass([self class])];
@@ -373,10 +417,13 @@
     return YES;
 }
 
-+ (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
++ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
 {
-    NSDictionary<NSString *, NSValue *> * cachedKeys = objc_getAssociatedObject(self, [[self _tableKeyPathsCachedKey] UTF8String]);
-    if (cachedKeys != nil) return cachedKeys;
+    NSMutableDictionary<NSString *, NSValue *> * cachedKeys = [TablePropertyMapManager shared].map[[self _tableKeyPathsCachedKey]];
+    
+    if (cachedKeys != nil) {
+        return cachedKeys;
+    }
     
     NSMutableDictionary<NSString *, NSValue *> * properties =  [NSMutableDictionary dictionary];
     
@@ -405,12 +452,17 @@
         
         BOOL isPrimaryKey = [modelProperyName isEqualToString:[self primaryKey]];
         
+        BOOL isPrimaryKeyAutoincrement = NO;
+        if (isPrimaryKey) {
+            isPrimaryKeyAutoincrement = [self isPrimaryKeyAutoincrement];
+        }
+        
         struct YTXRestfulModelDBSerializingStruct dataStruct = {
             propertyClassName,
             [columnName UTF8String],
             [modelProperyName UTF8String],
             isPrimaryKey,
-            NO,
+            isPrimaryKeyAutoincrement,
             nil,
             NO,
             nil
@@ -421,9 +473,10 @@
 #pragma clang diagnostic pop
     
     
-    // It doesn't really matter if we replace another thread's work, since we do
-    // it atomically and the result should be the same.
-    objc_setAssociatedObject(self, [[self _tableKeyPathsCachedKey] UTF8String], properties, OBJC_ASSOCIATION_COPY);
+    [TablePropertyMapManager shared].map[[self _tableKeyPathsCachedKey]] = properties;
+    
+    NSMutableDictionary * dict = [TablePropertyMapManager shared].map;
+    
     
     return properties;
 }

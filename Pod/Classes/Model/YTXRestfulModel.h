@@ -93,7 +93,7 @@
 + (BOOL) isPrimaryKeyAutoincrement;
 
 /** 若主键是NSNumber 将会默认设置为自增的 */
-+ (nullable NSDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
++ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey;
 
 + (nullable NSNumber *) currentMigrationVersion;
 
