@@ -24,6 +24,7 @@ typedef enum : NSUInteger {
 
 @interface YTXRestfulModelDBSerializingModel : NSObject
 
+/** 可以是CType @"d"这种*/
 @property (nonatomic, nonnull, copy) NSString * objectClass;
 
 /** 表名 */

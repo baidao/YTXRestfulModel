@@ -3,13 +3,16 @@
 YTXRestfulModel是遵循了REST的Model。提供了DBSync、RemoteSync、StorageSync来做数据同步。
 
 
-DBSync实现是FMDB(sqlite)。
+FMDBSync(sqlite)。
 
 
-RemoteSync实现是YTXRequest实际上是AFNetWorking。
+YTXRequestRemoteSync(YTXRequest AFNetWorking)。
 
 
-StorageSync实现是NSUserDefault(支持不同的suiteName)。
+AFNetworkingRemoteSync(AFNetWorking)。
+
+
+UserDefaultStorageSync(支持不同的suiteName)。
 
 
 Model的转换容器用的是Mantle。
@@ -17,12 +20,31 @@ Model的转换容器用的是Mantle。
 
 ReactiveCocoa来使用FRP。
 
+## 安装
+
+在podfile中
+
+```ruby
+source 'https://github.com/CocoaPods/Specs.git'
+
+// "YTXRequestRemoteSync", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"
+
+pod "YTXRestfulModel", :path => "../", :subspecs => ["AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
+```
+
+## 测试
+```shell
+npm install -g json-server
+cd Example/Tests
+json-server db.json
+```
+
 ## 定义Model
 ```objective-c
 @interface YTXTestModel : YTXRestfulModel
 
 @property (nonnull, nonatomic, strong) NSNumber *keyId;
-@property (nonnull, nonatomic, strong) NSNumber *userId; //可选属性为nullable 不可选为nonnull
+@property (nonnull, nonatomic, strong) NSNumber *userId;
 @property (nonnull, nonatomic, strong) NSString *title;
 @property (nonnull, nonatomic, strong) NSString *body;
 
@@ -31,6 +53,7 @@ ReactiveCocoa来使用FRP。
 @implementation YTXTestModel
 
 //Mantle的model属性和目标源属性的映射表。DBSync也会使用。
+//@"id"为列名或者服务器上的名字
 + (NSDictionary *)JSONKeyPathsByPropertyKey
 {
     return @{@"keyId": @"id"};
@@ -53,7 +76,27 @@ ReactiveCocoa来使用FRP。
     return  self;
 }
 
-//mantle Transoformer
+// DB Migration相关
++ (nullable NSNumber *) currentMigrationVersion
+{
+    return @0;
+}
+
+// 自动建表。默认关闭，当需要用DB才开启
++ (BOOL) autoCreateTable
+{
+    return YES;
+}
+
+// Mantle Transformer
++ (MTLValueTransformer *)startSchoolDateJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *timestamp) {
+        return [NSDate dateWithTimeIntervalSince1970: timestamp.longLongValue / 1000];
+    } reverseBlock:^(NSDate *date) {
+        return @((SInt64)(date.timeIntervalSince1970 * 1000));
+    }];
+}
+
 + (MTLValueTransformer *) bodyJSONTransformer
 {
     return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString * body) {
@@ -68,6 +111,7 @@ ReactiveCocoa来使用FRP。
 ```
 
 ## Model的转换参考[Mantle](https://github.com/Mantle/Mantle/tree/1.5.7)
+无论数据源来自Remote，Storage，DB都会经过MTLValueTransformer，如果你定义了该属性的Transformer。
 ```objective-c
 + (MTLValueTransformer *)birthdayJSONTransformer {
     return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *timestamp) {
@@ -94,7 +138,7 @@ ReactiveCocoa来使用FRP。
 {
     if(self = [super init])
     {
-        self.storageSync = [YTXRestfulModelXXXFileStorageSync new];
+        self.storageSync = [AFNetworkingRemoteSync new];
     }
     return self;
 }
@@ -102,6 +146,13 @@ ReactiveCocoa来使用FRP。
 YTXTestModel * model = [YTXTestModel new];
 model.storageSync = [YTXRestfulModelXXXFileStorageSync new];
 
+```
+
+## 如果有必要你也可以直接使用sync。像这样：
+```objective-c
+#import <YTXRestfulModel/YTXRestfulModelUserDefaultStorageSync.h>
+
+YTXRestfulModelUserDefaultStorageSync * sync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName1]
 ```
 
 ## 各种灵活的同步数据方式
@@ -211,21 +262,53 @@ model.storageSync = [YTXRestfulModelXXXFileStorageSync new];
 ```
 
 ## DB数据库的映射
-YTXRestfulModel将会自动映射属性到表。当当主键是NSNumber 或者 NSUInteger NSInteger int 之类的类型会被设置为自动自增。
 ```objective-c
-struct YTXRestfulModelDBSerializingStruct dataStruct = {
-    propertyClassName, //CType
-    [columnName UTF8String],
-    [modelProperyName UTF8String],
-    isPrimaryKey,
-    NO,
-    nil,
-    NO,
-    nil, //'YTXXXModel'
-};
+YTXRestfulModelDBSerializingModel * dbsm = [YTXRestfulModelDBSerializingModel new];
+dbsm.objectClass = propertyClassName;
+dbsm.columnName = columnName;
+dbsm.modelName = modelProperyName;
+dbsm.isPrimaryKey = isPrimaryKey;
+dbsm.autoincrement = isPrimaryKeyAutoincrement;
+dbsm.unique = NO;
 ```
 
-开启自动创建数据库表
+Model支持的属性类型(CType)    数据库转换后类型       SQLite中定义的类型
+```objective-c
+@{
+  @"c":@[                   @"NSNumber",        @"INTEGER"],
+  @"i":@[                   @"NSNumber",        @"INTEGER"],
+  @"s":@[                   @"NSNumber",        @"INTEGER"],
+  @"l":@[                   @"NSNumber",        @"INTEGER"],
+  @"q":@[                   @"NSNumber",        @"INTEGER"],
+  @"C":@[                   @"NSNumber",        @"INTEGER"],
+  @"I":@[                   @"NSNumber",        @"INTEGER"],
+  @"S":@[                   @"NSNumber",        @"INTEGER"],
+  @"L":@[                   @"NSNumber",        @"INTEGER"],
+  @"Q":@[                   @"NSNumber",        @"INTEGER"],
+  @"f":@[                   @"NSNumber",        @"REAL"],
+  @"d":@[                   @"NSNumber",        @"REAL"],
+  @"B":@[                   @"NSNumber",        @"INTEGER"],
+  @"NSString":@[            @"NSString",        @"TEXT"],
+  @"NSMutableString":@[     @"NSMutableString", @"TEXT"],
+  @"NSDate":@[              @"NSDate",          @"REAL"],
+  @"NSNumber":@[            @"NSNumber",        @"REAL"],
+  @"NSDictionary":@[        @"NSDictionary",    @"TEXT"],
+  @"NSMutableDictionary":@[ @"NSDictionary",    @"TEXT"],
+  @"NSArray":@[             @"NSArray",         @"TEXT"],
+  @"NSMutableArray":@[      @"NSArray",         @"TEXT"],
+//这里以下和Remote一般不兼容
+  @"CGPoint":@[             @"NSValue",         @"TEXT"],
+  @"CGSize":@[              @"NSValue",         @"TEXT"],
+  @"CGRect":@[              @"NSValue",         @"TEXT"],
+  @"CGVector":@[            @"NSValue",         @"TEXT"],
+  @"CGAffineTransform":@[   @"NSValue",         @"TEXT"],
+  @"UIEdgeInsets":@[        @"NSValue",         @"TEXT"],
+  @"UIOffset":@[            @"NSValue",         @"TEXT"],
+  @"NSRange":@[             @"NSValue",         @"TEXT"]
+}
+```
+
+开启自动创建数据库表。需要使用DB时才这样做。
 ```objective-c
 + (BOOL) autoCreateTable
 {
@@ -233,42 +316,60 @@ struct YTXRestfulModelDBSerializingStruct dataStruct = {
 }
 ```
 
+关闭主键默认自增
+```objective-c
++ (BOOL) isPrimaryKeyAutoincrement
+{
+    return NO;
+}
+```
+
 定义DB的Column的Struct
 ```objective-c
-struct YTXRestfulModelDBSerializingStruct {
-    /** 数据类型 */
-    const char * _Nonnull objectClass;
+@interface YTXRestfulModelDBSerializingModel : NSObject
 
-    /** 表名 */
-    const char * _Nullable  columnName;
+/** 可以是CType @"d"这种*/
+@property (nonatomic, nonnull, copy) NSString * objectClass;
 
-    /** Model原始的属性名字 */
-    const char * _Nonnull  modelName;
+/** 表名 */
+@property (nonatomic, nonnull, copy) NSString *  columnName;
 
-    bool isPrimaryKey;
+/** Model原始的属性名字 */
+@property (nonatomic, nonnull, copy) NSString *  modelName;
 
-    bool autoincrement;
+@property (nonatomic, assign) BOOL isPrimaryKey;
 
-    const char * _Nullable defaultValue;
+@property (nonatomic, assign) BOOL autoincrement;
 
-    bool unique;
+@property (nonatomic, assign) BOOL unique;
 
-    /** 外键类名 可以使用fetchForeignWithName */
-    const char * _Nullable foreignClassName;
+@property (nonatomic, nonnull, copy) NSString * defaultValue;
 
-};
+/** 外键类名 可以使用fetchForeignWithName */
+@property (nonatomic, nonnull, copy) NSString * foreignClassName;
+
+@end
 ```
 
 在子类中更改DB的映射
 ```objective-c
-+ (nullable NSMutableDictionary<NSString *, NSValue *> *) tableKeyPathsByPropertyKey
++ (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey
 {
-    NSMutableDictionary<NSString *, NSValue *> * tmpDictionary = [[super tableKeyPathsByPropertyKey] mutableCopy];
+    NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * tmpDictionary = [super tableKeyPathsByPropertyKey];
 
-    struct YTXRestfulModelDBSerializingStruct genderStruct = [YTXRestfulModelFMDBSync structWithValue:tmpDictionary[@"gender"]];
-    genderStruct.defaultValue = [[@(GenderFemale) sqliteValue] UTF8String];
+    YTXRestfulModelDBSerializingModel * genderStruct = tmpDictionary[@"gender"];
 
-    tmpDictionary[@"gender"] = [YTXRestfulModelFMDBSync valueWithStruct:genderStruct];
+
+    genderStruct.defaultValue = [@(GenderFemale) sqliteValue];
+
+    tmpDictionary[@"gender"] = genderStruct;
+
+
+    YTXRestfulModelDBSerializingModel * scoreStruct = tmpDictionary[@"score"];
+
+    scoreStruct.unique = YES;
+
+    tmpDictionary[@"score"] = scoreStruct;
 
     return tmpDictionary;
 }
@@ -276,15 +377,6 @@ struct YTXRestfulModelDBSerializingStruct {
 
 ## Migration(迁移)
 
-
-## 安装
-
-在podfile中
-
-```ruby
-source 'https://github.com/CocoaPods/Specs.git'
-pod 'YTXRestfulModel'
-```
 
 ## 更多用法，请查看[Tests](http://gitlab.baidao.com/ios/YTXRestfulModel/tree/master/Example/Tests)
 ```shell
@@ -295,10 +387,14 @@ pod install
 
 
 ## 依赖
-- 'YTXRequest', '~> 0.1.6'
 - 'Mantle', '~> 1.5.4'
 - 'ReactiveCocoa', '~> 2.3.1'
-- 'FMDB', '~> 2.6'
+
+## subspec依赖
+- YTXRequestRemoteSync: 'YTXRequest', '~> 0.1.6'
+- AFNetworkingRemoteSync: 'AFNetworking', '~> 2.6.3'
+- FMDBSync: 'FMDB', '~> 2.6'
+- UserDefaultStorageSync:
 
 
 ## Author
