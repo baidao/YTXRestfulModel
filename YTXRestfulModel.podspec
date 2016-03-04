@@ -33,13 +33,14 @@ Pod::Spec.new do |s|
     ss.dependency 'ReactiveCocoa', '~> 2.3.1'
   end
 
-  YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",     :dependency => [{:name => "YTXRequest",  :version => "~> 0.1.6" }] }
-  FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",        :version => "~> 2.6"   }] }
-  UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync",                                                                      }
+  YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",     :dependency => [{:name => "YTXRequest",    :version => "~> 0.1.6"    }]  }
+  AFNetworkingRemoteSync = { :spec_name => "AFNetworkingRemoteSync",   :dependency => [{:name => "AFNetworking",  :version => "~> 2.6.3"    }]  }
+  FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",          :version => "~> 2.6"      }]  }
+  UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync"                                                                             }
 
   $all_names = []
 
-  $all_sync = [YTXRequestRemoteSync, FMDBSync, UserDefaultStorageSync]
+  $all_sync = [YTXRequestRemoteSync, AFNetworkingRemoteSync, FMDBSync, UserDefaultStorageSync]
   
   $all_sync.each do |sync_spec|
     s.subspec sync_spec[:spec_name] do |ss|

@@ -6,19 +6,19 @@
 //  Copyright © 2016 caojun. All rights reserved.
 //
 
-#import "YTXTestModel.h"
+#import "YTXTestYTXRequestRemoteModel.h"
 
 #import <YTXRequest/YTXRequest.h>
 #import <ReactiveCocoa/ReactiveCocoa.h>
 #import <ReactiveCocoa/RACEXTScope.h>
 
-@implementation YTXTestModel
+@implementation YTXTestYTXRequestRemoteModel
 
 //可以重写init方法 改变sync的初始值
 
 + (instancetype) shared
 {
-    static YTXTestModel * model;
+    static YTXTestYTXRequestRemoteModel * model;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         model =  [[[self class] alloc] init];
@@ -58,6 +58,6 @@
 
 @end
 
-@implementation YTXTestCommentModel
+@implementation YTXTestYTXRequestRemoteCommentModel
 
 @end

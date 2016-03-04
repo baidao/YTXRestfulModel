@@ -8,7 +8,7 @@
 
 #import <YTXRestfulModel/YTXRestfulModel.h>
 
-@interface YTXTestModel : YTXRestfulModel
+@interface YTXTestYTXRequestRemoteModel : YTXRestfulModel
 
 @property (nonnull, nonatomic, strong) NSNumber *keyId;
 @property (nonnull, nonatomic, strong) NSNumber *userId; //可选属性为nullable 不可选为nonnull
@@ -17,6 +17,6 @@
 
 @end
 
-@interface YTXTestCommentModel : YTXRestfulModel
+@interface YTXTestYTXRequestRemoteCommentModel : YTXRestfulModel
 
 @end

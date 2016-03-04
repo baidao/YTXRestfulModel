@@ -6,17 +6,17 @@
 //  Copyright © 2016 caojun. All rights reserved.
 //
 
-#import "YTXTestCollection.h"
+#import "YTXTestYTXRequestRemoteCollection.h"
 
 #import <YTXRequest/YTXRequest.h>
 #import <ReactiveCocoa/ReactiveCocoa.h>
 #import <ReactiveCocoa/RACEXTScope.h>
 
-@implementation YTXTestCollection
+@implementation YTXTestYTXRequestRemoteCollection
 
 + (instancetype) shared
 {
-    static YTXTestCollection * collection;
+    static YTXTestYTXRequestRemoteCollection * collection;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         collection =  [[[self class] alloc] init];
@@ -26,7 +26,7 @@
 
 - (instancetype)init
 {
-    if (self = [super initWithModelClass: [YTXTestModel class]]) {
+    if (self = [super initWithModelClass: [YTXTestYTXRequestRemoteModel class]]) {
         self.remoteSync.url = [YTXRequest urlWithName:@"restful.posts"];
     }
     return  self;

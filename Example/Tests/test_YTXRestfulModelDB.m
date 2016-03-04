@@ -6,7 +6,7 @@
 //  Copyright © 2016年 caojun. All rights reserved.
 //
 
-#import "YTXTestModel.h"
+#import "YTXTestYTXRequestRemoteModel.h"
 #import "YTXTestStudentModel.h"
 #import "YTXTestTeacherModel.h"
 #import "YTXTestStudentCollection.h"

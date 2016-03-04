@@ -17,6 +17,10 @@
 #import "YTXRestfulModelYTXRequestRemoteSync.h"
 #endif
 
+#ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
+#import "AFNetworkingRemoteSync.h"
+#endif
+
 #ifdef YTX_FMDBSYNC_EXISTS
 #import "YTXRestfulModelFMDBSync.h"
 #endif
@@ -47,6 +51,10 @@ typedef enum {
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
 #endif
         
+#ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
+        self.remoteSync = [AFNetworkingRemoteSync new];
+#endif
+        
 #ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
 #endif
@@ -73,6 +81,10 @@ typedef enum {
         
 #ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
+#endif
+        
+#ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
+        self.remoteSync = [AFNetworkingRemoteSync new];
 #endif
         
 #ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS

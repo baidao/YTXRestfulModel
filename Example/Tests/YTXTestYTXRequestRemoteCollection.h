@@ -8,8 +8,8 @@
 
 #import <YTXRestfulModel/YTXCollection.h>
 
-#import "YTXTestModel.h"
+#import "YTXTestYTXRequestRemoteModel.h"
 
-@interface YTXTestCollection : YTXCollection
+@interface YTXTestYTXRequestRemoteCollection : YTXCollection
 
 @end

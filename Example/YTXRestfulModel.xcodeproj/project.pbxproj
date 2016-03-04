@@ -18,11 +18,14 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		621EE9721C88013C0033A211 /* YTXTestStudentCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 621EE9711C88013C0033A211 /* YTXTestStudentCollection.m */; };
-		624C05891C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C05881C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m */; };
-		624C058C1C55E9E900C40CE6 /* YTXTestCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */; };
-		624C058F1C55EB0500C40CE6 /* YTXTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058E1C55EB0500C40CE6 /* YTXTestModel.m */; };
+		624C05891C55E6A600C40CE6 /* test_YTXRestfulModelYTXRequstRemote.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C05881C55E6A600C40CE6 /* test_YTXRestfulModelYTXRequstRemote.m */; };
+		624C058C1C55E9E900C40CE6 /* YTXTestYTXRequestRemoteCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058B1C55E9E900C40CE6 /* YTXTestYTXRequestRemoteCollection.m */; };
+		624C058F1C55EB0500C40CE6 /* YTXTestYTXRequestRemoteModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 624C058E1C55EB0500C40CE6 /* YTXTestYTXRequestRemoteModel.m */; };
 		624C05911C55EDC200C40CE6 /* service.json in Resources */ = {isa = PBXBuildFile; fileRef = 624C05901C55EDC200C40CE6 /* service.json */; };
 		625D8E311C868DD8003A6F81 /* YTXTestTeacherModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 625D8E301C868DD8003A6F81 /* YTXTestTeacherModel.m */; };
+		62CD75A81C89814400AA6A16 /* test_YTXRestfulModelAFNetworkingRemote.m in Sources */ = {isa = PBXBuildFile; fileRef = 62CD75A71C89814400AA6A16 /* test_YTXRestfulModelAFNetworkingRemote.m */; };
+		62CD75AD1C89828300AA6A16 /* YTXTestAFNetworkingRemoteCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 62CD75AA1C89828300AA6A16 /* YTXTestAFNetworkingRemoteCollection.m */; };
+		62CD75B11C8985C000AA6A16 /* YTXTestAFNetworkingRemoteModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 62CD75B01C8985C000AA6A16 /* YTXTestAFNetworkingRemoteModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,14 +48,19 @@
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		621EE9701C88013C0033A211 /* YTXTestStudentCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestStudentCollection.h; sourceTree = "<group>"; };
 		621EE9711C88013C0033A211 /* YTXTestStudentCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestStudentCollection.m; sourceTree = "<group>"; };
-		624C05881C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelRemote.m; sourceTree = "<group>"; };
-		624C058A1C55E9E900C40CE6 /* YTXTestCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestCollection.h; sourceTree = "<group>"; };
-		624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestCollection.m; sourceTree = "<group>"; };
-		624C058D1C55EB0500C40CE6 /* YTXTestModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestModel.h; sourceTree = "<group>"; };
-		624C058E1C55EB0500C40CE6 /* YTXTestModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestModel.m; sourceTree = "<group>"; };
+		624C05881C55E6A600C40CE6 /* test_YTXRestfulModelYTXRequstRemote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelYTXRequstRemote.m; sourceTree = "<group>"; };
+		624C058A1C55E9E900C40CE6 /* YTXTestYTXRequestRemoteCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestYTXRequestRemoteCollection.h; sourceTree = "<group>"; };
+		624C058B1C55E9E900C40CE6 /* YTXTestYTXRequestRemoteCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestYTXRequestRemoteCollection.m; sourceTree = "<group>"; };
+		624C058D1C55EB0500C40CE6 /* YTXTestYTXRequestRemoteModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestYTXRequestRemoteModel.h; sourceTree = "<group>"; };
+		624C058E1C55EB0500C40CE6 /* YTXTestYTXRequestRemoteModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestYTXRequestRemoteModel.m; sourceTree = "<group>"; };
 		624C05901C55EDC200C40CE6 /* service.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = service.json; sourceTree = "<group>"; };
 		625D8E2F1C868DD8003A6F81 /* YTXTestTeacherModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestTeacherModel.h; sourceTree = "<group>"; };
 		625D8E301C868DD8003A6F81 /* YTXTestTeacherModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestTeacherModel.m; sourceTree = "<group>"; };
+		62CD75A71C89814400AA6A16 /* test_YTXRestfulModelAFNetworkingRemote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = test_YTXRestfulModelAFNetworkingRemote.m; sourceTree = "<group>"; };
+		62CD75A91C89828300AA6A16 /* YTXTestAFNetworkingRemoteCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestAFNetworkingRemoteCollection.h; sourceTree = "<group>"; };
+		62CD75AA1C89828300AA6A16 /* YTXTestAFNetworkingRemoteCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestAFNetworkingRemoteCollection.m; sourceTree = "<group>"; };
+		62CD75AF1C8985AD00AA6A16 /* YTXTestAFNetworkingRemoteModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YTXTestAFNetworkingRemoteModel.h; sourceTree = "<group>"; };
+		62CD75B01C8985C000AA6A16 /* YTXTestAFNetworkingRemoteModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YTXTestAFNetworkingRemoteModel.m; sourceTree = "<group>"; };
 		A604D77080C13B2F999253FF /* Pods-YTXRestfulModel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YTXRestfulModel_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YTXRestfulModel_Tests/Pods-YTXRestfulModel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		B49B4CC15A25D49DB32DA99D /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		C00D7C8B97513F9E766D02BD /* YTXRestfulModel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = YTXRestfulModel.podspec; path = ../YTXRestfulModel.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
@@ -110,14 +118,19 @@
 		6003F5B5195388D20070C39A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				624C05881C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m */,
+				62CD75A71C89814400AA6A16 /* test_YTXRestfulModelAFNetworkingRemote.m */,
+				624C05881C55E6A600C40CE6 /* test_YTXRestfulModelYTXRequstRemote.m */,
 				0CB946381C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m */,
 				1867C4C71C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
-				624C058A1C55E9E900C40CE6 /* YTXTestCollection.h */,
-				624C058B1C55E9E900C40CE6 /* YTXTestCollection.m */,
-				624C058D1C55EB0500C40CE6 /* YTXTestModel.h */,
-				624C058E1C55EB0500C40CE6 /* YTXTestModel.m */,
+				624C058A1C55E9E900C40CE6 /* YTXTestYTXRequestRemoteCollection.h */,
+				624C058B1C55E9E900C40CE6 /* YTXTestYTXRequestRemoteCollection.m */,
+				624C058D1C55EB0500C40CE6 /* YTXTestYTXRequestRemoteModel.h */,
+				624C058E1C55EB0500C40CE6 /* YTXTestYTXRequestRemoteModel.m */,
+				62CD75A91C89828300AA6A16 /* YTXTestAFNetworkingRemoteCollection.h */,
+				62CD75AA1C89828300AA6A16 /* YTXTestAFNetworkingRemoteCollection.m */,
+				62CD75AF1C8985AD00AA6A16 /* YTXTestAFNetworkingRemoteModel.h */,
+				62CD75B01C8985C000AA6A16 /* YTXTestAFNetworkingRemoteModel.m */,
 				1867C4CC1C7EF62A00D900E9 /* YTXTestHumanModel.h */,
 				1867C4CD1C7EF62A00D900E9 /* YTXTestHumanModel.m */,
 				1867C4C91C7EF01000D900E9 /* YTXTestStudentModel.h */,
@@ -283,15 +296,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62CD75B11C8985C000AA6A16 /* YTXTestAFNetworkingRemoteModel.m in Sources */,
 				1867C4CE1C7EF62A00D900E9 /* YTXTestHumanModel.m in Sources */,
-				624C05891C55E6A600C40CE6 /* test_YTXRestfulModelRemote.m in Sources */,
+				624C05891C55E6A600C40CE6 /* test_YTXRestfulModelYTXRequstRemote.m in Sources */,
 				625D8E311C868DD8003A6F81 /* YTXTestTeacherModel.m in Sources */,
 				0CB946391C716F0E009B83A7 /* test_YTXRestfulModelUserDefaultSpec.m in Sources */,
+				62CD75AD1C89828300AA6A16 /* YTXTestAFNetworkingRemoteCollection.m in Sources */,
 				1867C4C81C7EEDBF00D900E9 /* test_YTXRestfulModelDB.m in Sources */,
 				621EE9721C88013C0033A211 /* YTXTestStudentCollection.m in Sources */,
-				624C058C1C55E9E900C40CE6 /* YTXTestCollection.m in Sources */,
+				624C058C1C55E9E900C40CE6 /* YTXTestYTXRequestRemoteCollection.m in Sources */,
 				1867C4CB1C7EF01000D900E9 /* YTXTestStudentModel.m in Sources */,
-				624C058F1C55EB0500C40CE6 /* YTXTestModel.m in Sources */,
+				62CD75A81C89814400AA6A16 /* test_YTXRestfulModelAFNetworkingRemote.m in Sources */,
+				624C058F1C55EB0500C40CE6 /* YTXTestYTXRequestRemoteModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

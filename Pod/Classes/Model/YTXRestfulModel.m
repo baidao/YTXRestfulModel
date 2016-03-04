@@ -12,6 +12,10 @@
 #import "YTXRestfulModelUserDefaultStorageSync.h"
 #endif
 
+#ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
+#import "AFNetworkingRemoteSync.h"
+#endif
+
 #ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
 #import "YTXRestfulModelYTXRequestRemoteSync.h"
 #endif
@@ -37,6 +41,10 @@
     {
 #ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
+#endif
+        
+#ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
+        self.remoteSync = [AFNetworkingRemoteSync syncWithPrimaryKey: [[self class] syncPrimaryKey]];
 #endif
         
 #ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
