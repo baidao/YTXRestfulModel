@@ -26,4 +26,6 @@ typedef NS_ENUM(NSUInteger, Gender) {
 @property (nonatomic, assign) double score;
 @property (nonatomic, assign) CGPoint point;
 
+@property (nonnull, nonatomic, strong) NSNumber *teacherId;
+
 @end

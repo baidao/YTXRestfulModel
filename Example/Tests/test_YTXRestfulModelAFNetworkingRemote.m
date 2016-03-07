@@ -505,7 +505,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"使用parameters 使用mantle map后的属性名keyId获取外联model", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block id ret;
-            [[currentTestModel fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"keyId": @1}] subscribeNext:^(id x) {
+            [[currentTestModel fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"keyId": @1}] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -516,7 +516,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"使用parameters 不使用mantle map后的属性而用服务器属性名id获取外联model", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block id ret;
-            [[currentTestModel fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"id": @1}] subscribeNext:^(id x) {
+            [[currentTestModel fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"id": @1}] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 

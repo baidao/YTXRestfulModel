@@ -562,7 +562,7 @@
 }
 
 /** GET Foreign Models with primary key */
-- (nonnull NSArray<NSDictionary *> *) fetchDBForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
+- (nonnull NSArray *) fetchDBForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
 {
     NSDictionary * dict = [self mergeSelfAndParameters:param];
     
@@ -570,7 +570,9 @@
     
     NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
     
-    return [self.dbSync fetchForeignSyncWithModelClass:modelClass primaryKeyValue:primaryKeyValue error:error param:dict];
+    NSArray<NSDictionary *> * x = [self.dbSync fetchForeignSyncWithModelClass:modelClass primaryKeyValue:primaryKeyValue error:error param:dict];
+    
+    return [self transformerProxyOfForeign:modelClass reponse:x error:error];
 }
 
 /** GET Foreign Models with primary key */
@@ -582,7 +584,24 @@
     
     NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
     
-    return [self.dbSync fetchForeignWithModelClass:modelClass primaryKeyValue:primaryKeyValue param:dict];
+    RACSubject * subject = [RACSubject subject];
+    @weakify(self);
+    [[self.dbSync fetchForeignWithModelClass:modelClass primaryKeyValue:primaryKeyValue param:dict] subscribeNext:^(id x) {
+        @strongify(self);
+        NSError * error = nil;
+        [self transformerProxyOfReponse:x error:&error];
+        if (!error) {
+            [subject sendNext:self];
+            [subject sendCompleted];
+        }
+        else {
+            [subject sendError:error];
+        }
+    } error:^(NSError *error) {
+        [subject sendError:error];
+    }];
+    
+    return subject;
 }
 
 #pragma mark - tools

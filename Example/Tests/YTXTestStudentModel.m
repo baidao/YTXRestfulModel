@@ -45,18 +45,17 @@
     NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * tmpDictionary = [super tableKeyPathsByPropertyKey];
     
     YTXRestfulModelDBSerializingModel * genderStruct = tmpDictionary[@"gender"];
-
-    
     genderStruct.defaultValue = [@(GenderFemale) sqliteValue];
-    
     tmpDictionary[@"gender"] = genderStruct;
     
-    
     YTXRestfulModelDBSerializingModel * scoreStruct = tmpDictionary[@"score"];
-    
     scoreStruct.unique = YES;
-    
     tmpDictionary[@"score"] = scoreStruct;
+    
+    YTXRestfulModelDBSerializingModel * teacherIdStruct = tmpDictionary[@"teacherId"];
+    teacherIdStruct.defaultValue = [@1 sqliteValue];
+    teacherIdStruct.foreignClassName = @"YTXTestTeacherModel";
+    tmpDictionary[@"teacherId"] = teacherIdStruct;
     
     return tmpDictionary;
 }

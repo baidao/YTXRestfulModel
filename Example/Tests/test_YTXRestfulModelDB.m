@@ -355,6 +355,20 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             [testTeacherTwo fetchDBSync:nil error:&error];
             [[error should] beNonNil];
         });
+        
+        it(@"使用foreignKey获取数据库记录", ^{
+            YTXTestTeacherModel *testTeacher = [YTXTestTeacherModel new];
+            testTeacher.identify = @1;
+            
+            NSError * error;
+            NSArray * retArray = [testTeacher fetchDBForeignSyncWithModelClass:[YTXTestStudentModel class] error:&error param:nil];
+            [[error should] beNil];
+            [[@(retArray.count > 0) should] equal:@YES];
+            [[@([retArray.firstObject isKindOfClass:[YTXTestStudentModel class]]) should] equal:@YES];
+            for (YTXTestStudentModel *ret in retArray) {
+                [[ret.teacherId should] equal:@1];
+            }
+        });
     });
     
     context(@"异步方法", ^{
