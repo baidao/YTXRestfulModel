@@ -56,7 +56,7 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        YTXRequest * request = [YTXRequest requestWithNSURL:[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] AndRequestMethod:YTKRequestMethodGet];
+        YTXRequest * request = [YTXRequest requestWithNSURL:[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] AndRequestMethod:YTXRequestMethodGet];
         [self _sendWithParametersWithRequest:request parameters:param subscriber:subscriber];
         return nil;
     }];
@@ -68,7 +68,7 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        YTXRequest * request = [YTXRequest requestWithNSURL:[self restfulURLWithParam:param] AndRequestMethod:YTKRequestMethodGet];
+        YTXRequest * request = [YTXRequest requestWithNSURL:[self restfulURLWithParam:param] AndRequestMethod:YTXRequestMethodGet];
         [self _sendWithParametersWithRequest:request parameters:param subscriber:subscriber];
         return nil;
     }];
@@ -81,7 +81,7 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
     //TODO: 暂且copy如果发现并没有什么特殊性的话，应当抽成一个方法，只是改变YTKRequestMethod
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        YTXRequest * request = [YTXRequest requestWithNSURL:self.url AndRequestMethod:YTKRequestMethodPost];
+        YTXRequest * request = [YTXRequest requestWithNSURL:self.url AndRequestMethod:YTXRequestMethodPost];
         [self _sendWithParametersWithRequest:request parameters:param subscriber:subscriber];
         return nil;
     }];
@@ -93,7 +93,7 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        YTXRequest * request = [YTXRequest requestWithNSURL:[self restfulURLWithParam:param] AndRequestMethod:YTKRequestMethodPut];
+        YTXRequest * request = [YTXRequest requestWithNSURL:[self restfulURLWithParam:param] AndRequestMethod:YTXRequestMethodPut];
         [self _sendWithParametersWithRequest:request parameters:param subscriber:subscriber];
         return nil;
     }];
@@ -105,7 +105,7 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        YTXRequest * request = [YTXRequest requestWithNSURL:[self restfulURLWithParam:param] AndRequestMethod:YTKRequestMethodDelete];
+        YTXRequest * request = [YTXRequest requestWithNSURL:[self restfulURLWithParam:param] AndRequestMethod:YTXRequestMethodDelete];
         [self _sendWithParametersWithRequest:request parameters:param subscriber:subscriber];
         return nil;
     }];
@@ -114,7 +114,7 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
 #pragma mark - function
 - (NSError *) errorWithYTXRequest:(YTXRequest *) request
 {
-    return [NSError errorWithDomain:RestFulDomain code:request.responseStatusCode userInfo:request.userInfo];
+    return [NSError errorWithDomain:RestFulDomain code:request.responseStatusCode userInfo:@{@"message": request.responseJSONObject[@"msg"] ?: @"请求失败"}];
 }
 
 - (NSURL *) setupUrlWithPathNameOfYTXRequestJSON:(NSString * )pathName

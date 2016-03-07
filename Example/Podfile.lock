@@ -1,6 +1,4 @@
 PODS:
-  - AFDownloadRequestOperation (2.0.1):
-    - AFNetworking (~> 2.0)
   - AFNetworking (2.6.3):
     - AFNetworking/NSURLConnection (= 2.6.3)
     - AFNetworking/NSURLSession (= 2.6.3)
@@ -36,25 +34,21 @@ PODS:
   - ReactiveCocoa/no-arc (2.3.1)
   - ReactiveCocoa/UI (2.3.1):
     - ReactiveCocoa/Core
-  - YTKNetwork (0.3.0):
-    - AFDownloadRequestOperation (~> 2.0)
-    - AFNetworking (~> 2.0)
-  - YTXRequest (0.1.7):
+  - YTXRequest (0.2.2):
     - AFNetworking (~> 2.6.3)
-    - YTKNetwork (~> 0.3.0)
-  - YTXRestfulModel/AFNetworkingRemoteSync (0.3.1):
+  - YTXRestfulModel/AFNetworkingRemoteSync (0.3.2):
     - AFNetworking (~> 2.6.3)
     - YTXRestfulModel/Default
-  - YTXRestfulModel/Default (0.3.1):
+  - YTXRestfulModel/Default (0.3.2):
     - Mantle (~> 1.5.7)
     - ReactiveCocoa (~> 2.3.1)
-  - YTXRestfulModel/FMDBSync (0.3.1):
+  - YTXRestfulModel/FMDBSync (0.3.2):
     - FMDB (~> 2.6)
     - YTXRestfulModel/Default
-  - YTXRestfulModel/UserDefaultStorageSync (0.3.1):
+  - YTXRestfulModel/UserDefaultStorageSync (0.3.2):
     - YTXRestfulModel/Default
-  - YTXRestfulModel/YTXRequestRemoteSync (0.3.1):
-    - YTXRequest (~> 0.1.6)
+  - YTXRestfulModel/YTXRequestRemoteSync (0.3.2):
+    - YTXRequest (~> 0.2.2)
     - YTXRestfulModel/Default
 
 DEPENDENCIES:
@@ -69,14 +63,12 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   FMDB: c1968bab3ab0aed38f66cb778ae1e7fa9a652b6e
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
   Mantle: 4af47cf9547a4d0ad145a48cd0be3b411a5ae2b8
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
-  YTKNetwork: 6c42c364ac9139bdd5659e4816fce29156ca8fa9
-  YTXRequest: af02c852225b7c740a85f4ca0f3d09402949e2b4
-  YTXRestfulModel: 0d0f682571d928d51e4866859cdd0ba246d224ee
+  YTXRequest: 976d45a1ce503a5f7787db59b50d08e4d4cb4e19
+  YTXRestfulModel: d6f4234d3f0f6aff93af63002f28363df68c6efc
 
 COCOAPODS: 0.39.0

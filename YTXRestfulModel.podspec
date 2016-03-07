@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "YTXRestfulModel"
-  s.version          = "0.3.1"
+  s.version          = "0.3.2"
   s.summary          = "YTXRestfulModel 提供了restful的功能"
 
 # This description is used to generate tags and improve search results.
@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
     ss.dependency 'ReactiveCocoa', '~> 2.3.1'
   end
 
-  YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",     :dependency => [{:name => "YTXRequest",    :version => "~> 0.1.6"    }]  }
+  YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",     :dependency => [{:name => "YTXRequest",    :version => "~> 0.2.2"    }]  }
   AFNetworkingRemoteSync = { :spec_name => "AFNetworkingRemoteSync",   :dependency => [{:name => "AFNetworking",  :version => "~> 2.6.3"    }]  }
   FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",          :version => "~> 2.6"      }]  }
   UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync"                                                                             }
