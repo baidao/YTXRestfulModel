@@ -94,6 +94,8 @@ NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @
 
 + (nullable NSNumber *) currentMigrationVersion;
 
++ (void) migrationsMethodWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
+
 /** GET */
 - (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 

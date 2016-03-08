@@ -11,7 +11,8 @@
 #import <Foundation/Foundation.h>
 
 typedef enum : NSUInteger {
-    YTXRestfulModelDBErrorCodeNotFound = 404,
+    YTXRestfulModelDBErrorCodeNotFound = 0,
+    YTXRestfulModelDBErrorCodeNotColumns = 1,
     YTXRestfulModelDBErrorCodeUnkonw = 9999
 } YTXRestfulModelDBErrorCode;
 
@@ -46,6 +47,8 @@ typedef enum : NSUInteger {
 
 @end
 
+@protocol YTXRestfulModelDBProtocol;
+
 @protocol YTXRestfulModelDBSerializing <NSObject>
 
 /** NSDictionary<ColumnName(lowerCase), NSValue(YTXRestfulModelDBSerializingStruct)> */
@@ -57,17 +60,18 @@ typedef enum : NSUInteger {
 
 + (BOOL) isPrimaryKeyAutoincrement;
 
++ (void) migrationsMethodWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
+
 @optional
 /** 在这个方法内migrateWithVersion*/
-+ (void) dbWillMigrate;
++ (void) dbWillMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
 
-+ (void) dbDidMigrate;
++ (void) dbDidMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
 
 @end
 
-@protocol YTXRestfulModelDBProtocol;
 
-typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRestfulModelDBProtocol>);
+typedef void (^YTXRestfulModelMigrationBlock)(_Nonnull id, NSError * _Nullable * _Nullable);
 
 @interface YTXRestfulModelDBMigrationEntity : NSObject
 
@@ -233,18 +237,14 @@ typedef RACSignal * _Nonnull (^YTXRestfulModelMigrationBlock)(_Nonnull id<YTXRes
 /** 大于currentMigrationVersion将会依次执行，数字越大越后执行*/
 - (void) migrate:(nonnull YTXRestfulModelDBMigrationEntity *) entity;
 
-- (nonnull RACSignal *) createColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
-
-- (nonnull RACSignal *) dropColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
-
-- (nonnull RACSignal *) changeCollumnOldStruct:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct;
-
-- (BOOL) createColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
-
-- (BOOL) dropColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
-
-- (BOOL) changeCollumnOldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) createColumnWithDB:(nonnull id)db structSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
 
 @optional
+
+- (BOOL) renameColumnWithDB:(nonnull id)db originName:(nonnull NSString *)originName newName:(nonnull NSString *)newName error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL) dropColumnWithDB:(nonnull id)db structSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL) changeCollumnDB:(nonnull id)db oldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error;
 
 @end

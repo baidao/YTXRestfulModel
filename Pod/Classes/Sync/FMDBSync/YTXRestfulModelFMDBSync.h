@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 
 @class FMDatabaseQueue;
-
+@class FMDatabase;
 
 @interface YTXRestfulModelFMDBSync : NSObject <YTXRestfulModelDBProtocol>
 
@@ -28,13 +28,12 @@
 
 + (nonnull NSString *) path;
 
-- (nonnull instancetype) initWithModelOfClass:(nonnull Class<YTXRestfulModelDBSerializing>) modelClass primaryKey:(nonnull NSString *) key;
+- (nonnull NSString *) tableName;
 
+- (nonnull instancetype) initWithModelOfClass:(nonnull Class<YTXRestfulModelDBSerializing>) modelClass primaryKey:(nonnull NSString *) key;
 - (nonnull NSError *) createTable;
 
 - (nonnull NSError *) dropTable;
-
-- (nonnull NSString *) tableName;
 
 //操作将会保证在migration之后进行
 
@@ -173,17 +172,7 @@
 /** 大于currentMigrationVersion将会依次执行*/
 - (void) migrate:(nonnull YTXRestfulModelDBMigrationEntity *) entity;
 
-- (nonnull RACSignal *) createColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
-
-- (nonnull RACSignal *) dropColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct;
-
-- (nonnull RACSignal *) changeCollumnOldStruct:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct;
-
-- (BOOL) createColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
-
-- (BOOL) dropColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
-
-- (BOOL) changeCollumnOldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error;
+- (BOOL) createColumnWithDB:(nonnull id)db structSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
 
 // Tools
 + (nonnull NSDictionary<NSString *, NSArray<NSString * > * > *) mapOfCTypeToSqliteType;

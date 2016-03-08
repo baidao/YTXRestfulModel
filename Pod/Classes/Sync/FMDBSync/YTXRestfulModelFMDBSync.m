@@ -101,26 +101,27 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             NSNumber * migrationVersion = [YTXRestfulModelFMDBSync migrationVersionWithclassOfModelFromUserDefault:self.modelClass];
             //migration doing
             if (migrationVersion && [migrationVersion integerValue] < [currentVersion integerValue]) {
-                [self.modelClass dbWillMigrate];
+                [self.modelClass migrationsMethodWithSync:self];
+                
+                [self.modelClass dbWillMigrateWithSync:self];
 
                 [self.migrationBlocks sortUsingComparator:^NSComparisonResult(YTXRestfulModelDBMigrationEntity * obj1, YTXRestfulModelDBMigrationEntity * obj2) {
                     return obj1.version > obj2.version;
                 }];
+                
+                for (YTXRestfulModelDBMigrationEntity *entity in self.migrationBlocks) {
+                    if (entity.version > migrationVersion) {
+                        entity.block(db, &error);
+                    }
+                    if (error) {
+                        *rollback = YES;
+                        return;
+                    }
+                }
 
-                @weakify(self);
-                [[[self.migrationBlocks.rac_sequence.signal  filter:^BOOL(YTXRestfulModelDBMigrationEntity *entity) {
-                    return entity.version > currentVersion;
-                }] flattenMap:^RACStream *(YTXRestfulModelDBMigrationEntity *entity) {
-                    @strongify(self);
-                    return entity.block(self);
-                }] subscribeError:^(NSError *err) {
-                    *rollback = YES;
-                    error = err;
-                } completed:^{
-                    @strongify(self);
-                    [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
-                    [[self modelClass] dbDidMigrate];
-                }];
+                [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
+                
+                [self.modelClass dbDidMigrateWithSync:self];
             }
         }
     }];
@@ -324,6 +325,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
                 currentError = [NSError errorWithDomain:ErrorDomain code:YTXRestfulModelDBErrorCodeNotFound userInfo:nil];
                 return;
             }
+            [rs close];
         }
         else {
             *rollback = YES;
@@ -664,6 +666,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
             return;
         }
 
+        [rs close];
     }];
 
     if (error) {
@@ -702,81 +705,9 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     [[self migrationBlocks] addObject:entity];
 }
 
-- (BOOL) createColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error
+- (BOOL) createColumnWithDB:(nonnull FMDatabase *)db structSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error
 {
-    __block NSError *currentError = nil;
-
-    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        [db executeUpdate:[self sqlForAlterAddColumnWithStruct:sstruct] withErrorAndBindings:&currentError];
-        if (currentError) {
-            *rollback = YES;
-        }
-    }];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return currentError == nil;
-}
-
-
-- (BOOL) dropColumnWithStructSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error
-{
-    __block NSError *currentError = nil;
-
-    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-
-        [db executeUpdate:[self sqlForAlterDropColumnWithStruct:sstruct] withErrorAndBindings:&currentError];
-        if (currentError) {
-            *rollback = YES;
-        }
-    }];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return currentError == nil;
-}
-
-- (BOOL) changeCollumnOldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error
-{
-    __block NSError *currentError = nil;
-
-    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-        [db executeUpdate:[self sqlForAlterChangeColumnWithOldStruct:oldStruct newStruct:newStruct] withErrorAndBindings:&currentError];
-        if (currentError) {
-            *rollback = YES;
-        }
-    }];
-
-    if (error) {
-        *error = currentError;
-    }
-
-    return currentError == nil;
-}
-
-- (nonnull RACSignal *) createColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct
-{
-    NSError *error = nil;
-    [self createColumnWithStructSync:sstruct error:&error];
-    return [self _createRACSingalWithNext:nil error:error];
-}
-
-- (nonnull RACSignal *) dropColumnWithStruct:(nonnull YTXRestfulModelDBSerializingModel *)sstruct
-{
-    NSError *error = nil;
-    [self dropColumnWithStructSync:sstruct error:&error];
-    return [self _createRACSingalWithNext:nil error:error];
-}
-
-- (nonnull RACSignal *) changeCollumnOldStruct:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct
-{
-    NSError *error = nil;
-    [self changeCollumnOldStructSync:oldStruct toNewStruct:newStruct error:&error];
-    return [self _createRACSingalWithNext:nil error:error];
+    return [db executeUpdate:[self sqlForAlterAddColumnWithStruct:sstruct] withErrorAndBindings:error];
 }
 
 #pragma mark sql string
@@ -981,7 +912,7 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSString* typeKey = newStruct.objectClass;
     NSString* sqlType = typeMap[typeKey][1];
 
-    return [NSString stringWithFormat:@"ALTER TABLE %@ CHANGE COLUMN %@ %@ %@ %@", [self tableName], oldStruct.columnName, newStruct.columnName, sqlType,
+    return [NSString stringWithFormat:@"ALTER TABLE %@ ALTER COLUMN %@ %@ %@ %@", [self tableName], oldStruct.columnName, newStruct.columnName, sqlType,
             newStruct.defaultValue? [NSString stringWithFormat:@" DEFAULT %@", newStruct.defaultValue] : @""  ];
 }
 

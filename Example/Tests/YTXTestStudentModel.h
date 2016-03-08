@@ -28,4 +28,6 @@ typedef NS_ENUM(NSUInteger, Gender) {
 
 @property (nonnull, nonatomic, strong) NSNumber *teacherId;
 
++ (nullable NSNumber *) newMigrationVersion;
+
 @end

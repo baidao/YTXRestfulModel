@@ -15,6 +15,7 @@
 #import <YTXRestfulModel/YTXRestfulModelFMDBSync.h>
 #import <Kiwi/Kiwi.h>
 #import <FMDB/FMDB.h>
+#import <objc/runtime.h>
 
 SPEC_BEGIN(TestYTXRestfulModelFMDBSync)
 
@@ -125,6 +126,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
                 NSString *sql = [NSString stringWithFormat:@"SELECT * FROM %@", [student.dbSync tableName]];
                 FMResultSet* rs = [db executeQuery:sql];
                 columns = [[rs columnNameToIndexMap] copy];
+                [rs close];
             }];
 
             [[columns[@"id"] should] beNonNil];
@@ -543,6 +545,33 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
                 [[@(((YTXTestStudentModel *)studentCollection.models[i]).score >= 10 || [((YTXTestStudentModel *)studentCollection.models[i]).IQ isEqualToString:@"100"] ) should] equal:@YES];
                 [[@(((YTXTestStudentModel *)studentCollection.models[i]).score < ((YTXTestStudentModel *)studentCollection.models[i + 1]).score) should] equal:@YES];
             }
+        });
+    });
+    
+    context(@"Migration", ^{
+        it(@"数据迁移方法执行后，数据库新的Column正确", ^{
+            Class cls = [YTXTestStudentModel class];
+            
+            objc_property_attribute_t type = { "T", "@\"NSString\"" };
+            objc_property_attribute_t ownership = { "C", "" }; // C = copy
+            objc_property_attribute_t attrs[] = { type, ownership };
+            class_addProperty(cls, [@"runtimeP" UTF8String], attrs, 2);
+            
+            Method oriMethod = class_getClassMethod(cls, @selector(currentMigrationVersion));
+            Method newMethod = class_getClassMethod(cls, @selector(newMigrationVersion));
+            IMP newIMP = method_getImplementation(newMethod);
+            method_setImplementation(oriMethod, newIMP);
+            
+            YTXTestStudentModel *student = [YTXTestStudentModel new];
+            __block NSDictionary *columns;
+            [((YTXRestfulModelFMDBSync *)student.dbSync).fmdbQueue inDatabase:^(FMDatabase *db) {
+                NSString *sql = [NSString stringWithFormat:@"SELECT * FROM %@", [student.dbSync tableName]];
+                FMResultSet* rs = [db executeQuery:sql];
+                columns = [[rs columnNameToIndexMap] copy];
+                [rs close];
+            }];
+            
+            [[columns[@"runtimep"] should] beNonNil];
         });
     });
 

@@ -33,6 +33,10 @@
 
 @end
 
+@implementation YTXRestfulModelDBMigrationEntity
+
+@end
+
 @implementation YTXRestfulModel
 
 - (instancetype)init
@@ -460,6 +464,21 @@
 + (BOOL) autoCreateTable
 {
     return NO;
+}
+
++ (void) migrationsMethodWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
+{
+    
+}
+
++ (void)dbWillMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync
+{
+    
+}
+
++ (void)dbDidMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync
+{
+    
 }
 
 /** GET */
