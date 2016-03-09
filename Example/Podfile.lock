@@ -36,18 +36,18 @@ PODS:
     - ReactiveCocoa/Core
   - YTXRequest (0.2.2):
     - AFNetworking (~> 2.6.3)
-  - YTXRestfulModel/AFNetworkingRemoteSync (0.3.2):
+  - YTXRestfulModel/AFNetworkingRemoteSync (0.3.3):
     - AFNetworking (~> 2.6.3)
     - YTXRestfulModel/Default
-  - YTXRestfulModel/Default (0.3.2):
+  - YTXRestfulModel/Default (0.3.3):
     - Mantle (~> 1.5.7)
     - ReactiveCocoa (~> 2.3.1)
-  - YTXRestfulModel/FMDBSync (0.3.2):
+  - YTXRestfulModel/FMDBSync (0.3.3):
     - FMDB (~> 2.6)
     - YTXRestfulModel/Default
-  - YTXRestfulModel/UserDefaultStorageSync (0.3.2):
+  - YTXRestfulModel/UserDefaultStorageSync (0.3.3):
     - YTXRestfulModel/Default
-  - YTXRestfulModel/YTXRequestRemoteSync (0.3.2):
+  - YTXRestfulModel/YTXRequestRemoteSync (0.3.3):
     - YTXRequest (~> 0.2.2)
     - YTXRestfulModel/Default
 
@@ -69,6 +69,6 @@ SPEC CHECKSUMS:
   Mantle: 4af47cf9547a4d0ad145a48cd0be3b411a5ae2b8
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
   YTXRequest: 976d45a1ce503a5f7787db59b50d08e4d4cb4e19
-  YTXRestfulModel: d6f4234d3f0f6aff93af63002f28363df68c6efc
+  YTXRestfulModel: 0df4b594c5ba511ad9f22de9a77c28130679f6d9
 
 COCOAPODS: 0.39.0
