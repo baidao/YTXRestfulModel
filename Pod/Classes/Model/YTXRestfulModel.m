@@ -46,15 +46,15 @@
 #ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
 #endif
-        
+
 #ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
         self.remoteSync = [AFNetworkingRemoteSync syncWithPrimaryKey: [[self class] syncPrimaryKey]];
 #endif
-        
+
 #ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync syncWithPrimaryKey: [[self class] syncPrimaryKey]];
 #endif
-        
+
 #ifdef YTX_FMDBSYNC_EXISTS
         self.dbSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:[self class] primaryKey: [[self class] syncPrimaryKey]];
 #endif
@@ -93,7 +93,7 @@
         return self;
     }
     NSSet * keys = [[self class] propertyKeys];
-    
+
     for (NSString * key in keys) {
         id value = [model valueForKey:key];
         if (value) {
@@ -151,7 +151,7 @@
     NSDictionary * dict = [self.storageSync fetchStorageSyncWithKey:storage param:param];
     if (dict) {
         NSError * error;
-        [self transformerProxyOfReponse:dict error:&error];
+        [self transformerProxyOfResponse:dict error:&error];
         if (!error) {
             return self;
         }
@@ -196,7 +196,7 @@
     [[self.storageSync fetchStorageWithKey:storage param:param] subscribeNext:^(NSDictionary * x) {
         @strongify(self);
         NSError * error = nil;
-        [self transformerProxyOfReponse:x error:&error];
+        [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -233,15 +233,15 @@
 {
     NSDictionary * dict = [self mergeSelfAndParameters:param];
     id primaryKeyValue = dict[[[self class] syncPrimaryKey]];
-    
+
     NSAssert(primaryKeyValue != nil, @"Stroage必须找到主键的值");
-    
+
     return [NSString stringWithFormat:@"EFSModel+%@+%@", NSStringFromClass([self class]), [primaryKeyValue description]];
 }
 
 #pragma mark remote
 /** 在拉到数据转mantle的时候用 */
-- (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error
+- (nonnull instancetype) transformerProxyOfResponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error
 {
     return [self mergeWithAnother:[MTLJSONAdapter modelOfClass:[self class] fromJSONDictionary:response error:error]];
 }
@@ -289,7 +289,7 @@
     [[self.remoteSync fetchRemoteForeignWithName:name param:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        id model = [self transformerProxyOfForeign: modelClass reponse:x error:&error];
+        id model = [self transformerProxyOfForeign: modelClass response:x error:&error];
         if (!error) {
             [subject sendNext:model];
             [subject sendCompleted];
@@ -310,7 +310,7 @@
     [[self.remoteSync fetchRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self transformerProxyOfReponse:x error:&error];
+        [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -332,7 +332,7 @@
         [[self.remoteSync createRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
             @strongify(self);
             NSError * error = nil;
-            [self transformerProxyOfReponse:x error:&error];
+            [self transformerProxyOfResponse:x error:&error];
             if (!error) {
                 [subject sendNext:self];
                 [subject sendCompleted];
@@ -348,7 +348,7 @@
         [[self.remoteSync updateRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
             @strongify(self);
             NSError * error = nil;
-            [self transformerProxyOfReponse:x error:&error];
+            [self transformerProxyOfResponse:x error:&error];
             if (!error) {
                 [subject sendNext:self];
                 [subject sendCompleted];
@@ -380,11 +380,11 @@
 + (nonnull NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *> *) _tableKeyPathsByPropertyKeyMap
 {
     static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *> * map;
-    
+
     if (map == nil) {
         map = [NSMutableDictionary dictionary];
     }
-    
+
     return map;
 }
 
@@ -402,16 +402,16 @@
 + (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey
 {
     NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * cachedKeys = [self _tableKeyPathsByPropertyKeyMap][[self _tableKeyPathsCachedKey]];
-    
+
     if (cachedKeys != nil) {
         return cachedKeys;
     }
-    
+
     __block NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * properties =  [NSMutableDictionary dictionary];
-    
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    
+
     [[self class] performSelector:NSSelectorFromString(@"enumeratePropertiesUsingBlock:") withObject:^(objc_property_t property, BOOL *stop) {
         mtl_propertyAttributes *attributes = mtl_copyPropertyAttributes(property);
         char *propertyType = property_copyAttributeValue(property, "T");
@@ -419,26 +419,26 @@
             free(attributes);
             free(propertyType);
         };
-        
+
         if (attributes->readonly && attributes->ivar == NULL) return;
-        
+
         NSString *modelProperyName = [NSString stringWithUTF8String:property_getName(property)];
-        
+
         if ([modelProperyName isEqualToString:@"dbSync"] || [modelProperyName isEqualToString:@"remoteSync"] || [modelProperyName isEqualToString:@"storageSync"]) {
             return;
         }
-        
+
         NSString *columnName = [self JSONKeyPathsByPropertyKey][modelProperyName] ? : modelProperyName;
-        
+
         NSString * propertyClassName = [[self class] formateObjectType:propertyType];
-        
+
         BOOL isPrimaryKey = [modelProperyName isEqualToString:[self primaryKey]];
-        
+
         BOOL isPrimaryKeyAutoincrement = NO;
         if (isPrimaryKey) {
             isPrimaryKeyAutoincrement = [self isPrimaryKeyAutoincrement];
         }
-        
+
         YTXRestfulModelDBSerializingModel * dbsm = [YTXRestfulModelDBSerializingModel new];
         dbsm.objectClass = propertyClassName;
         dbsm.columnName = columnName;
@@ -446,13 +446,13 @@
         dbsm.isPrimaryKey = isPrimaryKey;
         dbsm.autoincrement = isPrimaryKeyAutoincrement;
         dbsm.unique = NO;
-        
+
         [properties setObject:dbsm forKey:columnName];
     }];
 #pragma clang diagnostic pop
 
     [self _tableKeyPathsByPropertyKeyMap][[self _tableKeyPathsCachedKey]] = properties;
- 
+
     return properties;
 }
 
@@ -468,26 +468,26 @@
 
 + (void) migrationsMethodWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
 {
-    
+
 }
 
 + (void)dbWillMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync
 {
-    
+
 }
 
 + (void)dbDidMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync
 {
-    
+
 }
 
 /** GET */
 - (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
 {
     NSDictionary * x = [self.dbSync fetchOneSync:[self mergeSelfAndParameters:param] error:error];
-    
+
     if (x && *error == nil ) {
-        [self transformerProxyOfReponse:x error:error];
+        [self transformerProxyOfResponse:x error:error];
     }
     return self;
 }
@@ -496,12 +496,12 @@
 - (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    
+
     @weakify(self);
     [[self.dbSync fetchOne:[self mergeSelfAndParameters:param]] subscribeNext:^(NSDictionary * x) {
         @strongify(self);
         NSError * error = nil;
-        [self transformerProxyOfReponse:x error:&error];
+        [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -512,7 +512,7 @@
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
-    
+
     return subject;
 }
 
@@ -524,11 +524,11 @@
 - (nonnull instancetype) saveDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
 {
     NSDictionary * x = [self.dbSync saveOneSync:[self mergeSelfAndParameters:param] error:error];
-    
+
     if (x && *error == nil ) {
-        [self transformerProxyOfReponse:x error:error];
+        [self transformerProxyOfResponse:x error:error];
     }
-    
+
     return self;
 }
 
@@ -544,7 +544,7 @@
     [[self.dbSync saveOne:[self mergeSelfAndParameters:[self mergeSelfAndParameters:param]]] subscribeNext:^(NSDictionary * x) {
         @strongify(self);
         NSError * error = nil;
-        [self transformerProxyOfReponse:x error:&error];
+        [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -555,7 +555,7 @@
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
-    
+
     return subject;
 }
 
@@ -569,14 +569,14 @@
 - (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
-    
+
     [[self.dbSync destroyOne:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
         [subject sendNext:x];
         [subject sendCompleted];
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
-    
+
     return subject;
 }
 
@@ -584,31 +584,31 @@
 - (nonnull NSArray *) fetchDBForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param
 {
     NSDictionary * dict = [self mergeSelfAndParameters:param];
-    
+
     id primaryKeyValue = dict[[[self class] syncPrimaryKey]];
-    
+
     NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchForeignSyncWithModelClass:modelClass primaryKeyValue:primaryKeyValue error:error param:dict];
-    
-    return [self transformerProxyOfForeign:modelClass reponse:x error:error];
+
+    return [self transformerProxyOfForeign:modelClass response:x error:error];
 }
 
 /** GET Foreign Models with primary key */
 - (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
 {
     NSDictionary * dict = [self mergeSelfAndParameters:param];
-    
+
     id primaryKeyValue = dict[[[self class] syncPrimaryKey]];
-    
+
     NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchForeignWithModelClass:modelClass primaryKeyValue:primaryKeyValue param:dict] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self transformerProxyOfReponse:x error:&error];
+        [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -619,7 +619,7 @@
     } error:^(NSError *error) {
         [subject sendError:error];
     }];
-    
+
     return subject;
 }
 
@@ -628,7 +628,7 @@
 {
     if (!objcType || !strlen(objcType)) return nil;
     NSString* type = [NSString stringWithCString:objcType encoding:NSUTF8StringEncoding];
-    
+
     switch (objcType[0]) {
         case '@':
             type = [type substringWithRange:NSMakeRange(2, strlen(objcType)-3)];

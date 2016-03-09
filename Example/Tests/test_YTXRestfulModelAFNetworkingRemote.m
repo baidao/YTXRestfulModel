@@ -140,7 +140,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"输入错误的response会返回error", ^{
             YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCollection new];
             NSError * error = nil;
-            [collection transformerProxyOfReponse:@{@"abc": @123} error:&error];
+            [collection transformerProxyOfResponse:@{@"abc": @123} error:&error];
             [[error should] beNonNil];
         });
         
@@ -408,14 +408,14 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"输入错误的response会返回error", ^{
             YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             NSError * error = nil;
-            [currentTestModel transformerProxyOfReponse:@1 error:&error];
+            [currentTestModel transformerProxyOfResponse:@1 error:&error];
             [[error should] beNonNil];
         });
         
         it(@"输入错误的Foreign会返回error", ^{
             YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             NSError * error = nil;
-            [currentTestModel transformerProxyOfForeign:[self class] reponse:@1 error:&error];
+            [currentTestModel transformerProxyOfForeign:[self class] response:@1 error:&error];
             [[error should] beNonNil];
         });
         

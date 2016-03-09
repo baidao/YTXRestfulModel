@@ -164,7 +164,7 @@ json-server db.json
 
 ### 接收同步操作返回的 response ，若数据格式不规范，可以重写下面的方法，在转换前对response进行处理
 
-- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass response:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
     return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
 }
@@ -257,7 +257,7 @@ json-server db.json
     }] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self transformerProxyOfReponse:x error:&error];
+        [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];

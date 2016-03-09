@@ -46,19 +46,19 @@ typedef enum {
 {
     if(self = [super init])
     {
-        
+
 #ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
 #endif
-        
+
 #ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
         self.remoteSync = [AFNetworkingRemoteSync new];
 #endif
-        
+
 #ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
 #endif
-        
+
 #ifdef YTX_FMDBSYNC_EXISTS
         self.dbSync = [YTXRestfulModelFMDBSync new];
 #endif
@@ -78,19 +78,19 @@ typedef enum {
 {
     if(self = [super init])
     {
-        
+
 #ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
         self.storageSync = [YTXRestfulModelUserDefaultStorageSync new];
 #endif
-        
+
 #ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
         self.remoteSync = [AFNetworkingRemoteSync new];
 #endif
-        
+
 #ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
         self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync new];
 #endif
-        
+
 #ifdef YTX_FMDBSYNC_EXISTS
         self.dbSync = [YTXRestfulModelFMDBSync syncWithModelOfClass:modelClass primaryKey:[modelClass syncPrimaryKey]];
 #endif
@@ -126,7 +126,7 @@ typedef enum {
     NSArray * x = [self.storageSync fetchStorageSyncWithKey:storage param:param];
     if (x) {
         NSError * error;
-        NSArray * ret = [self transformerProxyOfReponse:x error:nil];
+        NSArray * ret = [self transformerProxyOfResponse:x error:nil];
         if (!error) {
             [self resetModels:ret];
             return self;
@@ -175,8 +175,8 @@ typedef enum {
         @strongify(self);
         //读storage就直接替换
         NSError * error = nil;
-        NSArray * ret = [self transformerProxyOfReponse:x error:&error];
-        
+        NSArray * ret = [self transformerProxyOfResponse:x error:&error];
+
         if (!error) {
             [self resetModels:ret];
             [subject sendNext:self];
@@ -218,11 +218,11 @@ typedef enum {
 #pragma mark remote
 
 /** 在拉到数据转mantle的时候用 */
-- (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfReponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error
+- (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfResponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error
 {
     return [MTLJSONAdapter modelsOfClass:[self modelClass] fromJSONArray:response error:error];
 }
-     
+
     /** 在拉到数据转mantle的时候用 */
 - (nullable NSArray<NSDictionary *> *) transformerProxyOfModels:(nonnull NSArray< id<MTLJSONSerializing> > *) array
 {
@@ -278,7 +278,7 @@ typedef enum {
         @strongify(self);
         NSError * error = nil;
 
-        NSArray * arr = [self transformerProxyOfReponse:x error:&error];
+        NSArray * arr = [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [subject sendNext: RACTuplePack(self, arr) ];
             [subject sendCompleted];
@@ -301,7 +301,7 @@ typedef enum {
         @strongify(self);
         NSError * error = nil;
 
-        NSArray * arr = [self transformerProxyOfReponse:x error:&error];
+        NSArray * arr = [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [self resetModels:arr];
             [subject sendNext:self];
@@ -325,7 +325,7 @@ typedef enum {
         @strongify(self);
         NSError * error = nil;
 
-        NSArray * arr = [self transformerProxyOfReponse:x error:&error];
+        NSArray * arr = [self transformerProxyOfResponse:x error:&error];
         if (!error) {
             [self addModels:arr];
             [subject sendNext:self];
@@ -344,11 +344,11 @@ typedef enum {
 - (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error
 {
     NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -356,19 +356,19 @@ typedef enum {
 {
     va_list args;
     va_start(args, columnName);
-    
+
     NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
-    
+
     va_end(args);
-    
+
     columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchAllSyncWithError:error soryBy:sortBy orderBy:columnNames];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -376,19 +376,19 @@ typedef enum {
 {
     va_list args;
     va_start(args, columnName);
-    
+
     NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
-    
+
     va_end(args);
-    
+
     columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error start:start count:count soryBy:sortBy orderBy:columnNames];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -396,17 +396,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMet:conditions];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -414,17 +414,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -432,17 +432,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error whereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -450,17 +450,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMet:conditions];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -468,17 +468,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -486,17 +486,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     NSArray<NSDictionary *> * x = [self.dbSync fetchMultipleSyncWithError:error wherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions];
-    
+
     if (x && *error == nil) {
-        [self resetModels:[self transformerProxyOfReponse:x error:error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:error]];
     }
-    
+
     return self;
 }
 
@@ -512,7 +512,7 @@ typedef enum {
     [[self.dbSync fetchAll] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -530,19 +530,19 @@ typedef enum {
 {
     va_list args;
     va_start(args, columnName);
-    
+
     NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
-    
+
     columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchAllSoryBy:sortBy orderBy:columnNames] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -560,19 +560,19 @@ typedef enum {
 {
     va_list args;
     va_start(args, columnName);
-    
+
     NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
-    
+
     columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchMultipleWith:start count:count soryBy:sortBy orderBy:columnNames] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -590,17 +590,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchMultipleWhereAllTheConditionsAreMet:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -618,17 +618,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -646,17 +646,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -674,17 +674,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMet:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -702,17 +702,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -730,17 +730,17 @@ typedef enum {
 {
     va_list args;
     va_start(args, condition);
-    
+
     NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
-    
+
     va_end(args);
-    
+
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
     [[self.dbSync fetchMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
-        [self resetModels:[self transformerProxyOfReponse:x error:&error]];
+        [self resetModels:[self transformerProxyOfResponse:x error:&error]];
         if (!error) {
             [subject sendNext:self];
             [subject sendCompleted];
@@ -896,7 +896,7 @@ typedef enum {
     if (firstArgument == nil) {
         return @[];
     }
-    
+
     NSMutableArray * array = [NSMutableArray arrayWithObject:firstArgument];
     id arg = nil;
     while ((arg = va_arg(args,id))) {

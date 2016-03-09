@@ -118,7 +118,7 @@
 /* RACSignal return BOOL **/
 - (nonnull RACSignal *) destroyDBAll;
 
-- (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfReponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error;
+- (nullable NSArray< id<MTLJSONSerializing> > *) transformerProxyOfResponse:(nullable NSArray<NSDictionary *> *) response error:(NSError * _Nullable * _Nullable) error;
 
 /** 在拉到数据转mantle的时候用 */
 - (nullable NSArray<NSDictionary *> *) transformerProxyOfModels:(nonnull NSArray< id<MTLJSONSerializing> > *) array;

@@ -37,7 +37,7 @@ NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @
 - (nullable id) primaryValue;
 
 /** 在拉到数据转mantle的时候用 */
-- (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+- (nonnull instancetype) transformerProxyOfResponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 
 /** 在拉到数据转外部mantle对象的时候用 */
 - (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass response:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
