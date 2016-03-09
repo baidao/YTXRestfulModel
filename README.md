@@ -1,5 +1,3 @@
-# YTXRestfulModel
-
 YTXRestfulModel是遵循了REST的Model。
 提供了DBSync（数据库同步）、RemoteSync（远程同步）、StorageSync（本地存储同步）三种数据同步途径的方法。
 
@@ -19,7 +17,7 @@ Model的转换容器用的是Mantle。
 在podfile中
 
 ```ruby
-source 'https://github.com/CocoaPods/Specs.git'
+source 'http://gitlab.baidao.com/ios/ytx-pod-specs.git'
 
 // "YTXRequestRemoteSync", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"
 
@@ -47,13 +45,14 @@ json-server db.json
 ```objective-c
 @implementation YTXTestModel
 
-//主键（关键字段）适配。
-/**@"keyId"为主键名，Model上的字段的名字*/
-/**@"id"为目标源在数据库中的列名或者服务器上的名字*/
+//Mantle的model属性和目标源属性的映射表
 + (NSDictionary *)JSONKeyPathsByPropertyKey
 {
+    /** key 的值是 模型中的字段，value 的值是目标源上对应数据的名字。*/
     return @{@"keyId": @"id"};
 }
+
+//@"keyId"为主键名，即Model的关键字段的名字
 + (NSString *)primaryKey
 {
     return @"keyId";
@@ -101,7 +100,7 @@ json-server db.json
 @end
 ```
 
-## 各种灵活的同步数据方式
+## 各种灵活的同步数据的方法
 ```objective-c
 
 /** GET */
@@ -123,12 +122,100 @@ json-server db.json
 
 ```
 
+## Model的转换参考[Mantle](https://github.com/Mantle/Mantle/tree/1.5.7)
+无论数据源来自Remote，Storage，DB都会经过MTLValueTransformer，如果你定义了该属性的Transformer。
+```objective-c
++ (MTLValueTransformer *)birthdayJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *timestamp) {
+        return [NSDate dateWithTimeIntervalSince1970: timestamp.longLongValue / 1000];
+    } reverseBlock:^(NSDate *date) {
+        return @((SInt64)(date.timeIntervalSince1970 * 1000));
+    }];
+}
+
+//解密
++ (MTLValueTransformer *)passwordJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *value) {
+        return [self encryption:value];
+    } reverseBlock:^(NSString *value) {
+        return [self decryption:value];
+    }];
+}
+```
+### Mantle的model属性和目标源属性的映射
+
+在执行同步数据的方法时，模型的属性会按照JSONKeyPathsByPropertyKey方法中的映射转成retDictionary（保留参数）；
+如果传入param为nil则使用retDictionary进行数据统同步；
+如果有传入的param，那么param的key会按照JSONKeyPathsByPropertyKey方法中的映射先进行转成mapParam，然后mapParam的value会替换掉retDictionary的对应key的value；
+
+```objective-c
+- (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param
+{
+    NSDictionary * mapParam = [self mapParameters:param];
+
+    NSMutableDictionary *retDic = [[MTLJSONAdapter JSONDictionaryFromModel:self] mutableCopy];
+
+    for (NSString *key in mapParam) {
+        retDic[key] = mapParam[key];
+    }
+    return retDic;
+}
+```
+
+### 接收同步操作返回的 response ，若数据格式不规范，可以重写下面的方法，在转换前对response进行处理
+
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+{
+    return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
+}
+```
+
+
 ## 遵循Rest，数据同步的使用 示例
 ```objective-c
+  /**
+  远程请求：http://jsonplaceholder.typicode.com/posts/1
+  返回数据：
+  {
+  "userId": 1,
+  "id": 1,
+  "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+  "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+  }
+  */
+  /**
+  keyId = @1，按照JSONKeyPathsByPropertyKey方法中的映射转成retDictionary @{@"id":@1}；
+  由于param为空，所以保留参数{@"id":@"1"}不做修改，直接执行同步操作，同步目标源中 id = 1 的数据；
+  */
   YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
   currentTestModel.keyId = @1;
   [[currentTestModel fetchRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
 
+  } error:^(NSError *error) {
+
+  }];
+
+  /**
+  Model的属性会按照映射转成retDictionary @{@"title":@"ytx test", @"body":@"test content", @"userId":@1}
+  param按照映射转成mapParam，@{@"id":@2}；（param = @{@"id":@2} 时也会转成 @{@"id":@2}）。
+  mapParam的value会替换retDictionary 的value,所以执行同步的参数是@{@"title":@"ytx_test", @"body":@"test_content", @"userId":@1, @"id":@1}
+  由于retDictionary 中没有主键，所以不符合rest原则，最后发送的请求是: *******?title=ytx_test&body=test_content&userId=1&id=1
+  */
+  YTXTestModel * testModel = [[YTXTestModel alloc] init];
+  testModel.title = @"ytx test";
+  testModel.body = @"test content";
+  testModel.userId = @1;
+  [[testModel saveRemote:@{@"keyId":@1}] subscribeNext:^(YTXTestModel *responseModel) {
+
+  } error:^(NSError *error) {
+
+  }];
+
+  YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
+  __block id ret;
+  currentTestModel.keyId = @1;
+  [[currentTestModel fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestCommentModel class] param:nil] subscribeNext:^(id x) {
+      ret = x;
   } error:^(NSError *error) {
 
   }];
@@ -145,25 +232,6 @@ json-server db.json
   storageTestModel.keyId = @1;
   [[storageTestModel fetchStorage:nil] subscribeNext:^(YTXTestModel *responseModel) {
 
-  } error:^(NSError *error) {
-
-  }];
-
-  YTXTestModel * testModel = [[YTXTestModel alloc] init];
-  testModel.title = @"ytx test hahahaha";
-  testModel.body = @"teststeststesettsetsetttsetttest";
-  testModel.userId = @1;
-  [[testModel saveRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
-
-  } error:^(NSError *error) {
-
-  }];
-
-  YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
-  __block id ret;
-  currentTestModel.keyId = @1;
-  [[currentTestModel fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestCommentModel class] param:nil] subscribeNext:^(id x) {
-      ret = x;
   } error:^(NSError *error) {
 
   }];
@@ -207,28 +275,7 @@ json-server db.json
 
 ```
 
-## Model的转换参考[Mantle](https://github.com/Mantle/Mantle/tree/1.5.7)
-无论数据源来自Remote，Storage，DB都会经过MTLValueTransformer，如果你定义了该属性的Transformer。
-```objective-c
-+ (MTLValueTransformer *)birthdayJSONTransformer {
-    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *timestamp) {
-        return [NSDate dateWithTimeIntervalSince1970: timestamp.longLongValue / 1000];
-    } reverseBlock:^(NSDate *date) {
-        return @((SInt64)(date.timeIntervalSince1970 * 1000));
-    }];
-}
-
-//解密
-+ (MTLValueTransformer *)passwordJSONTransformer {
-    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *value) {
-        return [self encryption:value];
-    } reverseBlock:^(NSString *value) {
-        return [self decryption:value];
-    }];
-}
-```
-
-##我们可以按照协议实现自己的Sync去灵活替换原有的Sync。
+## 我们可以按照协议实现自己的Sync去灵活替换原有的Sync。
 
 协议对应模型的字段
 ```objective-c
@@ -369,14 +416,19 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 }
 ```
 ## DB Migration(数据库迁移)
-如果出现数据库随版本迁移，可在Model中重写migrationsMethodWithSync:方法。
+// DB Migration（数据迁移） 当前版本号。
++ (nullable NSNumber *) currentMigrationVersion
+{
+    return @0;
+}
+然后在Model中重写migrationsMethodWithSync:方法。
 ```objective-c
 //数据库迁移操作是从当前版本到最新版本依次进行的，所以本方法中要存储所有版本的迁移操作。
 + (void) migrationsMethodWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
 {
   /** 创建 数据库迁移的操作*/
     YTXRestfulModelDBMigrationEntity *migration = [YTXRestfulModelDBMigrationEntity new];
-    /** 设置 版本号*/
+    /** 设置 进行本次操作时的版本号*/
     migration.version = @1;
     /** 设置 迁移操作（增、删、改）*/
     migration.block = ^(_Nonnull id db, NSError * _Nullable * _Nullable error) {
@@ -414,7 +466,7 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 }
 
 + (void)dbDidMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync
-{   
+{
 }
 ```
 
@@ -440,4 +492,3 @@ pod install
 ## Author
 
 caojun, 78612846@qq.com
-
