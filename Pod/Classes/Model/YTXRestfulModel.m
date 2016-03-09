@@ -276,7 +276,7 @@
     return retDic;
 }
 
-- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass response:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
     return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
 }

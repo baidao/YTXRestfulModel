@@ -40,7 +40,7 @@ NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @
 - (nonnull instancetype) transformerProxyOfReponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 
 /** 在拉到数据转外部mantle对象的时候用 */
-- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass reponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
+- (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass response:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 
 /** 将自身转化为Dictionary，然后对传入参数进行和自身属性的融合。自身的属性优先级最高，不可被传入参数修改。 */
 - (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param;
