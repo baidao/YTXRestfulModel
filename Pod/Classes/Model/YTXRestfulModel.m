@@ -87,7 +87,7 @@
 
 #pragma mark EFSModelProtocol
 
-- (instancetype) mergeWithAnother:(_Nonnull id) model
+- (nonnull instancetype) mergeWithAnother:(_Nonnull id) model
 {
     if ([self class] != [model class]){
         return self;
