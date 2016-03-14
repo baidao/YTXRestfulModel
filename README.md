@@ -426,11 +426,11 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 //数据库迁移操作是从当前版本到最新版本依次进行的，所以本方法中要存储所有版本的迁移操作。
 + (void) migrationsMethodWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
 {
-  /** 创建 数据库迁移的操作*/
+  // 创建 数据库迁移的操作
     YTXRestfulModelDBMigrationEntity *migration = [YTXRestfulModelDBMigrationEntity new];
-    /** 设置 进行本次操作时的版本号*/
+    // 设置 进行本次操作时的版本号
     migration.version = @1;
-    /** 设置 迁移操作（增、删、改）*/
+    // 设置 迁移操作（增、删、改）
     migration.block = ^(_Nonnull id db, NSError * _Nullable * _Nullable error) {
         YTXRestfulModelDBSerializingModel *runtimePStruct = [YTXRestfulModelDBSerializingModel new];
         runtimePStruct.objectClass = @"NSString";
@@ -439,10 +439,10 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
         runtimePStruct.isPrimaryKey = NO;
         runtimePStruct.autoincrement = NO;
         runtimePStruct.unique = NO;
-        /** 创建新的列*/
+        // 创建新的列
         [sync createColumnWithDB:db structSync:runtimePStruct error:error];
     };
-    /** 存储 迁移操作*/
+    // 存储 迁移操作
     [sync migrate:migration];
 }
 ```
