@@ -415,13 +415,18 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
   @"NSRange":@[             @"NSValue",         @"TEXT"]
 }
 ```
+
 ## DB Migration(数据库迁移)
+```objective-c
 // DB Migration（数据迁移） 当前版本号。
 + (nullable NSNumber *) currentMigrationVersion
 {
     return @0;
 }
-然后在Model中重写migrationsMethodWithSync:方法。
+```
+
+## 然后在Model中重写migrationsMethodWithSync:方法。
+
 ```objective-c
 
 //数据库迁移操作是从当前版本到最新版本依次进行的，所以本方法中要存储所有版本的迁移操作。
@@ -448,6 +453,7 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 }
 
 ```
+
 增/删/改 的方法
 ```objective-c
 - (BOOL) createColumnWithDB:(nonnull id)db structSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
