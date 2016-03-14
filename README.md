@@ -423,6 +423,7 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 }
 然后在Model中重写migrationsMethodWithSync:方法。
 ```objective-c
+
 //数据库迁移操作是从当前版本到最新版本依次进行的，所以本方法中要存储所有版本的迁移操作。
 + (void) migrationsMethodWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync;
 {
@@ -445,6 +446,7 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
     // 存储 迁移操作
     [sync migrate:migration];
 }
+
 ```
 增/删/改 的方法
 ```objective-c
