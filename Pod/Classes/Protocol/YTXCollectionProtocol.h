@@ -1,5 +1,5 @@
 //
-//  YTXCollectionProtocol.h
+//  YTXRestfulCollectionProtocol.h
 //  YTXRestfulModel
 //
 //  Created by CaoJun on 16/1/25.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol YTXCollectionProtocol <NSObject>
+@protocol YTXRestfulCollectionProtocol <NSObject>
 
 @required
 

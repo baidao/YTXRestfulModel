@@ -6,10 +6,10 @@
 //  Copyright © 2016 caojun. All rights reserved.
 //
 
-#import <YTXRestfulModel/YTXCollection.h>
+#import <YTXRestfulModel/YTXRestfulCollection.h>
 
 #import "YTXTestAFNetworkingRemoteModel.h"
 
-@interface YTXTestAFNetworkingRemoteCollection : YTXCollection
+@interface YTXTestAFNetworkingRemoteCollection : YTXRestfulCollection
 
 @end

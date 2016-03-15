@@ -6,8 +6,8 @@
 //  Copyright © 2016 caojun. All rights reserved.
 //
 
-#import <YTXRestfulModel/YTXCollection.h>
+#import <YTXRestfulModel/YTXRestfulCollection.h>
 
-@interface YTXTestStudentCollection : YTXCollection
+@interface YTXTestStudentCollection : YTXRestfulCollection
 
 @end

@@ -1,5 +1,5 @@
 //
-//  YTXCollection.h
+//  YTXRestfulCollection.h
 //  YTXRestfulModel
 //
 //  Created by CaoJun on 16/1/25.
@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface YTXCollection : NSObject
+@interface YTXRestfulCollection : NSObject
 
 @property (nonnull, nonatomic, assign) Class<YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing> modelClass;
 @property (nonnull, nonatomic, strong, readonly) NSArray * models;
@@ -136,7 +136,7 @@
 
 - (nullable NSArray *) arrayWithRange:(NSRange)range;
 
-- (nullable YTXCollection *) collectionWithRange:(NSRange)range;
+- (nullable YTXRestfulCollection *) collectionWithRange:(NSRange)range;
 
 - (nullable YTXRestfulModel *) modelAtIndex:(NSInteger) index;
 

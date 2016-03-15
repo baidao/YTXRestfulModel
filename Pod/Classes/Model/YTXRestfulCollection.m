@@ -1,12 +1,12 @@
 //
-//  YTXCollection.m
+//  YTXRestfulCollection.m
 //  YTXRestfulModel
 //
 //  Created by CaoJun on 16/1/19.
 //  Copyright © 2016年 Elephants Financial Service. All rights reserved.
 //
 
-#import "YTXCollection.h"
+#import "YTXRestfulCollection.h"
 #import "YTXRestfulModel.h"
 
 #ifdef YTX_USERDEFAULTSTORAGESYNC_EXISTS
@@ -34,13 +34,13 @@ typedef enum {
     INSERTFRONT,
 } FetchRemoteHandleScheme;
 
-@interface YTXCollection()
+@interface YTXRestfulCollection()
 
 @property (nonnull, nonatomic, strong) NSArray * models;
 
 @end
 
-@implementation YTXCollection
+@implementation YTXRestfulCollection
 
 - (instancetype)init
 {
@@ -775,11 +775,11 @@ typedef enum {
     return [self.models subarrayWithRange:range];
 }
 
-- (nullable YTXCollection *) collectionWithRange:(NSRange)range
+- (nullable YTXRestfulCollection *) collectionWithRange:(NSRange)range
 {
     NSArray * arr = [self arrayWithRange:range];
 
-    return arr ? [[[YTXCollection alloc] initWithModelClass:self.modelClass] addModels:arr] : nil;
+    return arr ? [[[YTXRestfulCollection alloc] initWithModelClass:self.modelClass] addModels:arr] : nil;
 }
 
 - (nullable YTXRestfulModel *) modelAtIndex:(NSInteger) index
