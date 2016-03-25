@@ -31,6 +31,16 @@ static NSString *const RestFulDomain = @"YTXRestfulModelRemoteSync"; //error dom
     return [[self alloc] initWithPrimaryKey:primaryKey];
 }
 
++ (nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock
+{
+    return [YTXRequestConfig sharedYTXRequestConfig].hookExtraParamBlock;
+}
+
++ (void) setHookExtraParamBlock:(nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock
+{
+    [YTXRequestConfig sharedYTXRequestConfig].hookExtraParamBlock = hookExtraParamBlock;
+}
+
 - (nonnull instancetype) initWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey
 {
     if (self = [super init]) {

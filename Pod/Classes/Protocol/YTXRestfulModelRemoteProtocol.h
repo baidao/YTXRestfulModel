@@ -10,6 +10,8 @@
 #import <ReactiveCocoa/RACEXTScope.h>
 #import <Foundation/Foundation.h>
 
+typedef NSDictionary * _Nonnull(^YTXRestfulModelRemoteHookExtraParamBlock)();
+
 @protocol YTXRestfulModelRemoteProtocol <NSObject>
 
 @required
@@ -27,6 +29,10 @@
 + (nonnull instancetype) syncWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey;
 
 + (nonnull instancetype) syncWithPrimaryKey:(nonnull NSString *) primaryKey;
+
++ (nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock;
+
++ (void) setHookExtraParamBlock:(nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock;
 
 - (nonnull instancetype) initWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey;
 

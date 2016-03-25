@@ -30,6 +30,10 @@
 
 + (nonnull instancetype) syncWithPrimaryKey:(nonnull NSString *) primaryKey;
 
++ (nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock;
+
++ (void) setHookExtraParamBlock:(nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock;
+
 - (nonnull instancetype) initWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey;
 
 - (nonnull instancetype) initWithPrimaryKey:(nonnull NSString *) primaryKey;

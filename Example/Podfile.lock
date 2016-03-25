@@ -20,9 +20,9 @@ PODS:
   - AFNetworking/UIKit (2.6.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
-  - FMDB (2.6):
-    - FMDB/standard (= 2.6)
-  - FMDB/standard (2.6)
+  - FMDB (2.6.2):
+    - FMDB/standard (= 2.6.2)
+  - FMDB/standard (2.6.2)
   - Kiwi (2.4.0)
   - Mantle (1.5.7):
     - Mantle/extobjc (= 1.5.7)
@@ -34,21 +34,21 @@ PODS:
   - ReactiveCocoa/no-arc (2.3.1)
   - ReactiveCocoa/UI (2.3.1):
     - ReactiveCocoa/Core
-  - YTXRequest (0.2.3):
+  - YTXRequest (0.2.5):
     - AFNetworking (~> 2.6.3)
-  - YTXRestfulModel/AFNetworkingRemoteSync (0.4.1):
+  - YTXRestfulModel/AFNetworkingRemoteSync (0.4.2):
     - AFNetworking (~> 2.6.3)
     - YTXRestfulModel/Default
-  - YTXRestfulModel/Default (0.4.1):
+  - YTXRestfulModel/Default (0.4.2):
     - Mantle (~> 1.5.7)
     - ReactiveCocoa (~> 2.3.1)
-  - YTXRestfulModel/FMDBSync (0.4.1):
+  - YTXRestfulModel/FMDBSync (0.4.2):
     - FMDB (~> 2.6)
     - YTXRestfulModel/Default
-  - YTXRestfulModel/UserDefaultStorageSync (0.4.1):
+  - YTXRestfulModel/UserDefaultStorageSync (0.4.2):
     - YTXRestfulModel/Default
-  - YTXRestfulModel/YTXRequestRemoteSync (0.4.1):
-    - YTXRequest (~> 0.2.3)
+  - YTXRestfulModel/YTXRequestRemoteSync (0.4.2):
+    - YTXRequest (~> 0.2.5)
     - YTXRestfulModel/Default
 
 DEPENDENCIES:
@@ -60,15 +60,15 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   YTXRestfulModel:
-    :path: "../"
+    :path: ../
 
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
-  FMDB: c1968bab3ab0aed38f66cb778ae1e7fa9a652b6e
+  FMDB: 854a0341b4726e53276f2a8996f06f1b80f9259a
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
   Mantle: 4af47cf9547a4d0ad145a48cd0be3b411a5ae2b8
   ReactiveCocoa: 3fe9b233ca6db810e86681b5749488564c1179a1
-  YTXRequest: 456d06668409fedaab9ae634a51c6ff4a77127d9
-  YTXRestfulModel: f139ae42af94550cec6a67743b0923c37fa1d931
+  YTXRequest: 0eb382f0b9b37c2763435617872e9ee5aa406696
+  YTXRestfulModel: f0ec8710fdf34a0630e847fd07a66a8d56e6263a
 
 COCOAPODS: 0.39.0

@@ -10,6 +10,7 @@
 
 #import <Kiwi/Kiwi.h>
 #import <YTXRequest/YTXRequest.h>
+#import <YTXRestfulmodel/YTXRestfulModelYTXRequestRemoteSync.h>
 
 SPEC_BEGIN(YTXRestfulModelYTXRequestRemoteSpec)
 
@@ -100,6 +101,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
             [[testCollection.remoteSync.url should] equal:[NSURL URLWithString:@"http://www.google.com/"]];
         });
+
     });
 
     context(@"Collection功能，基本功能测试", ^{
@@ -547,6 +549,47 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
             }];
             [[expectFutureValue(currentTestModel.keyId) shouldEventually] beNil];
+        });
+        
+        it(@"使用HookExtraParamBlock方式注入请求的额外默认参数", ^{
+            YTXRestfulModelYTXRequestRemoteSync.hookExtraParamBlock = ^NSDictionary * (){
+                return @{
+                         @"title": @"通过hook改了"
+                         };
+            };
+            __block YTXTestYTXRequestRemoteModel * currentTestModel1 = [[YTXTestYTXRequestRemoteModel alloc] init];
+            __block YTXTestYTXRequestRemoteModel * currentTestModel2 = [[YTXTestYTXRequestRemoteModel alloc] init];
+            __block YTXTestYTXRequestRemoteModel * currentTestModel3 = [[YTXTestYTXRequestRemoteModel alloc] init];
+            currentTestModel3.title = @"Jack";
+            
+            __block NSNumber * result1 = nil;
+            __block NSNumber * result2 = nil;
+            __block NSNumber * result3 = nil;
+            
+            [[currentTestModel1 saveRemote:nil] subscribeNext:^(YTXTestYTXRequestRemoteModel *responseModel) {
+                result1 = @(1);
+            } error:^(NSError *error) {
+                
+            }];
+            [[currentTestModel2 saveRemote:nil] subscribeNext:^(YTXTestYTXRequestRemoteModel *responseModel) {
+                result2 = @(1);
+            } error:^(NSError *error) {
+                
+            }];
+            [[currentTestModel3 saveRemote:@{@"title": @"hook的优先级低于方法传入参数和model属性"}] subscribeNext:^(YTXTestYTXRequestRemoteModel *responseModel) {
+                YTXRestfulModelYTXRequestRemoteSync.hookExtraParamBlock = nil;
+                result3 = @(1);
+            } error:^(NSError *error) {
+                
+            }];
+
+            [[expectFutureValue(result1) shouldEventually] beNonNil];
+            [[expectFutureValue(currentTestModel1.title) shouldEventually] equal:@"通过hook改了"];
+            [[expectFutureValue(result2) shouldEventually] beNonNil];
+            [[expectFutureValue(currentTestModel2.title) shouldEventually] equal:@"通过hook改了"];
+            [[expectFutureValue(result3) shouldEventually] beNonNil];
+            [[expectFutureValue(currentTestModel3.title) shouldEventually] equal:@"hook的优先级低于方法传入参数和model属性"];
+            
         });
 
         it(@"拉取-Fetch-GET失败进入error block，因为替换了错误URL", ^{

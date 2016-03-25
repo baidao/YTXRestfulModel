@@ -10,6 +10,8 @@
 
 #import <AFNetworking/AFNetworking.h>
 
+static YTXRestfulModelRemoteHookExtraParamBlock __hookExtraParamBlock;
+
 static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 
 @interface AFNetworkingRemoteSync()
@@ -35,6 +37,16 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 + (nonnull instancetype) syncWithPrimaryKey:(nonnull NSString *) primaryKey
 {
     return [[self alloc] initWithPrimaryKey:primaryKey];
+}
+
++ (nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock
+{
+    return __hookExtraParamBlock;
+}
+
++ (void) setHookExtraParamBlock:(nullable YTXRestfulModelRemoteHookExtraParamBlock)hookExtraParamBlock
+{
+    __hookExtraParamBlock = hookExtraParamBlock;
 }
 
 - (nonnull instancetype) initWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey
@@ -65,7 +77,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
         
-        [self.requestOperationManager GET:[[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] absoluteString] parameters:param success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self.requestOperationManager GET:[[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
             [subscriber sendNext:responseObject];
             [subscriber sendCompleted];
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -82,7 +94,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
         
-        [self.requestOperationManager GET:[[self restfulURLWithParam:param] absoluteString] parameters:param success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self.requestOperationManager GET:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
             [subscriber sendNext:responseObject];
             [subscriber sendCompleted];
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -99,7 +111,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
     //TODO: 暂且copy如果发现并没有什么特殊性的话，应当抽成一个方法，只是改变YTKRequestMethod
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        [self.requestOperationManager POST:[[self restfulURLWithParam:param] absoluteString] parameters:param success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self.requestOperationManager POST:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
             [subscriber sendNext:responseObject];
             [subscriber sendCompleted];
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -115,7 +127,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        [self.requestOperationManager PUT:[[self restfulURLWithParam:param] absoluteString] parameters:param success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self.requestOperationManager PUT:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
             [subscriber sendNext:responseObject];
             [subscriber sendCompleted];
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -131,7 +143,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
     @weakify(self);
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
         @strongify(self);
-        [self.requestOperationManager DELETE:[[self restfulURLWithParam:param] absoluteString] parameters:param success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self.requestOperationManager DELETE:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
             [subscriber sendNext:responseObject];
             [subscriber sendCompleted];
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -155,7 +167,12 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 
 - (NSDictionary *) restfulParamWithParam:(NSDictionary *)param
 {
-    NSMutableDictionary *retParam = [param mutableCopy];
+    NSMutableDictionary *retParam = [NSMutableDictionary dictionaryWithDictionary:AFNetworkingRemoteSync.hookExtraParamBlock != nil ? AFNetworkingRemoteSync.hookExtraParamBlock() : @{}];
+    
+    for (NSString * key in param) {
+        [retParam setObject:param[key] forKey:key];
+    }
+    
     if (self.primaryKey) {
         [retParam removeObjectForKey:self.primaryKey];
     }
