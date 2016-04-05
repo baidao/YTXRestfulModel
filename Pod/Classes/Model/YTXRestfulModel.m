@@ -276,6 +276,24 @@
     return retDic;
 }
 
+- (nonnull NSDictionary *)mergeSelfPrimaryKeyAndParameters:(nullable NSDictionary *)param
+{
+    NSDictionary * mapParam = [self mapParameters:param];
+    
+    NSDictionary *dic = [MTLJSONAdapter JSONDictionaryFromModel:self];
+    
+    NSMutableDictionary *retDic = [NSMutableDictionary dictionary];
+    
+    if (dic[[[self class] syncPrimaryKey]] != nil) {
+        retDic[[[self class] syncPrimaryKey]] = dic[[[self class] syncPrimaryKey]];
+    }
+    
+    for (NSString *key in mapParam) {
+        retDic[key] = mapParam[key];
+    }
+    return retDic;
+}
+
 - (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass response:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
     return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
@@ -307,7 +325,7 @@
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[self.remoteSync fetchRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
+    [[self.remoteSync fetchRemote:[self mergeSelfPrimaryKeyAndParameters:param]] subscribeNext:^(id x) {
         @strongify(self);
         NSError * error = nil;
         [self transformerProxyOfResponse:x error:&error];
