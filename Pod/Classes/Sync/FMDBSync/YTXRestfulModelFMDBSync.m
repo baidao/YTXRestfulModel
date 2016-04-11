@@ -269,12 +269,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return [self _fetchOneWithSqliteStringSync:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]] error:error];
 }
 
-/** GET Model with primary key */
-- (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param
-{
-    NSAssert(param[self.primaryKey] != nil,@"必须在param找到主键的value");
-    return [self _fetchOneWithSqliteString:[self sqlForSelectOneWithPrimaryKeyValue:param[self.primaryKey]]];
-}
 
 /** POST / PUT Model with primary key */
 - (nullable NSDictionary *) saveOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
@@ -344,15 +338,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return ret;
 }
 
-- (nonnull RACSignal *) saveOne:(nullable NSDictionary *)param
-{
-    NSError * error = nil;
-
-    NSDictionary * ret = [self saveOneSync:param error:&error];
-
-    return [self _createRACSingalWithNext:ret error:error];
-}
-
 /** GET Model with primary key */
 - (BOOL) destroyOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 {
@@ -374,15 +359,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return result;
 }
 
-/** DELETE Model with primary key */
-- (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param
-{
-    NSError * error;
-
-    BOOL result = [self destroyOneSync:param error:&error];
-
-    return [self _createRACSingalWithNext:@(result) error:error];
-}
 
 /** DELETE All Model with primary key */
 - (BOOL) destroyAllSyncWithError:(NSError * _Nullable * _Nullable) error
@@ -404,17 +380,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return result;
 }
 
-/** DELETE All Model with primary key */
-- (nonnull RACSignal *) destroyAll
-{
-    NSError * error;
-
-    BOOL result = [self destroyAllSyncWithError:&error];
-
-    return [self _createRACSingalWithNext:@(result) error:error];
-}
-
-
 /** GET */
 - (nullable NSDictionary *) fetchTopOneSyncWithError:(NSError * _Nullable * _Nullable) error;
 {
@@ -422,21 +387,9 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 }
 
 /** GET */
-- (nonnull RACSignal *) fetchTopOne
-{
-    return [self _fetchOneWithSqliteString: [self sqlForSelectTopOneOrderBy:self.primaryKey] ];
-}
-
-/** GET */
 - (nullable NSDictionary *) fetchLatestOneSyncWithError:(NSError * _Nullable * _Nullable) error
 {
     return [self _fetchOneWithSqliteStringSync:[self sqlForSelectLatestOneOrderBy:self.primaryKey] error:error];
-}
-
-/** GET */
-- (nonnull RACSignal *) fetchLatestOne
-{
-    return [self _fetchOneWithSqliteString: [self sqlForSelectLatestOneOrderBy:self.primaryKey] ];
 }
 
 /** ORDER BY primaryKey ASC*/
@@ -476,32 +429,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     YTXRestfulModelFMDBSync * sync = [YTXRestfulModelFMDBSync syncWithModelOfClass:modelClass primaryKey:primaryKey];
 
     return [sync fetchMultipleSyncWithError:error whereAllTheConditionsAreMet:@[[YTXRestfulModelFMDBSync sqliteStringWhere:foreignKey equal:[value sqliteValue]]]];
-}
-
-/** GET Foreign Models with primary key */
-- (nonnull RACSignal *) fetchForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value param:(nullable NSDictionary *)param
-{
-    NSError * error;
-    NSArray<NSDictionary *> * ret = [self fetchForeignSyncWithModelClass:modelClass primaryKeyValue:value error:&error param:param];
-
-    return [self _createRACSingalWithNext:ret error:error];
-}
-
-/** ORDER BY primaryKey ASC*/
-- (nonnull RACSignal *) fetchAll
-{
-    return [self fetchAllSoryBy:YTXRestfulModelDBSortByASC orderBy:@[[self primaryKey]]];
-}
-
-- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames
-{
-    return [self _fetchMultipleWithSqliteString:[self sqlForSelectAllSoryBy:sortBy orderBy:columnNames]];
-}
-
-
-- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames
-{
-    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWithStart:start count:count soryBy:sortBy orderBy:columnNames]];
 }
 
 /**
@@ -556,64 +483,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     return [self _fetchMultipleWithSqliteStringSync:[self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions] error:error];
 }
 
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
-{
-    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMet:conditions]];
-}
-
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSArray<NSString *> * )conditions
-{
-    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions]];
-}
-
-
-/**
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSArray<NSString *> * )conditions
-{
-    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions]];
-}
-
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions
-{
-    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWherePartOfTheConditionsAreMet:conditions]];
-}
-
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSArray<NSString *> * )conditions
-{
-    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditions:conditions]];
-}
-
-
-/**
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSArray<NSString *> * )conditions
-{
-    return [self _fetchMultipleWithSqliteString: [self sqlForSelectMultipleWhereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditions:conditions]];
-}
-
 - (nullable NSDictionary *) _fetchOneWithSqliteStringSync:(nonnull NSString *) sqliteString error:(NSError * _Nullable * _Nullable) error
 {
     __block NSDictionary * ret;
@@ -638,14 +507,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     }
 
     return ret;
-}
-
-- (nonnull RACSignal *) _fetchOneWithSqliteString:(nonnull NSString *) sqlitString
-{
-    NSError * error;
-    NSDictionary * ret = [self _fetchOneWithSqliteStringSync:sqlitString error:&error];
-
-    return [self _createRACSingalWithNext:ret error:error];
 }
 
 - (nullable NSArray<NSDictionary *> *) _fetchMultipleWithSqliteStringSync:(nonnull NSString *) sqliteString error:(NSError * _Nonnull * _Nonnull) error
@@ -674,28 +535,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     }
 
     return ret;
-}
-
-- (nonnull RACSignal *) _fetchMultipleWithSqliteString:(nonnull NSString *) sqliteString
-{
-    NSError * error;
-    id result = [self _fetchMultipleWithSqliteStringSync:sqliteString error:&error];
-    return [self _createRACSingalWithNext:result error:error];
-}
-
-- (nonnull RACSignal *) _createRACSingalWithNext:(id) ret error:(nullable NSError *) error
-{
-    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (error) {
-                [subscriber sendError:error];
-                return;
-            }
-            [subscriber sendNext:ret];
-            [subscriber sendCompleted];
-        });
-        return nil;
-    }];
 }
 
 #pragma mark migration

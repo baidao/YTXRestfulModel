@@ -88,9 +88,6 @@ NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @
 /** GET */
 - (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 
-/** GET */
-- (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param;
-
 /**
   * POST / PUT
   * 数据库不存在时创建，否则更新
@@ -98,24 +95,10 @@ NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @
   */
 - (nonnull instancetype) saveDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 
-/**
- * POST / PUT
- * 数据库不存在时创建，否则更新
- * 更新必须带主键
- */
-- (nonnull RACSignal *) saveDB:(nullable NSDictionary *)param;
-
-
 /** DELETE */
 - (BOOL) destroyDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 
-/** DELETE */
-- (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param;
-
 /** GET Foreign Models with primary key */
 - (nonnull NSArray *) fetchDBForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param;
-
-/** GET Foreign Models with primary key */
-- (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param;
 
 @end

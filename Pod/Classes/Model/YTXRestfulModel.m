@@ -26,6 +26,7 @@
 #endif
 
 #import <Mantle/MTLEXTRuntimeExtensions.h>
+#import <Mantle/MTLEXTScope.h>
 
 #import <objc/runtime.h>
 
@@ -432,30 +433,6 @@
     return self;
 }
 
-/** GET */
-- (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-
-    @weakify(self);
-    [[self.dbSync fetchOne:[self mergeSelfAndParameters:param]] subscribeNext:^(NSDictionary * x) {
-        @strongify(self);
-        NSError * error = nil;
-        [self transformerProxyOfResponse:x error:&error];
-        if (!error) {
-            [subject sendNext:self];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-
-    return subject;
-}
-
 /**
  * POST / PUT
  * 数据库不存在时创建，否则更新
@@ -472,52 +449,11 @@
     return self;
 }
 
-/**
- * POST / PUT
- * 数据库不存在时创建，否则更新
- * 更新必须带主键
- */
-- (nonnull RACSignal *) saveDB:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.dbSync saveOne:[self mergeSelfAndParameters:[self mergeSelfAndParameters:param]]] subscribeNext:^(NSDictionary * x) {
-        @strongify(self);
-        NSError * error = nil;
-        [self transformerProxyOfResponse:x error:&error];
-        if (!error) {
-            [subject sendNext:self];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-
-    return subject;
-}
 
 /** DELETE */
 - (BOOL) destroyDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error
 {
     return [self.dbSync destroyOneSync:[self mergeSelfAndParameters:param] error:error];
-}
-
-/** DELETE */
-- (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-
-    [[self.dbSync destroyOne:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-        [subject sendNext:x];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-
-    return subject;
 }
 
 /** GET Foreign Models with primary key */
@@ -532,35 +468,6 @@
     NSArray<NSDictionary *> * x = [self.dbSync fetchForeignSyncWithModelClass:modelClass primaryKeyValue:primaryKeyValue error:error param:dict];
 
     return [self transformerProxyOfForeign:modelClass response:x error:error];
-}
-
-/** GET Foreign Models with primary key */
-- (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
-{
-    NSDictionary * dict = [self mergeSelfAndParameters:param];
-
-    id primaryKeyValue = dict[[[self class] syncPrimaryKey]];
-
-    NSAssert(primaryKeyValue != nil, @"主键的值不能为空");
-
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.dbSync fetchForeignWithModelClass:modelClass primaryKeyValue:primaryKeyValue param:dict] subscribeNext:^(id x) {
-        @strongify(self);
-        NSError * error = nil;
-        [self transformerProxyOfResponse:x error:&error];
-        if (!error) {
-            [subject sendNext:self];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-
-    return subject;
 }
 
 #pragma mark - tools

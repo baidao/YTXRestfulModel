@@ -40,38 +40,20 @@
 /** GET Model with primary key */
 - (nullable NSDictionary *) fetchOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 
-/** GET Model with primary key */
-- (nonnull RACSignal *) fetchOne:(nullable NSDictionary *)param;
-
 /** POST / PUT Model with primary key */
 - (nullable NSDictionary *) saveOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
-
-/** POST / PUT Model with primary key */
-- (nonnull RACSignal *) saveOne:(nullable NSDictionary *)param;
 
 /** DELETE Model with primary key */
 - (BOOL) destroyOneSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 
-/** DELETE Model with primary key */
-- (nonnull RACSignal *) destroyOne:(nullable NSDictionary *)param;
+/** GET */
+- (nullable NSDictionary *) fetchTopOneSyncWithError:(NSError * _Nullable * _Nullable) error;
 
 /** GET */
-- (nullable NSDictionary *) fetchTopOneSyncWithError:(NSError * _Nullable * _Nullable) error;;
-
-/** GET */
-- (nonnull RACSignal *) fetchTopOne;
-
-/** GET */
-- (nullable NSDictionary *) fetchLatestOneSyncWithError:(NSError * _Nullable * _Nullable) error;;
-
-/** GET */
-- (nonnull RACSignal *) fetchLatestOne;
+- (nullable NSDictionary *) fetchLatestOneSyncWithError:(NSError * _Nullable * _Nullable) error;
 
 /** DELETE All Model with primary key */
 - (BOOL) destroyAllSyncWithError:(NSError * _Nullable * _Nullable) error;
-
-/** DELETE All Model with primary key */
-- (nonnull RACSignal *) destroyAll;
 
 /** ORDER BY primaryKey ASC*/
 - (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable) error;
@@ -79,21 +61,9 @@
 /** GET Foreign Models with primary key */
 - (nonnull NSArray<NSDictionary *> *) fetchForeignSyncWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value error:(NSError * _Nullable * _Nullable) error param:(nullable NSDictionary *)param;
 
-/** GET Foreign Models with primary key */
-- (nonnull RACSignal *) fetchForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass primaryKeyValue:(nonnull id) value param:(nullable NSDictionary *)param;
-
-/** ORDER BY primaryKey ASC*/
-- (nonnull RACSignal *) fetchAll;
-
-
 - (nonnull NSArray<NSDictionary *> *) fetchAllSyncWithError:(NSError * _Nullable * _Nullable)error soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
 
-- (nonnull RACSignal *) fetchAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
-
 - (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error start:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
-
-- (nonnull RACSignal *) fetchMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSArray<NSString *> * )columnNames;
-
 
 /**
  * ORDER BY primaryKey ASC
@@ -128,40 +98,6 @@
  * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
  */
 - (nonnull NSArray<NSDictionary *> *) fetchMultipleSyncWithError:(NSError * _Nullable * _Nullable)error wherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSArray<NSString *> * )conditions;
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions;
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSArray<NSString *> * )conditions;
-
-/**
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' AND old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSArray<NSString *> * )conditions;
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMet:(nonnull NSArray<NSString *> * )conditions;
-
-/**
- * ORDER BY primaryKey ASC
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSArray<NSString *> * )conditions;
-
-/**
- * condition: @"name = 'CJ'", @"old >= 10" => name = 'CJ' OR old >= 10
- */
-- (nonnull RACSignal *) fetchMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSArray<NSString *> * )conditions;
 
 //Migration
 

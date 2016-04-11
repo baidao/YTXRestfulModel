@@ -114,5 +114,140 @@
     }];
 }
 
+#pragma mark - db
+- (nonnull RACSignal *) fetchDBAll
+{
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSyncAllWithError:&error] error:error];
+}
 
+- (nonnull RACSignal *) fetchDBAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
+{
+    NSError * error = nil;
+    va_list args;
+    va_start(args, columnName);
+    
+    NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
+    
+    va_end(args);
+    
+    columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
+    
+    return [self _createRACSingalWithNext:[self fetchDBSyncAllWithError:&error soryBy:sortBy orderByColumnNames:columnNames] error:error];
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
+{
+    NSError * error = nil;
+    va_list args;
+    va_start(args, columnName);
+    
+    NSArray * columnNames = [self arrayWithArgs:args firstArgument:columnName];
+    
+    va_end(args);
+    
+    columnNames = [self arrayOfMappedArgsWithOriginArray:columnNames];
+    
+    return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error start:start count:count soryBy:sortBy orderByColumnNames:columnNames] error:error];
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMet:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetConditions:conditions] error:error];
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditionsArray:conditions] error:error];
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditionsArray:conditions] error:error];
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMetConditionsArray:conditions] error:error];
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditionsArray:conditions] error:error];
+}
+
+- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+{
+    va_list args;
+    va_start(args, condition);
+    
+    NSArray * conditions = [self arrayWithArgs:args firstArgument:condition];
+    
+    va_end(args);
+    
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditionsArray:conditions] error:error];
+}
+
+/* RACSignal return BOOL **/
+- (nonnull RACSignal *) destroyDBAll
+{
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:@([self destroyDBSyncAllWithError:&error]) error:error];
+}
+
+- (nonnull RACSignal *) _createRACSingalWithNext:(id) ret error:(nullable NSError *) error
+{
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:ret];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
+}
 @end

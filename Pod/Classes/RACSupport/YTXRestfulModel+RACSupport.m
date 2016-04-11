@@ -134,4 +134,55 @@
     }];
 }
 
+#pragma mark - db
+
+/** GET */
+- (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param
+{
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self fetchDBSync:param error:&error] error:error];
+}
+
+/**
+ * POST / PUT
+ * 数据库不存在时创建，否则更新
+ * 更新必须带主键
+ */
+- (nonnull RACSignal *) saveDB:(nullable NSDictionary *)param
+{
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:[self saveDBSync:param error:&error] error:error];
+}
+
+/** DELETE */
+- (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param
+{
+    NSError * error = nil;
+    return [self _createRACSingalWithNext:@([self destroyDBSync:param error:&error]) error:error];
+}
+
+/** GET Foreign Models with primary key */
+- (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
+{
+    NSError * error;
+    NSArray<NSDictionary *> * ret = [self fetchDBForeignSyncWithModelClass:modelClass error:&error param:param];
+    return [self _createRACSingalWithNext:ret error:error];
+}
+
+
+- (nonnull RACSignal *) _createRACSingalWithNext:(id) ret error:(nullable NSError *) error
+{
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (error) {
+                [subscriber sendError:error];
+                return;
+            }
+            [subscriber sendNext:ret];
+            [subscriber sendCompleted];
+        });
+        return nil;
+    }];
+}
+
 @end
