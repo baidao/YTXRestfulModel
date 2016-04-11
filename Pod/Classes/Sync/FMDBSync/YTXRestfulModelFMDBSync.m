@@ -10,7 +10,6 @@
 
 #import "NSObject+YTXRestfulModelFMDBSync.h"
 #import "NSArray+YTXRestfulModelFMDBSync.h"
-#import "NSDictionary+RACSequenceAdditions.h"
 #import "NSNumber+YTXRestfulModelFMDBSync.h"
 #import "NSDate+YTXRestfulModelFMDBSync.h"
 #import "NSString+YTXRestfulModelFMDBSync.h"
@@ -673,8 +672,6 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
     NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
     
     NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
-    //Table Name
-    NSString* tableName = [self tableName];
     
     NSMutableString* alterSql = [NSMutableString string];
     

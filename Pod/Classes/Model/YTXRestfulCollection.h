@@ -85,7 +85,10 @@
 //
 - (BOOL) destroyDBSyncAllWithError:(NSError * _Nullable * _Nullable)error;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
 - (nonnull NSArray *) arrayWithArgs:(va_list) args firstArgument:(nullable id)firstArgument;
+#pragma clang diagnostic pop
 
 - (nonnull NSArray *) arrayOfMappedArgsWithOriginArray:(nonnull NSArray *)originArray;
 
