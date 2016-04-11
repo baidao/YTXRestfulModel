@@ -12,6 +12,7 @@
 #import <YTXRequest/YTXRequest.h>
 
 #import <YTXRestfulModel/YTXRestfulModelUserDefaultStorageSync.h>
+#import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
 
 static NSString * suitName1 = @"com.baidao.test";
 static NSString * suitName2 = @"com.baidao.ppp";

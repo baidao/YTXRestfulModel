@@ -6,11 +6,11 @@
 //  Copyright © 2016年 Elephants Financial Service. All rights reserved.
 //
 
-#import <ReactiveCocoa/ReactiveCocoa.h>
-#import <ReactiveCocoa/RACEXTScope.h>
 #import <Foundation/Foundation.h>
 
 typedef NSDictionary * _Nonnull(^YTXRestfulModelRemoteHookExtraParamBlock)();
+typedef void (^YTXRestfulModelRemoteSuccessBlock)(id _Nullable response);
+typedef void (^YTXRestfulModelRemoteFailedBlock)(NSError * _Nullable error);
 
 @protocol YTXRestfulModelRemoteProtocol <NSObject>
 
@@ -39,18 +39,18 @@ typedef NSDictionary * _Nonnull(^YTXRestfulModelRemoteHookExtraParamBlock)();
 - (nonnull instancetype) initWithPrimaryKey:(nonnull NSString *) primaryKey;
 
 /** GET :id/commont */
-- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param;
+- (void) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** GET */
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** POST */
-- (nonnull RACSignal *) createRemote:(nullable NSDictionary *)param;
+- (void) createRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** put */
-- (nonnull RACSignal *) updateRemote:(nullable NSDictionary *)param;
+- (void) updateRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** DELETE */
-- (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param;
+- (void) destroyRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 @end

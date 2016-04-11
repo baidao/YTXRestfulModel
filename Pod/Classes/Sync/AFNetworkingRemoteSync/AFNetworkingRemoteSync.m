@@ -71,85 +71,52 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 }
 
 /** GET :id/comment */
-- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param
+- (void) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    @weakify(self);
-    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
-        @strongify(self);
-        
-        [self.requestOperationManager GET:[[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            [subscriber sendNext:responseObject];
-            [subscriber sendCompleted];
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            [subscriber sendError:error];
-        }];
-        return nil;
+    [self.requestOperationManager GET:[[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        success(responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failed(error);
     }];
 }
 
 /** GET */
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    @weakify(self);
-    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
-        @strongify(self);
-        
-        [self.requestOperationManager GET:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            [subscriber sendNext:responseObject];
-            [subscriber sendCompleted];
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            [subscriber sendError:error];
-        }];
-        return nil;
+    [self.requestOperationManager GET:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        success(responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failed(error);
     }];
 }
 
 /** POST */
-- (nonnull RACSignal *) createRemote:(nullable NSDictionary *)param
+- (void) createRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    @weakify(self);
-    //TODO: 暂且copy如果发现并没有什么特殊性的话，应当抽成一个方法，只是改变YTKRequestMethod
-    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
-        @strongify(self);
-        [self.requestOperationManager POST:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            [subscriber sendNext:responseObject];
-            [subscriber sendCompleted];
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            [subscriber sendError:error];
-        }];
-        return nil;
+    [self.requestOperationManager POST:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        success(responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failed(error);
     }];
 }
 
 /** PUT */
-- (nonnull RACSignal *) updateRemote:(nullable NSDictionary *)param
+- (void) updateRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    @weakify(self);
-    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
-        @strongify(self);
-        [self.requestOperationManager PUT:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            [subscriber sendNext:responseObject];
-            [subscriber sendCompleted];
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            [subscriber sendError:error];
-        }];
-        return nil;
+    [self.requestOperationManager PUT:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        success(responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failed(error);
     }];
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param
+- (void) destroyRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    @weakify(self);
-    return [RACSignal createSignal:^RACDisposable *(id subscriber) {
-        @strongify(self);
-        [self.requestOperationManager DELETE:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            [subscriber sendNext:responseObject];
-            [subscriber sendCompleted];
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            [subscriber sendError:error];
-        }];
-        return nil;
+    [self.requestOperationManager DELETE:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        success(responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failed(error);
     }];
 }
 

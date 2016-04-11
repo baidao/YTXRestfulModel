@@ -45,6 +45,8 @@ NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @
 /** 将自身转化为Dictionary，然后对传入参数进行和自身属性的融合。自身的属性优先级最高，不可被传入参数修改。 */
 - (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param;
 
+- (nonnull NSString *) storageKeyWithParam:(nullable NSDictionary *) param;
+
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
 
@@ -63,28 +65,15 @@ NSAssert(__SYNC__ != nil, @"应该在pod中安装%@ 像这样：%@", __DESC__, @
 /** DELETE */
 - (void) destroyStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param;
 
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
-
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param;
-/** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
-
-- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
-
-- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
-/** DELETE */
-- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param;
 
 /** :id/comment 这种形式的时候使用GET; modelClass is MTLModel*/
-- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
-
+- (void) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 /** GET */
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
-
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 /** POST / PUT */
-- (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param;
+- (void) saveRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 /** DELETE */
-- (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param;
+- (void) destroyRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** 主键是否自增，默认为YES */
 + (BOOL) isPrimaryKeyAutoincrement;

@@ -38,19 +38,19 @@
 
 - (nonnull instancetype) initWithPrimaryKey:(nonnull NSString *) primaryKey;
 
-/** GET :id/comment */
-- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param;
+/** GET :id/commont */
+- (void) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** GET */
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** POST */
-- (nonnull RACSignal *) createRemote:(nullable NSDictionary *)param;
+- (void) createRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
-/** PUT */
-- (nonnull RACSignal *) updateRemote:(nullable NSDictionary *)param;
+/** put */
+- (void) updateRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** DELETE */
-- (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param;
+- (void) destroyRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 @end

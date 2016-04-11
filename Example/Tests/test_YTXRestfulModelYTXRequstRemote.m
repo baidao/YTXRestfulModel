@@ -11,6 +11,7 @@
 #import <Kiwi/Kiwi.h>
 #import <YTXRequest/YTXRequest.h>
 #import <YTXRestfulmodel/YTXRestfulModelYTXRequestRemoteSync.h>
+#import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
 
 SPEC_BEGIN(YTXRestfulModelYTXRequestRemoteSpec)
 
@@ -332,9 +333,9 @@ describe(@"测试YTXRestfulModelRemote", ^{
             YTXTestYTXRequestRemoteCollection * collection = [YTXTestYTXRequestRemoteCollection new];
             __block YTXTestYTXRequestRemoteCollection *ret;
             __block NSArray *array;
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
-                ret = x.first;
-                array = x.second;
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestYTXRequestRemoteCollection *x) {
+                ret = x;
+                array = x.models;
             } error:^(NSError *error) {
 
             }];
@@ -349,7 +350,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
             [[@(collection.models.count) should] equal:@(1)];
 
-            [[collection fetchRemoteThenReset:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestYTXRequestRemoteCollection * x) {
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestYTXRequestRemoteCollection * x) {
                  ret = x;
             } error:^(NSError *error) {
 
@@ -379,8 +380,8 @@ describe(@"测试YTXRestfulModelRemote", ^{
             collection.remoteSync.url = [NSURL URLWithString:@"http://localhost:3000/wrongtest"];
             __block NSError *err = nil;
             __block NSArray *array = nil;
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
-                array = x.second;
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestYTXRequestRemoteCollection *x) {
+                array = x.models;
             } error:^(NSError *error) {
                 err = error;
             }];
@@ -393,8 +394,8 @@ describe(@"测试YTXRestfulModelRemote", ^{
             collection.remoteSync.timeoutInterval = 0;
             __block NSError *err = nil;
             __block NSArray *array = nil;
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(RACTuple *x) {
-                array = x.second;
+            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestYTXRequestRemoteCollection *x) {
+                array = x.models;
             } error:^(NSError *error) {
                 err = error;
             }];

@@ -29,6 +29,8 @@
 - (nonnull instancetype) initWithModelClass:(nonnull Class<YTXRestfulModelProtocol, MTLJSONSerializing, YTXRestfulModelDBSerializing>)modelClass userDefaultSuiteName:(nullable NSString *) suiteName;
 
 #pragma mark storage
+- (nonnull NSString *) storageKey;
+
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
 
@@ -47,33 +49,12 @@
 /** DELETE */
 - (void) destroyStorageSyncWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *) param;
 
-/** GET */
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
-
-/** POST / PUT */
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param;
-
-/** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
-
-/** GET */
-- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
-
-/** POST / PUT */
-- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
-
-/** DELETE */
-- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
-
 #pragma mark remote
-/* RACSignal return Tuple( self, Arrary<Model> ) **/
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
+/* RACSignal return self **/
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /* RACSignal return self **/
-- (nonnull RACSignal *) fetchRemoteThenReset:(nullable NSDictionary *)param;
-
-/* RACSignal return self **/
-- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
+- (void) fetchRemoteThenAdd:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 #pragma mark db
 - (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable) error;

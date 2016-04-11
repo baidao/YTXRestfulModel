@@ -173,61 +173,6 @@
     [self.storageSync destroyStorageSyncWithKey:storage param:param];
 }
 
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
-{
-    return [self fetchStorageWithKey:[self storageKeyWithParam:param] param:param];
-}
-
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
-{
-    return [self saveStorageWithKey:[self storageKeyWithParam:param] param:param];
-}
-
-/** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
-{
-    return [self destroyStorageWithKey:[self storageKeyWithParam:param] param:param];
-}
-
-- (nonnull RACSignal *)fetchStorageWithKey:(NSString *)storage param:(NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync fetchStorageWithKey:storage param:param] subscribeNext:^(NSDictionary * x) {
-        @strongify(self);
-        NSError * error = nil;
-        [self transformerProxyOfResponse:x error:&error];
-        if (!error) {
-            [subject sendNext:self];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
-}
-
-- (nonnull RACSignal *)saveStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync saveStorageWithKey:storage withObject:[self mergeSelfAndParameters:param] param: param] subscribeNext:^(NSDictionary * x) {
-        @strongify(self);
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
-}
-
-- (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
-{
-    return [self.storageSync destroyStorageWithKey:storage param:param];
-}
 
 - (nonnull NSString *) storageKeyWithParam:(nullable NSDictionary *) param
 {
@@ -299,100 +244,77 @@
     return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
 }
 
-- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
+- (void) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    NSAssert([modelClass isSubclassOfClass: [MTLModel class] ], @"希望传入的class是MTLModel的子类，这样才能使用mantle转换");
-    @weakify(self);
-    RACSubject * subject = [RACSubject subject];
-    [[self.remoteSync fetchRemoteForeignWithName:name param:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-        @strongify(self);
+    __weak __typeof(&*self)weakSelf = self;
+    [self.remoteSync fetchRemoteForeignWithName:name param:[self mergeSelfAndParameters:param] success:^(id  _Nullable response) {
         NSError * error = nil;
-        id model = [self transformerProxyOfForeign: modelClass response:x error:&error];
+        id model = [weakSelf transformerProxyOfForeign:modelClass response:response error:&error];
         if (!error) {
-            [subject sendNext:model];
-            [subject sendCompleted];
+            success(model);
         }
         else {
-            [subject sendError:error];
+            failed(error);
         }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    } failed:failed];
 }
 
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.remoteSync fetchRemote:[self mergeSelfPrimaryKeyAndParameters:param]] subscribeNext:^(id x) {
-        @strongify(self);
+    __weak __typeof(&*self)weakSelf = self;
+    [self.remoteSync fetchRemote:[self mergeSelfPrimaryKeyAndParameters:param] success:^(id  _Nullable response) {
         NSError * error = nil;
-        [self transformerProxyOfResponse:x error:&error];
+        id model = [weakSelf transformerProxyOfResponse:response error:&error];
         if (!error) {
-            [subject sendNext:self];
-            [subject sendCompleted];
+            success(model);
         }
         else {
-            [subject sendError:error];
+            failed(error);
         }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    } failed:failed];
 }
 
-- (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param
+- (void) saveRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
+    __weak __typeof(&*self)weakSelf = self;
     if ([self isNew]) {
-        [[self.remoteSync createRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-            @strongify(self);
+        [self.remoteSync createRemote:[self mergeSelfAndParameters:param] success:^(id  _Nullable response) {
             NSError * error = nil;
-            [self transformerProxyOfResponse:x error:&error];
+            id model = [weakSelf transformerProxyOfResponse:response error:&error];
             if (!error) {
-                [subject sendNext:self];
-                [subject sendCompleted];
+                success(model);
             }
             else {
-                [subject sendError:error];
+                failed(error);
             }
-        } error:^(NSError *error) {
-            [subject sendError:error];
-        }];
-    }
-    else {
-        [[self.remoteSync updateRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-            @strongify(self);
+        } failed:failed];
+    } else {
+        [self.remoteSync updateRemote:[self mergeSelfAndParameters:param] success:^(id  _Nullable response) {
             NSError * error = nil;
-            [self transformerProxyOfResponse:x error:&error];
+            id model = [weakSelf transformerProxyOfResponse:response error:&error];
             if (!error) {
-                [subject sendNext:self];
-                [subject sendCompleted];
+                success(model);
             }
             else {
-                [subject sendError:error];
+                failed(error);
             }
-        } error:^(NSError *error) {
-             [subject sendError:error];
-        }];
+        } failed:failed];
     }
-
-    return subject;
 }
 
-- (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param
+- (void) destroyRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    RACSubject * subject = [RACSubject subject];
-    [[self.remoteSync destroyRemote:[self mergeSelfAndParameters:param]] subscribeNext:^(id x) {
-        [subject sendNext:nil];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-
-    return subject;
+    __weak __typeof(&*self)weakSelf = self;
+    [self.remoteSync destroyRemote:[self mergeSelfAndParameters:param] success:^(id  _Nullable response) {
+        NSError * error = nil;
+        id model = [weakSelf transformerProxyOfResponse:response error:&error];
+        if (!error) {
+            success(model);
+        }
+        else {
+            failed(error);
+        }
+    } failed:failed];
 }
 
 + (nonnull NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *> *) _tableKeyPathsByPropertyKeyMap

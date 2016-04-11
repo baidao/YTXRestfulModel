@@ -30,7 +30,13 @@ Pod::Spec.new do |s|
   s.subspec "Default" do |ss|
     ss.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
     ss.dependency 'Mantle', '~> 1.5.7'
-    ss.dependency 'ReactiveCocoa', '~> 2.3.1'
+    #ss.dependency 'ReactiveCocoa', '~> 2.3.1'
+  end
+  
+  s.subspec "RACSupport" do |ss|
+      ss.source_files = ["Pod/Classes/RACSupport/**/*"]
+      ss.dependency 'ReactiveCocoa', '~> 2.3.1'
+      ss.dependency 'YTXRestfulModel/Default'
   end
 
   YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",     :dependency => [{:name => "YTXRequest",    :version => "~> 0.2.6"    }]  }
@@ -65,6 +71,7 @@ Pod::Spec.new do |s|
 
     end
   end
+  
 
 #  s.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
 #  s.dependency 'Mantle', '~> 1.5.7'

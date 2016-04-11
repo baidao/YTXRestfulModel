@@ -149,67 +149,6 @@ typedef enum {
     [self.storageSync destroyStorageSyncWithKey:storage param:param];
 }
 
-/** GET */
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
-{
-    return [self fetchStorageWithKey:[self storageKey] param:param];
-}
-
-/** POST / PUT */
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
-{
-    return [self saveStorageWithKey:[self storageKey] param:param];
-}
-
-/** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
-{
-    return [self destroyStorageWithKey:[self storageKey] param:param];
-}
-
-- (RACSignal *)fetchStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync fetchStorageWithKey:storageKey param:param] subscribeNext:^(NSArray * x) {
-        @strongify(self);
-        //读storage就直接替换
-        NSError * error = nil;
-        NSArray * ret = [self transformerProxyOfResponse:x error:&error];
-
-        if (!error) {
-            [self resetModels:ret];
-            [subject sendNext:self];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
-}
-
-- (RACSignal *)saveStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.storageSync saveStorageWithKey:storageKey withObject:[self transformerProxyOfModels:[self.models copy]] param:param] subscribeNext:^(id x) {
-        @strongify(self);
-        [subject sendNext:self];
-        [subject sendCompleted];
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
-}
-
-- (RACSignal *)destroyStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
-{
-    return [self.storageSync destroyStorageWithKey:storageKey param:param];
-}
-
 - (nonnull NSString *) storageKey
 {
     return [NSString stringWithFormat:@"EFSCollection+%@", NSStringFromClass(self.modelClass)];
@@ -270,75 +209,44 @@ typedef enum {
     return self;
 }
 
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
-        @strongify(self);
-        NSError * error = nil;
 
-        NSArray * arr = [self transformerProxyOfResponse:x error:&error];
+/* RACSignal return self **/
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
+{
+    __weak __typeof(&*self)weakSelf = self;
+    [self.remoteSync fetchRemote:param success:^(id  _Nullable response) {
+        NSError * error = nil;
+        NSArray * arr = [weakSelf transformerProxyOfResponse:response error:&error];
+        
+        [weakSelf resetModels:arr];
         if (!error) {
-            [subject sendNext: RACTuplePack(self, arr) ];
-            [subject sendCompleted];
+            success(weakSelf);
         }
         else {
-            [subject sendError:error];
+            failed(error);
         }
-
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    } failed:failed];
+    
 }
 
-- (nonnull RACSignal *) fetchRemoteThenReset:(nullable NSDictionary *)param
+/* RACSignal return self **/
+- (void) fetchRemoteThenAdd:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
-        @strongify(self);
+    __weak __typeof(&*self)weakSelf = self;
+    [self.remoteSync fetchRemote:param success:^(id  _Nullable response) {
         NSError * error = nil;
-
-        NSArray * arr = [self transformerProxyOfResponse:x error:&error];
+        NSArray * arr = [weakSelf transformerProxyOfResponse:response error:&error];
+        
+        [weakSelf addModels:arr];
         if (!error) {
-            [self resetModels:arr];
-            [subject sendNext:self];
-            [subject sendCompleted];
+            success(weakSelf);
         }
         else {
-            [subject sendError:error];
+            failed(error);
         }
-
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
+    } failed:failed];
 }
 
-- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param
-{
-    RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[self.remoteSync fetchRemote:param] subscribeNext:^(id x) {
-        @strongify(self);
-        NSError * error = nil;
-
-        NSArray * arr = [self transformerProxyOfResponse:x error:&error];
-        if (!error) {
-            [self addModels:arr];
-            [subject sendNext:self];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
-    } error:^(NSError *error) {
-        [subject sendError:error];
-    }];
-    return subject;
-}
 
 #pragma mark db
 - (nonnull instancetype) fetchDBSyncAllWithError:(NSError * _Nullable * _Nullable)error
