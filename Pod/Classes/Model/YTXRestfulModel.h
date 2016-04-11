@@ -11,6 +11,7 @@
 #import "YTXRestfulModelRemoteProtocol.h"
 #import "YTXRestfulModelDBProtocol.h"
 #import <Mantle/Mantle.h>
+#import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
 #define YTXAssertSyncExists(__SYNC__, __DESC__) \

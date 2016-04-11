@@ -13,6 +13,7 @@
 
 #import <YTXRestfulModel/YTXRestfulModelDBProtocol.h>
 #import <YTXRestfulModel/YTXRestfulModelFMDBSync.h>
+#import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
 #import <Kiwi/Kiwi.h>
 #import <FMDB/FMDB.h>
 #import <objc/runtime.h>
@@ -381,7 +382,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             testStudent.name = @"Dacula";
             
             __block YTXTestStudentModel *ret;
-            [[testStudent saveDB:nil] subscribeNext:^(id x) {
+            [[testStudent rac_saveDB:nil] subscribeNext:^(id x) {
                 ret = x;
                 studentDacula = ret.identify;
             }];
@@ -395,7 +396,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             testStudent.identify = studentDacula;
             
             __block YTXTestStudentModel *ret;
-            [[testStudent fetchDB:nil] subscribeNext:^(id x) {
+            [[testStudent rac_fetchDB:nil] subscribeNext:^(id x) {
                 ret = x;
             }];
             
@@ -410,7 +411,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             testStudent.age = 99999;
             
             __block YTXTestStudentModel *ret;
-            [[testStudent saveDB:nil] subscribeNext:^(id x) {
+            [[testStudent rac_saveDB:nil] subscribeNext:^(id x) {
                 ret = x;
             }];
             
@@ -425,7 +426,7 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             testStudent.identify = studentDacula;
             
             __block BOOL ret;
-            [[testStudent destroyDB:nil] subscribeNext:^(id x) {
+            [[testStudent rac_destroyDB:nil] subscribeNext:^(id x) {
                 ret = x;
             }];
             

@@ -459,7 +459,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         it(@"保存缓存成功，使用storageKey", ^{
             YTXTestYTXRequestRemoteModel *model = [YTXTestYTXRequestRemoteModel new];
             __block YTXTestYTXRequestRemoteModel *ret = nil;
-            [[model saveStorageWithKey:@"key1" param:nil] subscribeNext:^(id x) {
+            [[model rac_saveStorageWithKey:@"key1" param:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -471,8 +471,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestYTXRequestRemoteModel *model = [YTXTestYTXRequestRemoteModel new];
             __block YTXTestYTXRequestRemoteModel *ret = nil;
 
-            [[[model saveStorageWithKey:@"key2" param:nil] flattenMap:^RACStream *(id value) {
-                return [model fetchStorageWithKey:@"key2" param:nil];
+            [[[model rac_saveStorageWithKey:@"key2" param:nil] flattenMap:^RACStream *(id value) {
+                return [model rac_fetchStorageWithKey:@"key2" param:nil];
             }] subscribeNext:^(id x) {
                 ret = x;
             }];
@@ -484,8 +484,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestYTXRequestRemoteModel *model1 = [YTXTestYTXRequestRemoteModel new];
             model1.keyId = @1;
             __block YTXTestYTXRequestRemoteModel *model2 = [YTXTestYTXRequestRemoteModel new];
-            [[model1 saveStorageWithKey:@"key3" param:nil] subscribeNext:^(id x) {
-                [model2 fetchStorageWithKey:@"key3" param:nil];
+            [[model1 rac_saveStorageWithKey:@"key3" param:nil] subscribeNext:^(id x) {
+                [model2 rac_fetchStorageWithKey:@"key3" param:nil];
             }];
 
             [[expectFutureValue(model2.keyId) shouldEventually] equal:model1.keyId];
@@ -494,7 +494,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         it(@"删除缓存成功，使用storageKey", ^{
             YTXTestYTXRequestRemoteModel *model = [YTXTestYTXRequestRemoteModel new];
             __block NSNumber *ret = nil;
-            [[model destroyStorageWithKey:@"key4" param:nil] subscribeNext:^(id x) {
+            [[model rac_destroyStorageWithKey:@"key4" param:nil] subscribeNext:^(id x) {
                 ret = @1;
             } error:^(NSError *error) {
 
@@ -508,12 +508,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestYTXRequestRemoteModel *model2 = [YTXTestYTXRequestRemoteModel new];
             __block YTXTestYTXRequestRemoteModel *model3 = [YTXTestYTXRequestRemoteModel new];
 
-            [[[[[model1 saveStorageWithKey:@"key5" param:nil] flattenMap:^RACStream *(id value) {
-                return [model2 fetchStorageWithKey:@"key5" param:nil];
+            [[[[[model1 rac_saveStorageWithKey:@"key5" param:nil] flattenMap:^RACStream *(id value) {
+                return [model2 rac_fetchStorageWithKey:@"key5" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model1 destroyStorageWithKey:@"key5" param:nil];
+                return [model1 rac_destroyStorageWithKey:@"key5" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model3 fetchStorageWithKey:@"key5" param:nil];
+                return [model3 rac_fetchStorageWithKey:@"key5" param:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -528,8 +528,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
             __block NSError *ret = nil;
 
-            [[model1 saveStorageWithKey:@"key6" param:nil] subscribeNext:^(id x) {
-                [[model2 fetchStorageWithKey:@"abc" param:nil] subscribeError:^(NSError *error) {
+            [[model1 rac_saveStorageWithKey:@"key6" param:nil] subscribeNext:^(id x) {
+                [[model2 rac_fetchStorageWithKey:@"abc" param:nil] subscribeError:^(NSError *error) {
                     ret = error;
                 }];
             }] ;
@@ -545,12 +545,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestYTXRequestRemoteModel *model3 = [YTXTestYTXRequestRemoteModel new];
             __block YTXTestYTXRequestRemoteModel *model4 = [YTXTestYTXRequestRemoteModel new];
 
-            [[[[[model1 saveStorageWithKey:@"key111" param:nil] flattenMap:^RACStream *(id value) {
-                return [model2 saveStorageWithKey:@"key222" param:nil];
+            [[[[[model1 rac_saveStorageWithKey:@"key111" param:nil] flattenMap:^RACStream *(id value) {
+                return [model2 rac_saveStorageWithKey:@"key222" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model3 fetchStorageWithKey:@"key111" param:nil];
+                return [model3 rac_fetchStorageWithKey:@"key111" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model4 fetchStorageWithKey:@"key222" param:nil];
+                return [model4 rac_fetchStorageWithKey:@"key222" param:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -565,7 +565,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestYTXRequestRemoteModel *model = [YTXTestYTXRequestRemoteModel new];
             model.keyId = @2001;
             __block YTXTestYTXRequestRemoteModel *ret = nil;
-            [[model saveStorage:nil] subscribeNext:^(id x) {
+            [[model rac_saveStorage:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -578,8 +578,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model.keyId = @2002;
             __block YTXTestYTXRequestRemoteModel *ret = nil;
 
-            [[[model saveStorage:nil] flattenMap:^RACStream *(id value) {
-                return [model fetchStorage:nil];
+            [[[model rac_saveStorage:nil] flattenMap:^RACStream *(id value) {
+                return [model rac_fetchStorage:nil];
             }] subscribeNext:^(id x) {
                 ret = x;
             }];
@@ -593,8 +593,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model1.title = @"testModel1";
             __block YTXTestYTXRequestRemoteModel *model2 = [YTXTestYTXRequestRemoteModel new];
             model2.keyId = model1.keyId;
-            [[model1 saveStorage:nil] subscribeNext:^(id x) {
-                [model2 fetchStorage:nil];
+            [[model1 rac_saveStorage:nil] subscribeNext:^(id x) {
+                [model2 rac_fetchStorage:nil];
             }];
 
             [[expectFutureValue(model2.title) shouldEventually] equal:model1.title];
@@ -604,7 +604,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestYTXRequestRemoteModel *model = [YTXTestYTXRequestRemoteModel new];
             model.keyId = @2004;
             __block NSNumber *ret = nil;
-            [[model destroyStorage:nil] subscribeNext:^(id x) {
+            [[model rac_destroyStorage:nil] subscribeNext:^(id x) {
                 ret = @1;
             } error:^(NSError *error) {
 
@@ -621,12 +621,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestYTXRequestRemoteModel *model3 = [YTXTestYTXRequestRemoteModel new];
             model3.keyId = model1.keyId;
             
-            [[[[[model1 saveStorage:nil] flattenMap:^RACStream *(id value) {
-                return [model2 fetchStorage:nil];
+            [[[[[model1 rac_saveStorage:nil] flattenMap:^RACStream *(id value) {
+                return [model2 rac_fetchStorage:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model1 destroyStorage:nil];
+                return [model1 rac_destroyStorage:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model3 fetchStorage:nil];
+                return [model3 rac_fetchStorage:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -641,8 +641,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model2.keyId = model1.keyId;
             __block NSError *ret = nil;
 
-            [[model1 destroyStorage:nil] subscribeNext:^(id x) {
-                [[model2 fetchStorage:nil] subscribeError:^(NSError *error) {
+            [[model1 rac_destroyStorage:nil] subscribeNext:^(id x) {
+                [[model2 rac_fetchStorage:nil] subscribeError:^(NSError *error) {
                     ret = error;
                 }];
             }] ;
@@ -669,12 +669,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model4.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName4];
             model4.keyId = @2007;
             
-            [[[[[model1 saveStorage:nil] flattenMap:^RACStream *(id value) {
-                return [model3 fetchStorage:nil];
+            [[[[[model1 rac_saveStorage:nil] flattenMap:^RACStream *(id value) {
+                return [model3 rac_fetchStorage:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model2 saveStorage:nil];
+                return [model2 rac_saveStorage:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [model4 fetchStorage:nil];
+                return [model4 rac_fetchStorage:nil];
             }] subscribeNext:^(id x) {
                 
             }];
@@ -705,7 +705,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         it(@"保存缓存成功，自定义storageKey", ^{
             YTXTestYTXRequestRemoteCollection *collection1 = [YTXTestYTXRequestRemoteCollection new];
             __block YTXTestYTXRequestRemoteCollection *ret1 = nil;
-            [[collection1 saveStorageWithKey:@"storageKey1" param:nil] subscribeNext:^(id x) {
+            [[collection1 rac_saveStorageWithKey:@"storageKey1" param:nil] subscribeNext:^(id x) {
                 ret1 = x;
             } error:^(NSError *error) {
 
@@ -722,8 +722,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestYTXRequestRemoteModel *model4 = [[YTXTestYTXRequestRemoteModel alloc] init];
             [collection addModels:@[model1, model2, model3, model4]];
             __block YTXTestYTXRequestRemoteCollection *ret = nil;
-            [[[collection saveStorageWithKey:@"storageKey1" param:nil] flattenMap:^RACStream *(id value) {
-                return [collection fetchStorageWithKey:@"storageKey1" param:nil];
+            [[[collection rac_saveStorageWithKey:@"storageKey1" param:nil] flattenMap:^RACStream *(id value) {
+                return [collection rac_fetchStorageWithKey:@"storageKey1" param:nil];
             }] subscribeNext:^(id x) {
                 ret = x;
             }];
@@ -738,8 +738,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model.keyId = @1;
             [collection addModels:@[model]];
             __block YTXTestYTXRequestRemoteCollection *ret = [YTXTestYTXRequestRemoteCollection new];
-            [[collection saveStorageWithKey:@"storageKey3" param:nil] subscribeNext:^(id x) {
-                [ret fetchStorageWithKey:@"storageKey3" param:nil];
+            [[collection rac_saveStorageWithKey:@"storageKey3" param:nil] subscribeNext:^(id x) {
+                [ret rac_fetchStorageWithKey:@"storageKey3" param:nil];
             }];
 
             [[expectFutureValue(((YTXTestYTXRequestRemoteModel *)ret.models.firstObject).keyId) shouldEventually] equal:model.keyId];
@@ -748,7 +748,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         it(@"删除缓存成功，使用storageKey", ^{
             YTXTestYTXRequestRemoteCollection *collection = [YTXTestYTXRequestRemoteCollection new];
             __block NSNumber *ret = @1;
-            [[collection destroyStorageWithKey:@"storageKey4" param:nil] subscribeNext:^(id x) {
+            [[collection rac_destroyStorageWithKey:@"storageKey4" param:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -764,12 +764,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestYTXRequestRemoteCollection *collection2 = [YTXTestYTXRequestRemoteCollection new];
             __block YTXTestYTXRequestRemoteCollection *collection3 = [YTXTestYTXRequestRemoteCollection new];
 
-            [[[[[collection1 saveStorageWithKey:@"storageKey5" param:nil] flattenMap:^RACStream *(id value) {
-                return [collection2 fetchStorageWithKey:@"storageKey5" param:nil];
+            [[[[[collection1 rac_saveStorageWithKey:@"storageKey5" param:nil] flattenMap:^RACStream *(id value) {
+                return [collection2 rac_fetchStorageWithKey:@"storageKey5" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection1 destroyStorageWithKey:@"storageKey5" param:nil];
+                return [collection1 rac_destroyStorageWithKey:@"storageKey5" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection3 fetchStorageWithKey:@"storageKey5" param:nil];
+                return [collection3 rac_fetchStorageWithKey:@"storageKey5" param:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -783,8 +783,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
 
             __block NSError *ret = nil;
 
-            [[collection1 saveStorageWithKey:@"key6" param:nil] subscribeNext:^(id x) {
-                [[collection2 fetchStorageWithKey:@"abc" param:nil] subscribeError:^(NSError *error) {
+            [[collection1 rac_saveStorageWithKey:@"key6" param:nil] subscribeNext:^(id x) {
+                [[collection2 rac_fetchStorageWithKey:@"abc" param:nil] subscribeError:^(NSError *error) {
                     ret = error;
                 }];
             }] ;
@@ -806,12 +806,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestYTXRequestRemoteCollection *collection4 = [YTXTestYTXRequestRemoteCollection new];
 
 
-            [[[[[collection1 saveStorageWithKey:@"key111" param:nil] flattenMap:^RACStream *(id value) {
-                return [collection2 saveStorageWithKey:@"key222" param:nil];
+            [[[[[collection1 rac_saveStorageWithKey:@"key111" param:nil] flattenMap:^RACStream *(id value) {
+                return [collection2 rac_saveStorageWithKey:@"key222" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection3 fetchStorageWithKey:@"key111" param:nil];
+                return [collection3 rac_fetchStorageWithKey:@"key111" param:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection4 fetchStorageWithKey:@"key222" param:nil];
+                return [collection4 rac_fetchStorageWithKey:@"key222" param:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -828,7 +828,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             model1.keyId = @1;
             [collection1 addModels:@[model1]];
             __block YTXTestYTXRequestRemoteCollection *ret = nil;
-            [[collection1 saveStorage:nil] subscribeNext:^(id x) {
+            [[collection1 rac_saveStorage:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -840,8 +840,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestYTXRequestRemoteCollection *collection1 = [YTXTestYTXRequestRemoteCollection new];
             __block YTXTestYTXRequestRemoteCollection *ret = [YTXTestYTXRequestRemoteCollection new];
 
-            [[[collection1 saveStorage:nil] flattenMap:^RACStream *(id value) {
-                return [ret fetchStorage:nil];
+            [[[collection1 rac_saveStorage:nil] flattenMap:^RACStream *(id value) {
+                return [ret rac_fetchStorage:nil];
             }] subscribeNext:^(id x) {
                 ret = x;
             }];
@@ -856,8 +856,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             [collection1 addModels:@[model1]];
             __block YTXTestYTXRequestRemoteCollection *ret =  [YTXTestYTXRequestRemoteCollection new];
 
-            [[collection1 saveStorage:nil] subscribeNext:^(id x) {
-                [ret fetchStorage:nil];
+            [[collection1 rac_saveStorage:nil] subscribeNext:^(id x) {
+                [ret rac_fetchStorage:nil];
             }];
 
             [[expectFutureValue(((YTXTestYTXRequestRemoteModel *)ret.models.firstObject).keyId) shouldEventually] equal:((YTXTestYTXRequestRemoteModel *)collection1.models.firstObject).keyId];
@@ -866,7 +866,7 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
         it(@"删除缓存成功", ^{
             YTXTestYTXRequestRemoteCollection *collection1 = [YTXTestYTXRequestRemoteCollection new];
             __block NSNumber *ret = @1;
-            [[collection1 destroyStorage:nil] subscribeNext:^(id x) {
+            [[collection1 rac_destroyStorage:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -882,12 +882,12 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestYTXRequestRemoteCollection *collection2 =  [YTXTestYTXRequestRemoteCollection new];
             __block YTXTestYTXRequestRemoteCollection *collection3 =  [YTXTestYTXRequestRemoteCollection new];
 
-            [[[[[collection1 saveStorage:nil] flattenMap:^RACStream *(id value) {
-                return [collection2 fetchStorage:nil];
+            [[[[[collection1 rac_saveStorage:nil] flattenMap:^RACStream *(id value) {
+                return [collection2 rac_fetchStorage:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection1 destroyStorage:nil];
+                return [collection1 rac_destroyStorage:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection3 fetchStorage:nil];
+                return [collection3 rac_fetchStorage:nil];
             }] subscribeNext:^(id x) {
 
             }];
@@ -903,8 +903,8 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             __block YTXTestYTXRequestRemoteCollection *collection2 =  [YTXTestYTXRequestRemoteCollection new];
             __block NSError *ret = nil;
 
-            [[collection1 destroyStorage:nil] subscribeNext:^(id x) {
-                [[collection2 fetchStorage:nil] subscribeError:^(NSError *error) {
+            [[collection1 rac_destroyStorage:nil] subscribeNext:^(id x) {
+                [[collection2 rac_fetchStorage:nil] subscribeError:^(NSError *error) {
                     ret = error;
                 }];
             }] ;
@@ -926,17 +926,17 @@ describe(@"测试YTXRestfulModelUserDefaultStorageSync", ^{
             YTXTestYTXRequestRemoteCollection *collection4 = [YTXTestYTXRequestRemoteCollection new];
             collection4.storageSync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName4];
 
-            [[[[collection1 saveStorage:nil] flattenMap:^RACStream *(id value) {
-                return [collection3 fetchStorage:nil];
+            [[[[collection1 rac_saveStorage:nil] flattenMap:^RACStream *(id value) {
+                return [collection3 rac_fetchStorage:nil];
             }] flattenMap:^RACStream *(id value) {
-                return [collection2 fetchStorage:nil];
+                return [collection2 rac_fetchStorage:nil];
             }] subscribeError:^(NSError * x) {
                 [collection2 addModels:@[[YTXTestYTXRequestRemoteModel new], [YTXTestYTXRequestRemoteModel new]]];
-                [[[collection2 saveStorage:nil] flattenMap:^RACStream *(id value) {
-                    return [collection4 fetchStorage:nil];
+                [[[collection2 rac_saveStorage:nil] flattenMap:^RACStream *(id value) {
+                    return [collection4 rac_fetchStorage:nil];
                 }] subscribeNext:^(id x) {
                     [collection2 removeAllModels];
-                    [collection2 destroyStorage:nil];
+                    [collection2 rac_destroyStorage:nil];
                 }];
             }];
 

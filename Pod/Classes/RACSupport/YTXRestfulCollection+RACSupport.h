@@ -15,49 +15,49 @@
 
 #pragma mark - remote
 /* RACSignal return self **/
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_fetchRemote:(nullable NSDictionary *)param;
 
 /* RACSignal return self **/
-- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_fetchRemoteThenAdd:(nullable NSDictionary *)param;
 
 #pragma mark - storage
 /** GET */
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_fetchStorage:(nullable NSDictionary *)param;
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_saveStorage:(nullable NSDictionary *)param;
 
 /** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_destroyStorage:(nullable NSDictionary *)param;
 
 /** GET */
-- (nonnull RACSignal *) fetchStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_fetchStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_saveStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 
 /** DELETE */
-- (nonnull RACSignal *) destroyStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_destroyStorageWithKey:(nonnull NSString *)storageKey param:(nullable NSDictionary *)param;
 
 #pragma mark - db
-- (nonnull RACSignal *) fetchDBAll;
+- (nonnull RACSignal *) rac_fetchDBAll;
 
-- (nonnull RACSignal *) fetchDBAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
+- (nonnull RACSignal *) rac_fetchDBAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
 
-- (nonnull RACSignal *) fetchDBMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
+- (nonnull RACSignal *) rac_fetchDBMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...;
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMet:(nonnull NSString * )condition, ...;
+- (nonnull RACSignal *) rac_fetchDBMultipleWhereAllTheConditionsAreMet:(nonnull NSString * )condition, ...;
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...;
+- (nonnull RACSignal *) rac_fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...;
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...;
+- (nonnull RACSignal *) rac_fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...;
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...;
+- (nonnull RACSignal *) rac_fetchDBMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...;
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...;
+- (nonnull RACSignal *) rac_fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...;
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...;
+- (nonnull RACSignal *) rac_fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...;
 
 /* RACSignal return BOOL **/
-- (nonnull RACSignal *) destroyDBAll;
+- (nonnull RACSignal *) rac_destroyDBAll;
 @end

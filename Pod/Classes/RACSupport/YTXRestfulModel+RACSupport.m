@@ -12,7 +12,7 @@
 
 # pragma mark - remote
 
-- (nonnull RACSignal *) fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
+- (nonnull RACSignal *) rac_fetchRemoteForeignWithName:(nonnull NSString *)name modelClass:(nonnull Class)modelClass param:(nullable NSDictionary *)param;
 {
     NSAssert([modelClass isSubclassOfClass: [MTLModel class] ], @"希望传入的class是MTLModel的子类，这样才能使用mantle转换");
     RACSubject * subject = [RACSubject subject];
@@ -24,7 +24,7 @@
     return subject;
 }
 
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     [self fetchRemote:param success:^(id  _Nullable response) {
@@ -36,7 +36,7 @@
     return subject;
 }
 
-- (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_saveRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     [self saveRemote:param success:^(id  _Nullable response) {
@@ -48,7 +48,7 @@
     return subject;
 }
 
-- (nonnull RACSignal *) destroyRemote:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_destroyRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     [self destroyRemote:param success:^(id  _Nullable response) {
@@ -62,23 +62,23 @@
 
 # pragma mark - storage
 
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchStorage:(nullable NSDictionary *)param
 {
-    return [self fetchStorageWithKey:[self storageKeyWithParam:param] param:param];
+    return [self rac_fetchStorageWithKey:[self storageKeyWithParam:param] param:param];
 }
 
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_saveStorage:(nullable NSDictionary *)param
 {
-    return [self saveStorageWithKey:[self storageKeyWithParam:param] param:param];
+    return [self rac_saveStorageWithKey:[self storageKeyWithParam:param] param:param];
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_destroyStorage:(nullable NSDictionary *)param
 {
-    return [self destroyStorageWithKey:[self storageKeyWithParam:param] param:param];
+    return [self rac_destroyStorageWithKey:[self storageKeyWithParam:param] param:param];
 }
 
-- (nonnull RACSignal *)fetchStorageWithKey:(NSString *)storage param:(NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchStorageWithKey:(NSString *)storage param:(NSDictionary *)param
 {
     NSDictionary * dict = [self.storageSync fetchStorageSyncWithKey:storage param:param];
     NSError * error = nil;
@@ -105,7 +105,7 @@
     }];
 }
 
-- (nonnull RACSignal *)saveStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_saveStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
 {
     id<NSCoding> object = [self mergeSelfAndParameters:param];
     [self.storageSync saveStorageSyncWithKey:storage withObject:object param:param];
@@ -121,7 +121,7 @@
     }];
 }
 
-- (nonnull RACSignal *)destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_destroyStorageWithKey:(nonnull NSString *)storage param:(nullable NSDictionary *)param
 {
     [self.storageSync destroyStorageSyncWithKey:storage param:param];
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
@@ -137,7 +137,7 @@
 #pragma mark - db
 
 /** GET */
-- (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchDB:(nullable NSDictionary *)param
 {
     NSError * error = nil;
     return [self _createRACSingalWithNext:[self fetchDBSync:param error:&error] error:error];
@@ -148,21 +148,21 @@
  * 数据库不存在时创建，否则更新
  * 更新必须带主键
  */
-- (nonnull RACSignal *) saveDB:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_saveDB:(nullable NSDictionary *)param
 {
     NSError * error = nil;
     return [self _createRACSingalWithNext:[self saveDBSync:param error:&error] error:error];
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyDB:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_destroyDB:(nullable NSDictionary *)param
 {
     NSError * error = nil;
     return [self _createRACSingalWithNext:@([self destroyDBSync:param error:&error]) error:error];
 }
 
 /** GET Foreign Models with primary key */
-- (nonnull RACSignal *) fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchDBForeignWithModelClass:(nonnull Class<YTXRestfulModelDBSerializing>)modelClass param:(nullable NSDictionary *)param
 {
     NSError * error;
     NSArray<NSDictionary *> * ret = [self fetchDBForeignSyncWithModelClass:modelClass error:&error param:param];

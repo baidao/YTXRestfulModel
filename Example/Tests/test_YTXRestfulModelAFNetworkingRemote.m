@@ -330,7 +330,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"拉取数据", ^{
             YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCollection new];
             __block NSArray *array;
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection *x) {
+            [[collection rac_fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection *x) {
                 array = x.models;
             } error:^(NSError *error) {
 
@@ -345,7 +345,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
             [[@(collection.models.count) should] equal:@(1)];
 
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection * x) {
+            [[collection rac_fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection * x) {
                  ret = x;
             } error:^(NSError *error) {
 
@@ -361,7 +361,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
             [[@(collection.models.count) should] equal:@(1)];
 
-            [[collection fetchRemoteThenAdd:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection * x) {
+            [[collection rac_fetchRemoteThenAdd:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection * x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -375,7 +375,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
             collection.remoteSync.url = [NSURL URLWithString:@"http://localhost:3000/wrongtest"];
             __block NSError *err = nil;
             __block NSArray *array = nil;
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(NSArray *x) {
+            [[collection rac_fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(NSArray *x) {
                 array = x;
             } error:^(NSError *error) {
                 err = error;
@@ -389,7 +389,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
             collection.remoteSync.timeoutInterval = 0;
             __block NSError *err = nil;
             __block NSArray *array = nil;
-            [[collection fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(NSArray *x) {
+            [[collection rac_fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(NSArray *x) {
                 array = x;
             } error:^(NSError *error) {
                 err = error;
@@ -421,7 +421,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
             testModel.title = @"ytx test hahahaha";
             testModel.body = @"teststeststesettsetsetttsetttest";
             testModel.userId = @1;
-            [[testModel saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[testModel rac_saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
 
             } error:^(NSError *error) {
 
@@ -430,7 +430,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         });
 
         it(@"更新-Save-PUT，使用parameters", ^{
-            [[testModel saveRemote:@{ @"title": @"更新了" }] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[testModel rac_saveRemote:@{ @"title": @"更新了" }] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
 
             } error:^(NSError *error) {
 
@@ -441,7 +441,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"更新-Save-PUT，使用更改model更新", ^{
             testModel.title = @"又一次更新了";
             __block NSNumber * result = nil;
-            [[testModel saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[testModel rac_saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 result = @(1);
 
             } error:^(NSError *error) {
@@ -454,7 +454,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"更新-Save-PUT，混合使用parameters和更改model更新", ^{
             testModel.title = @"Hello World";
             __block NSNumber * result = nil;
-            [[testModel saveRemote:@{@"body": @"I Love You"}] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[testModel rac_saveRemote:@{@"body": @"I Love You"}] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 result = @(1);
 
             } error:^(NSError *error) {
@@ -467,7 +467,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
         it(@"responseModel和testModel是否是同一个指针地址", ^{
             __block YTXTestAFNetworkingRemoteModel * testResponseModel = nil;
-            [[testModel saveRemote:@{ @"title": @"同一个" }] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[testModel rac_saveRemote:@{ @"title": @"同一个" }] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 testResponseModel =  responseModel;
 
             } error:^(NSError *error) {
@@ -479,7 +479,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"拉取-Fetch-GET", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             currentTestModel.keyId = testModel.keyId;
-            [[currentTestModel fetchRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[currentTestModel rac_fetchRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
 
             } error:^(NSError *error) {
 
@@ -492,7 +492,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block id ret;
             currentTestModel.keyId = @1;
-            [[currentTestModel fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:nil] subscribeNext:^(id x) {
+            [[currentTestModel rac_fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:nil] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -503,7 +503,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"使用parameters 使用mantle map后的属性名keyId获取外联model", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block id ret;
-            [[currentTestModel fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"keyId": @1}] subscribeNext:^(id x) {
+            [[currentTestModel rac_fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"keyId": @1}] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -514,7 +514,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"使用parameters 不使用mantle map后的属性而用服务器属性名id获取外联model", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block id ret;
-            [[currentTestModel fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"id": @1}] subscribeNext:^(id x) {
+            [[currentTestModel rac_fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"id": @1}] subscribeNext:^(id x) {
                 ret = x;
             } error:^(NSError *error) {
 
@@ -524,7 +524,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
         it(@"删除-Destroy-Delete，回调成功", ^{
             __block NSNumber * result = nil;
-            [[testModel destroyRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[testModel rac_destroyRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 result = @(1);
 
             } error:^(NSError *error) {
@@ -536,7 +536,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"删除-Destroy-Delete，确实删除成功", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
 
-            [[currentTestModel fetchRemote:@{@"keyId": testModel.keyId}] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[currentTestModel rac_fetchRemote:@{@"keyId": testModel.keyId}] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
 
             } error:^(NSError *error) {
 
@@ -559,17 +559,17 @@ describe(@"测试YTXRestfulModelRemote", ^{
             __block NSNumber * result2 = nil;
             __block NSNumber * result3 = nil;
             
-            [[currentTestModel1 saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[currentTestModel1 rac_saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 result1 = @(1);
             } error:^(NSError *error) {
                 
             }];
-            [[currentTestModel2 saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[currentTestModel2 rac_saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 result2 = @(1);
             } error:^(NSError *error) {
                 
             }];
-            [[currentTestModel3 saveRemote:@{@"title": @"hook的优先级低于方法传入参数和model属性"}] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[currentTestModel3 rac_saveRemote:@{@"title": @"hook的优先级低于方法传入参数和model属性"}] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 AFNetworkingRemoteSync.hookExtraParamBlock = nil;
                 result3 = @(1);
             } error:^(NSError *error) {
@@ -594,7 +594,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
             __block NSNumber * result = nil;
             __block NSError * err = nil;
 
-            [[currentTestModel fetchRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[currentTestModel rac_fetchRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 result = @1;
             } error:^(NSError *error) {
                 err = error;
@@ -613,7 +613,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
             __block NSNumber * result = nil;
             __block NSError * err = nil;
             
-            [[currentTestModel fetchRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+            [[currentTestModel rac_fetchRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 result = @1;
             } error:^(NSError *error) {
                 err = error;

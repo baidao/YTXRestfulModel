@@ -12,7 +12,7 @@
 
 #pragma mark - remote
 
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchRemote:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     [self fetchRemote:param success:^(id  _Nullable response) {
@@ -24,7 +24,7 @@
     return subject;
 }
 
-- (nonnull RACSignal *) fetchRemoteThenAdd:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchRemoteThenAdd:(nullable NSDictionary *)param
 {
     RACSubject * subject = [RACSubject subject];
     [self fetchRemoteThenAdd:param success:^(id  _Nullable response) {
@@ -39,24 +39,24 @@
 #pragma mark - storage
 
 /** GET */
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchStorage:(nullable NSDictionary *)param
 {
-    return [self fetchStorageWithKey:[self storageKey] param:param];
+    return [self rac_fetchStorageWithKey:[self storageKey] param:param];
 }
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveStorage:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_saveStorage:(nullable NSDictionary *)param
 {
-    return [self saveStorageWithKey:[self storageKey] param:param];
+    return [self rac_saveStorageWithKey:[self storageKey] param:param];
 }
 
 /** DELETE */
-- (nonnull RACSignal *) destroyStorage:(nullable NSDictionary *)param
+- (nonnull RACSignal *) rac_destroyStorage:(nullable NSDictionary *)param
 {
-    return [self destroyStorageWithKey:[self storageKey] param:param];
+    return [self rac_destroyStorageWithKey:[self storageKey] param:param];
 }
 
-- (RACSignal *)fetchStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
+- (nonnull RACSignal *) rac_fetchStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
     NSArray * x = [self.storageSync fetchStorageSyncWithKey:storageKey param:param];
     NSError * error = nil;
@@ -86,7 +86,7 @@
     }];
 }
 
-- (RACSignal *)saveStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
+- (nonnull RACSignal *) rac_saveStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
     [self.storageSync saveStorageSyncWithKey:storageKey withObject:[self transformerProxyOfModels:[self.models copy]] param:param];
     @weakify(self);
@@ -101,7 +101,7 @@
     }];
 }
 
-- (RACSignal *)destroyStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
+- (nonnull RACSignal *) rac_destroyStorageWithKey:(NSString *)storageKey param:(NSDictionary *)param
 {
     [self.storageSync destroyStorageSyncWithKey:storageKey param:param];
     return [RACSignal createSignal:^RACDisposable *(id subscriber) {
@@ -115,13 +115,13 @@
 }
 
 #pragma mark - db
-- (nonnull RACSignal *) fetchDBAll
+- (nonnull RACSignal *) rac_fetchDBAll
 {
     NSError * error = nil;
     return [self _createRACSingalWithNext:[self fetchDBSyncAllWithError:&error] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
+- (nonnull RACSignal *) rac_fetchDBAllSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
 {
     NSError * error = nil;
     va_list args;
@@ -136,7 +136,7 @@
     return [self _createRACSingalWithNext:[self fetchDBSyncAllWithError:&error soryBy:sortBy orderByColumnNames:columnNames] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
+- (nonnull RACSignal *) rac_fetchDBMultipleWith:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )columnName, ...
 {
     NSError * error = nil;
     va_list args;
@@ -151,7 +151,7 @@
     return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error start:start count:count soryBy:sortBy orderByColumnNames:columnNames] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMet:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) rac_fetchDBMultipleWhereAllTheConditionsAreMet:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
@@ -164,7 +164,7 @@
     return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetConditions:conditions] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) rac_fetchDBMultipleWhereAllTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
@@ -177,7 +177,7 @@
     return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditionsArray:conditions] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) rac_fetchDBMultipleWhereAllTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
@@ -190,7 +190,7 @@
     return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error whereAllTheConditionsAreMetWithStart:start count:count soryBy:sortBy orderBy:orderBy conditionsArray:conditions] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) rac_fetchDBMultipleWherePartOfTheConditionsAreMet:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
@@ -203,7 +203,7 @@
     return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMetConditionsArray:conditions] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) rac_fetchDBMultipleWherePartOfTheConditionsAreMetWithSoryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * )orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
@@ -216,7 +216,7 @@
     return [self _createRACSingalWithNext:[self fetchDBSyncMultipleWithError:&error wherePartOfTheConditionsAreMetWithSoryBy:sortBy orderBy:orderBy conditionsArray:conditions] error:error];
 }
 
-- (nonnull RACSignal *) fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
+- (nonnull RACSignal *) rac_fetchDBMultipleWherePartOfTheConditionsAreMetWithStart:(NSUInteger) start count:(NSUInteger) count soryBy:(YTXRestfulModelDBSortBy)sortBy orderBy:(nonnull NSString * ) orderBy conditions:(nonnull NSString * )condition, ...
 {
     va_list args;
     va_start(args, condition);
@@ -230,7 +230,7 @@
 }
 
 /* RACSignal return BOOL **/
-- (nonnull RACSignal *) destroyDBAll
+- (nonnull RACSignal *) rac_destroyDBAll
 {
     NSError * error = nil;
     return [self _createRACSingalWithNext:@([self destroyDBSyncAllWithError:&error]) error:error];
