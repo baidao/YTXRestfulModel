@@ -54,6 +54,8 @@ typedef enum : NSUInteger {
 
 + (nullable NSNumber *) currentMigrationVersion;
 
++ (BOOL) autoAlterTable;
+
 + (BOOL) autoCreateTable;
 
 + (BOOL) isPrimaryKeyAutoincrement;

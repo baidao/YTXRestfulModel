@@ -68,6 +68,11 @@
     return @0;
 }
 
++ (BOOL) autoAlterTable
+{
+    return NO;
+}
+
 + (BOOL) autoCreateTable
 {
     return YES;

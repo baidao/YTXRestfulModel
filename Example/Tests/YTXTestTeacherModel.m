@@ -49,6 +49,16 @@
     return @0;
 }
 
++ (nullable NSNumber *) newMigrationVersion
+{
+    return @1;
+}
+
++ (BOOL) autoAlterTable
+{
+    return YES;
+}
+
 + (BOOL) autoCreateTable
 {
     return YES;
@@ -57,6 +67,17 @@
 + (BOOL) isPrimaryKeyAutoincrement
 {
     return NO;
+}
+
++ (nonnull NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *> *) _tableKeyPathsByPropertyKeyMapRuntime
+{
+    static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *> * map;
+    
+    if (map == nil) {
+        map = [NSMutableDictionary dictionary];
+    }
+    
+    return map;
 }
 
 @end

@@ -574,6 +574,37 @@ describe(@"测试TestYTXRestfulModelFMDBSync", ^{
             
             [[columns[@"runtimep"] should] beNonNil];
         });
+        
+        it(@"自动添加新增字段，数据库column正确", ^{
+            Class cls = [YTXTestTeacherModel class];
+            
+            objc_property_attribute_t type = { "T", "@\"NSString\"" };
+            objc_property_attribute_t ownership = { "C", "" }; // C = copy
+            objc_property_attribute_t attrs[] = { type, ownership };
+            class_addProperty(cls, [@"runtimeP" UTF8String], attrs, 2);
+            
+            Method oriMethod = class_getClassMethod(cls, @selector(currentMigrationVersion));
+            Method newMethod = class_getClassMethod(cls, @selector(newMigrationVersion));
+            IMP newIMP = method_getImplementation(newMethod);
+            method_setImplementation(oriMethod, newIMP);
+            
+            Method oriCacheMethod = class_getClassMethod(cls, @selector(_tableKeyPathsByPropertyKeyMap));
+            Method newCacheMethod = class_getClassMethod(cls, @selector(_tableKeyPathsByPropertyKeyMapRuntime));
+            IMP newCacheIMP = method_getImplementation(newCacheMethod);
+            method_setImplementation(oriCacheMethod, newCacheIMP);
+            
+            YTXTestTeacherModel *student = [YTXTestTeacherModel new];
+            __block NSDictionary *columns;
+            [((YTXRestfulModelFMDBSync *)student.dbSync).fmdbQueue inDatabase:^(FMDatabase *db) {
+                NSString *sql = [NSString stringWithFormat:@"SELECT * FROM %@", [student.dbSync tableName]];
+                FMResultSet* rs = [db executeQuery:sql];
+                columns = [[rs columnNameToIndexMap] copy];
+                [rs close];
+            }];
+            
+            [[columns[@"runtimep"] should] beNonNil];
+            
+        });
     });
 
     afterAll(^{

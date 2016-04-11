@@ -46,7 +46,11 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         _modelClass = modelClass;
         _primaryKey = key;
         if ( [modelClass autoCreateTable] && [self createTable] == nil ) {
-            [self migrationTable];
+            if ([modelClass autoAlterTable]) {
+                [self alterTable];
+            } else {
+                [self migrationTable];
+            }
         }
     }
     return self;
@@ -126,6 +130,36 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
         }
     }];
 
+    return error;
+}
+
+- (nonnull NSError *) alterTable
+{
+    __block NSError * error;
+    [self.fmdbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
+        if ([db tableExists:[self tableName]]) {
+            
+            NSNumber * currentVersion = [self.modelClass currentMigrationVersion];
+            NSNumber * migrationVersion = [YTXRestfulModelFMDBSync migrationVersionWithclassOfModelFromUserDefault:self.modelClass];
+            //migration doing
+            if (migrationVersion && [migrationVersion integerValue] < [currentVersion integerValue]) {
+                NSString *sql = [NSString stringWithFormat:@"SELECT * FROM %@", [self tableName]];
+                FMResultSet* rs = [db executeQuery:sql];
+                NSArray *columns = [[rs columnNameToIndexMap] copy];
+                [rs close];
+                
+                [db executeUpdate:[self sqlForAlterTableWithColumnInfo:columns] withErrorAndBindings:&error];
+                
+                if (error) {
+                    *rollback = YES;
+                    return;
+                }
+                
+                [YTXRestfulModelFMDBSync saveMigrationVersionToUserDefault:currentVersion classOfModel:self.modelClass];
+            }
+        }
+    }];
+    
     return error;
 }
 
@@ -632,6 +666,32 @@ static NSString * ErrorDomain = @"YTXRestfulModelFMDBSync";
 - (nonnull NSString *) sqlForDropTable
 {
     return [NSString stringWithFormat:@"DROP TABLE %@", [self tableName]];
+}
+
+- (nonnull NSString *)sqlForAlterTableWithColumnInfo:(NSArray *)columnInfo
+{
+    NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> * map =  [self.modelClass tableKeyPathsByPropertyKey];
+    
+    NSDictionary* typeMap = [YTXRestfulModelFMDBSync mapOfCTypeToSqliteType];
+    //Table Name
+    NSString* tableName = [self tableName];
+    
+    NSMutableString* alterSql = [NSMutableString string];
+    
+    NSMutableDictionary *columnMap = [NSMutableDictionary dictionary];
+    for (NSString *columnName in columnInfo) {
+        columnMap[columnName] = @YES;
+    }
+    
+    for (YTXRestfulModelDBSerializingModel * sstruct in map.allValues) {
+        if (!typeMap[sstruct.objectClass]) continue;
+        
+        if (![columnMap[[sstruct.columnName lowercaseString]] boolValue]) {
+            [alterSql appendString: [NSString stringWithFormat:@"%@;", [self sqlForAlterAddColumnWithStruct:sstruct] ] ] ;
+        }
+    }
+    
+    return alterSql;
 }
 
 - (nonnull NSString *) sqlForSelectOneWithPrimaryKeyValue:(id) value

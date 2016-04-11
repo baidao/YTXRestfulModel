@@ -402,6 +402,11 @@
     return @0;
 }
 
++ (BOOL) autoAlterTable
+{
+    return YES;
+}
+
 + (BOOL) autoCreateTable
 {
     return NO;
