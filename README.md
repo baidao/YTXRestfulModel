@@ -74,8 +74,15 @@ json-server db.json
 {
     return @0;
 }
+
 // 自动建表。默认关闭，当需要用DB才开启
 + (BOOL) autoCreateTable
+{
+    return YES;
+}
+
+//自动扩展表和migration互斥
++ (BOOL) autoAlterTable
 {
     return YES;
 }
@@ -415,6 +422,30 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
   @"NSRange":@[             @"NSValue",         @"TEXT"]
 }
 ```
+## DB Alter(自动扩展字段到表中)
+
+```objective-c
+//开启时，不会使用migration
++ (BOOL) autoAlterTable
+{
+    return YES;//Default
+}
+
+//一样通过version来表示是否已经扩展
++ (nullable NSNumber *) currentMigrationVersion
+{
+    return @0;
+}
+
+```
+
+| currentMigrationVersion        | Property             | DB Column            |
+| ------------------------------ |:--------------------:| --------------------:|
+| 0                              | Name,KeyId           | name,keyid           |
+| 1                              | Name,KeyId,title     | name,keyid,title     |
+| 2                              | Name,KeyId,title,age | Name,keyId,title,age |
+| 3                              | Name,KeyId,title     | Name,keyId,title,age |
+
 
 ## DB Migration(数据库迁移)
 ```objective-c
@@ -423,7 +454,20 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 {
     return @0;
 }
+
++ (BOOL) autoAlterTable
+{
+    return NO;//Not Default
+}
 ```
+
+| currentMigrationVersion        | Property             | DB Column                   |
+| ------------------------------ |:--------------------:| ---------------------------:|
+| 0                              | KeyId,age            | keyid,age                   |
+| 1                              | KeyId,age,title      | KeyId,age,title             |
+| 2                              | KeyId,age,name       | KeyId,age,title,title=>name |
+
+sqlite并没有提供rename和drop column的方法。
 
 ## 然后在Model中重写migrationsMethodWithSync:方法。
 
