@@ -115,7 +115,7 @@
 /** 要用keyId判断 */
 - (BOOL) isNew
 {
-    return [self valueForKey:[[self class] primaryKey]] == nil;
+    return [self primaryValue] == nil;
 }
 
 

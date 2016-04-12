@@ -18,6 +18,7 @@
     RACSubject * subject = [RACSubject subject];
     [self fetchRemoteForeignWithName:name modelClass:modelClass param:param success:^(id  _Nullable response) {
         [subject sendNext:response];
+        [subject sendCompleted];
     } failed:^(NSError * _Nullable error) {
         [subject sendError:error];
     }];
@@ -29,9 +30,9 @@
     RACSubject * subject = [RACSubject subject];
     [self fetchRemote:param success:^(id  _Nullable response) {
         [subject sendNext:response];
+        [subject sendCompleted];
     } failed:^(NSError * _Nullable error) {
         [subject sendError:error];
-        
     }];
     return subject;
 }
@@ -41,9 +42,9 @@
     RACSubject * subject = [RACSubject subject];
     [self saveRemote:param success:^(id  _Nullable response) {
         [subject sendNext:response];
+        [subject sendCompleted];
     } failed:^(NSError * _Nullable error) {
         [subject sendError:error];
-        
     }];
     return subject;
 }
@@ -53,9 +54,9 @@
     RACSubject * subject = [RACSubject subject];
     [self destroyRemote:param success:^(id  _Nullable response) {
         [subject sendNext:response];
+        [subject sendCompleted];
     } failed:^(NSError * _Nullable error) {
         [subject sendError:error];
-        
     }];
     return subject;
 }
