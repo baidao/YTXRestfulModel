@@ -521,7 +521,7 @@ sqlite并没有提供rename和drop column的方法。
 {
 }
 ```
-##Remote Hook
+## Remote Hook
 所有请求都会附带这些参数，hook的优先级最低，总是会被其他同名参数覆盖
 ```objective-c
 NSDictionary *(^hook)() = ^NSDictionary *() {
@@ -536,7 +536,7 @@ NSDictionary *(^hook)() = ^NSDictionary *() {
 AFNetworkingRemoteSync.HookExtraParamBlock = hook;
 ```
 
-##RACSupport
+## RACSupport
 ```ruby
 pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
 ```
