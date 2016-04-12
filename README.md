@@ -21,11 +21,15 @@ pod "YTXRestfulModel", :path => "../", :subspecs => ["AFNetworkingRemoteSync", "
 
 ## 测试
 ```shell
+git clone https://github.com/baidao/YTXRestfulModel.git
 npm install -g json-server
-cd Example/Tests
+cd Example
+pod install
+cd Tests
 json-server db.json
+open YTXRestfulModel.xcworkspace
 ```
-测试taget YTXRestfulModel-Example
+Run Target: YTXRestfulModel-Example
 
 ## 更多用法，请查看[Tests](https://github.com/baidao/YTXRestfulModel/tree/github/Example/Tests)
 
