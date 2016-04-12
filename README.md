@@ -521,6 +521,20 @@ sqlite并没有提供rename和drop column的方法。
 {
 }
 ```
+##Remote Hook
+所有请求都会附带这些参数，hook的优先级最低，总是会被其他同名参数覆盖
+```objective-c
+NSDictionary *(^hook)() = ^NSDictionary *() {
+    return @{
+             @"deviceToken": objectOrEmptyStr([NotificationManager sharedManager].deviceToken),
+             @"deviceId": objectOrEmptyStr([AppInfo deviceUUID]),
+             @"marketId": objectOrEmptyStr([AppInfo marketId]),
+             @"appVersion": objectOrEmptyStr([AppInfo appVersion])
+    };
+};
+
+AFNetworkingRemoteSync.HookExtraParamBlock = hook;
+```
 
 ##RACSupport
 ```ruby
