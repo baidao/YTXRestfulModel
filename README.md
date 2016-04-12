@@ -13,7 +13,7 @@ Model的转换容器用的是Mantle。
 
 ## 安装
 
-在podfile中
+在podfile中(从CocoaPods 0.36+)
 
 ```ruby
 pod "YTXRestfulModel", :path => "../", :subspecs => ["AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
