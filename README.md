@@ -5,7 +5,6 @@ YTXRestfulModel是遵循了REST的Model。
 依赖：
 ```
 FMDBSync(sqlite)。
-YTXRequestRemoteSync(YTXRequest AFNetWorking)。
 AFNetworkingRemoteSync(AFNetWorking)。
 UserDefaultStorageSync(支持不同的suiteName)。
 Model的转换容器用的是Mantle。
@@ -19,7 +18,7 @@ Model的转换容器用的是Mantle。
 ```ruby
 source 'http://gitlab.baidao.com/ios/ytx-pod-specs.git'
 
-// "YTXRequestRemoteSync", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"
+// "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"
 
 pod "YTXRestfulModel", :path => "../", :subspecs => ["AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
 ```
@@ -63,7 +62,7 @@ json-server db.json
     if (self = [super init]) {
         //这种方式可以在每次使用url的时候都重新获取
         self.remoteSync.urlHookBlock = ^NSURL * _Nonnull{
-            return [YTXRequest urlWithName:@"restful.posts"];
+            return [URLManager urlWithName:@"restful.posts"];
         };
     }
     return  self;
@@ -564,7 +563,6 @@ pod install
 - 'Mantle', '~> 1.5.4'
 
 ## subspec依赖
-- YTXRequestRemoteSync: 'YTXRequest', '~> 0.1.6'
 - AFNetworkingRemoteSync: 'AFNetworking', '~> 2.6.3'
 - FMDBSync: 'FMDB', '~> 2.6'
 - UserDefaultStorageSync:

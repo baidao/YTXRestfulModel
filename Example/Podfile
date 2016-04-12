@@ -3,6 +3,6 @@ source 'http://gitlab.baidao.com/ios/ytx-pod-specs.git'
 
 
 target 'YTXRestfulModel_Tests', :exclusive => true do
-  pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "YTXRequestRemoteSync", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
+  pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
   pod 'Kiwi'
 end

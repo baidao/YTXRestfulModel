@@ -16,10 +16,6 @@
 #import "AFNetworkingRemoteSync.h"
 #endif
 
-#ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
-#import "YTXRestfulModelYTXRequestRemoteSync.h"
-#endif
-
 #ifdef YTX_FMDBSYNC_EXISTS
 #import "YTXRestfulModelFMDBSync.h"
 #import "NSValue+YTXRestfulModelFMDBSync.h"
@@ -50,10 +46,6 @@
 
 #ifdef YTX_AFNETWORKINGREMOTESYNC_EXISTS
         self.remoteSync = [AFNetworkingRemoteSync syncWithPrimaryKey: [[self class] syncPrimaryKey]];
-#endif
-
-#ifdef YTX_YTXREQUESTREMOTESYNC_EXISTS
-        self.remoteSync = [YTXRestfulModelYTXRequestRemoteSync syncWithPrimaryKey: [[self class] syncPrimaryKey]];
 #endif
 
 #ifdef YTX_FMDBSYNC_EXISTS

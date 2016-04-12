@@ -39,14 +39,13 @@ Pod::Spec.new do |s|
       ss.dependency 'YTXRestfulModel/Default'
   end
 
-  YTXRequestRemoteSync   = { :spec_name => "YTXRequestRemoteSync",     :dependency => [{:name => "YTXRequest",    :version => "~> 0.2.6"    }]  }
   AFNetworkingRemoteSync = { :spec_name => "AFNetworkingRemoteSync",   :dependency => [{:name => "AFNetworking",  :version => "~> 2.6.3"    }]  }
   FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",          :version => "~> 2.6"      }]  }
   UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync"                                                                             }
 
   $all_names = []
 
-  $all_sync = [YTXRequestRemoteSync, AFNetworkingRemoteSync, FMDBSync, UserDefaultStorageSync]
+  $all_sync = [AFNetworkingRemoteSync, FMDBSync, UserDefaultStorageSync]
   
   $all_sync.each do |sync_spec|
     s.subspec sync_spec[:spec_name] do |ss|

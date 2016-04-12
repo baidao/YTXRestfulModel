@@ -9,7 +9,6 @@
 #import "YTXTestStudentCollection.h"
 #import "YTXTestStudentModel.h"
 
-#import <YTXRequest/YTXRequest.h>
 #import <ReactiveCocoa/ReactiveCocoa.h>
 #import <ReactiveCocoa/RACEXTScope.h>
 
