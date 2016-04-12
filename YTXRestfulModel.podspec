@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { "caojun" => "78612846@qq.com" }
-  s.source           = { :git => "https://github.com/baidao/YTXRestfulModel", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/baidao/YTXRestfulModel.git", :tag => s.version.to_s }
 
   s.platform     = :ios, '7.0'
   s.requires_arc = true
