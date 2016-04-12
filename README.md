@@ -25,6 +25,7 @@ npm install -g json-server
 cd Example/Tests
 json-server db.json
 ```
+测试taget YTXRestfulModel-Example
 
 ## 定义Model 示例
 ```objective-c
@@ -241,7 +242,7 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
 
 @interface YTXXXXModel : YTXRestfulModel
 
-- (nonnull RACSignal *) fetchFromRemoteAndStorage;
+- (nonnull RACSignal *) rac_fetchFromRemoteAndStorage;
 
 @end
 
