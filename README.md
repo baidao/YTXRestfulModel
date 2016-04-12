@@ -16,10 +16,6 @@ Model的转换容器用的是Mantle。
 在podfile中
 
 ```ruby
-source 'http://gitlab.baidao.com/ios/ytx-pod-specs.git'
-
-// "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"
-
 pod "YTXRestfulModel", :path => "../", :subspecs => ["AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
 ```
 
