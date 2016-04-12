@@ -509,17 +509,19 @@ describe(@"测试YTXRestfulModelRemote", ^{
 
             }];
             [[expectFutureValue(ret) shouldEventually] beNonNil];
+            [[expectFutureValue(@([[ret class] isSubclassOfClass:[NSArray class]])) shouldEventually] beYes];
         });
 
         it(@"使用parameters 不使用mantle map后的属性而用服务器属性名id获取外联model", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block id ret;
-            [[currentTestModel rac_fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"id": @1}] subscribeNext:^(id x) {
+            [[currentTestModel rac_fetchRemoteForeignWithName:@"todos" modelClass:[YTXTestAFNetworkingRemoteToDoModel class] param:@{@"id": @1}] subscribeNext:^(NSArray * x) {
                 ret = x;
             } error:^(NSError *error) {
 
             }];
             [[expectFutureValue(ret) shouldEventually] beNonNil];
+            [[expectFutureValue(@([[ret class] isSubclassOfClass:[NSArray class]])) shouldEventually] beYes];
         });
 
         it(@"删除-Destroy-Delete，回调成功", ^{
