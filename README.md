@@ -522,6 +522,22 @@ sqlite并没有提供rename和drop column的方法。
 }
 ```
 
+##RACSupport
+```ruby
+pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
+```
+
+```objective-c
+#import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
+
+YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCollection new];
+[[collection rac_fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection *x) {
+    
+} error:^(NSError *error) {
+
+}];
+```
+
 ## 更多用法，请查看[Tests](http://gitlab.baidao.com/ios/YTXRestfulModel/tree/master/Example/Tests)
 ```shell
 git clone http://gitlab.baidao.com/ios/YTXRestfulModel.git
@@ -532,13 +548,13 @@ pod install
 
 ## 依赖
 - 'Mantle', '~> 1.5.4'
-- 'ReactiveCocoa', '~> 2.3.1'
 
 ## subspec依赖
 - YTXRequestRemoteSync: 'YTXRequest', '~> 0.1.6'
 - AFNetworkingRemoteSync: 'AFNetworking', '~> 2.6.3'
 - FMDBSync: 'FMDB', '~> 2.6'
 - UserDefaultStorageSync:
+- RACSupport:'ReactiveCocoa', '~> 2.3.1'
 
 
 ## Author
