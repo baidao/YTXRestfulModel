@@ -443,8 +443,8 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 | ------------------------------ |:--------------------:| --------------------:|
 | 0                              | Name,KeyId           | name,keyid           |
 | 1                              | Name,KeyId,title     | name,keyid,title     |
-| 2                              | Name,KeyId,title,age | Name,keyId,title,age |
-| 3                              | Name,KeyId,title     | Name,keyId,title,age |
+| 2                              | Name,KeyId,title,age | name,keyId,title,age |
+| 3                              | Name,KeyId,title     | name,keyId,title,age |
 
 
 ## DB Migration(数据库迁移)
@@ -464,8 +464,8 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 | currentMigrationVersion        | Property             | DB Column                   |
 | ------------------------------ |:--------------------:| ---------------------------:|
 | 0                              | KeyId,age            | keyid,age                   |
-| 1                              | KeyId,age,title      | KeyId,age,title             |
-| 2                              | KeyId,age,name       | KeyId,age,title,title=>name |
+| 1                              | KeyId,age,title      | keyId,age,title             |
+| 2                              | KeyId,age,name       | keyId,age,title,title=>name |
 
 sqlite并没有提供rename和drop column的方法。
 
