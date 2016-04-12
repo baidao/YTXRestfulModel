@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 
 typedef NSDictionary * _Nonnull(^YTXRestfulModelRemoteHookExtraParamBlock)();
+typedef void(^YTXRestfulModelRemoteHookRequestBlock)(_Nonnull id request);
+
 typedef void (^YTXRestfulModelRemoteSuccessBlock)(id _Nullable response);
 typedef void (^YTXRestfulModelRemoteFailedBlock)(NSError * _Nullable error);
 
@@ -33,6 +35,10 @@ typedef void (^YTXRestfulModelRemoteFailedBlock)(NSError * _Nullable error);
 + (nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock;
 
 + (void) setHookExtraParamBlock:(nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock;
+
++ (nullable YTXRestfulModelRemoteHookRequestBlock) hookRequestBlock;
+
++ (void) setHookRequestBlock:(nullable YTXRestfulModelRemoteHookRequestBlock) hookRequestBlock;
 
 - (nonnull instancetype) initWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey;
 

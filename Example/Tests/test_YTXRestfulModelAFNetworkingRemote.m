@@ -12,6 +12,7 @@
 
 #import <YTXRestfulModel/AFNetworkingRemoteSync.h>
 #import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
+#import <AFNetworking/AFNetworking.h>
 
 SPEC_BEGIN(YTXRestfulModelAFNetworkingRemoteSpec)
 
@@ -584,6 +585,49 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[expectFutureValue(currentTestModel2.title) shouldEventually] equal:@"通过hook改了"];
             [[expectFutureValue(result3) shouldEventually] beNonNil];
             [[expectFutureValue(currentTestModel3.title) shouldEventually] equal:@"hook的优先级低于方法传入参数和model属性"];
+            
+        });
+        
+        it(@"使用HookRequestBlock在发出请求是修改Request对象", ^{
+            __block AFNetworkingRemoteSync * retSync1 = nil;
+            __block AFNetworkingRemoteSync * retSync2 = nil;
+            __block AFHTTPRequestOperationManager * operationManager = nil;
+            AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync){
+                if (!retSync1) {
+                    retSync1 = sync;
+                }
+                else {
+                    retSync2 = sync;
+                }
+                operationManager = sync.requestOperationManager;
+                [operationManager.requestSerializer setValue:@"test" forHTTPHeaderField:@"x-auth-token"];
+            };
+            __block YTXTestAFNetworkingRemoteModel * currentTestModel1 = [[YTXTestAFNetworkingRemoteModel alloc] init];
+            __block AFNetworkingRemoteSync * model1Sync = (AFNetworkingRemoteSync *)currentTestModel1.remoteSync;
+            __block YTXTestAFNetworkingRemoteModel * currentTestModel2 = [[YTXTestAFNetworkingRemoteModel alloc] init];
+            __block AFNetworkingRemoteSync * model2Sync = (AFNetworkingRemoteSync *)currentTestModel2.remoteSync;
+            currentTestModel2.title = @"Jack";
+            
+            [[currentTestModel1 rac_saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+                
+            } error:^(NSError *error) {
+                
+            }];
+            [[currentTestModel2 rac_saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
+                
+            } error:^(NSError *error) {
+                
+            }];
+            
+            [[expectFutureValue(retSync1) shouldEventually] beNonNil];
+            [[expectFutureValue(retSync1) shouldEventually] equal:model1Sync];
+            [[expectFutureValue(retSync2) shouldEventually] beNonNil];
+            [[expectFutureValue(retSync2) shouldEventually] equal:model2Sync];
+            [[expectFutureValue(retSync1) shouldNotEventually] equal:retSync2];
+            [[expectFutureValue(operationManager) shouldEventually] beNonNil];
+            [[expectFutureValue([operationManager.requestSerializer valueForHTTPHeaderField:@"x-auth-token"]) shouldEventually] equal:@"test"];
+            [[expectFutureValue(model1Sync.requestOperationManager.requestSerializer) shouldEventually] beNonNil];
+            [[expectFutureValue([model1Sync.requestOperationManager.requestSerializer valueForHTTPHeaderField:@"x-auth-token"]) shouldEventually] equal:@"test"];
             
         });
 

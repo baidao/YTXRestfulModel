@@ -34,6 +34,10 @@
 
 + (void) setHookExtraParamBlock:(nullable YTXRestfulModelRemoteHookExtraParamBlock) hookExtraParamBlock;
 
++ (nullable YTXRestfulModelRemoteHookRequestBlock) hookRequestBlock;
+
++ (void) setHookRequestBlock:(nullable YTXRestfulModelRemoteHookRequestBlock) hookRequestBlock;
+
 - (nonnull instancetype) initWithURL:(nonnull NSURL *)URL primaryKey:(nonnull NSString *) primaryKey;
 
 - (nonnull instancetype) initWithPrimaryKey:(nonnull NSString *) primaryKey;

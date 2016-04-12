@@ -547,6 +547,15 @@ NSDictionary *(^hook)() = ^NSDictionary *() {
 AFNetworkingRemoteSync.HookExtraParamBlock = hook;
 ```
 
+## Remote Hook Request
+在发送请求的时候统一修改Header或者其他行为
+```objective-c
+AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync) {
+    AFHTTPRequestOperationManager * operationManager = sync.requestOperationManager;
+    [operationManager.requestSerializer setValue:@"test" forHTTPHeaderField:@"x-auth-token"];
+};
+```
+
 ## 依赖
 - 'Mantle', '~> 1.5.4'
 
