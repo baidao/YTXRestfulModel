@@ -29,7 +29,8 @@ cd Tests
 json-server db.json
 open YTXRestfulModel.xcworkspace
 ```
-Run Target: YTXRestfulModel-Example
+Chose Target: YTXRestfulModel-Example
+Command+U to run Test 
 
 ## 更多用法，请查看[Tests](https://github.com/baidao/YTXRestfulModel/tree/github/Example/Tests)
 
