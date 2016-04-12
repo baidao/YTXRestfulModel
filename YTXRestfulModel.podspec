@@ -17,12 +17,11 @@ Pod::Spec.new do |s|
 #   * Write the description between the DESC delimiters below.
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
-  s.homepage         = "http://gitlab.baidao.com/ios/YTXRestfulModel"
+  s.homepage         = "https://github.com/baidao/YTXRestfulModel"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { "caojun" => "78612846@qq.com" }
-  s.source           = { :git => "http://gitlab.baidao.com/ios/YTXRestfulModel.git", :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.source           = { :git => "https://github.com/baidao/YTXRestfulModel", :tag => s.version.to_s }
 
   s.platform     = :ios, '7.0'
   s.requires_arc = true
@@ -30,7 +29,6 @@ Pod::Spec.new do |s|
   s.subspec "Default" do |ss|
     ss.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
     ss.dependency 'Mantle', '~> 1.5.7'
-    #ss.dependency 'ReactiveCocoa', '~> 2.3.1'
   end
   
   s.subspec "RACSupport" do |ss|
@@ -72,9 +70,6 @@ Pod::Spec.new do |s|
   end
   
 
-#  s.source_files = ["Pod/Classes/Model/**/*", "Pod/Classes/Protocol/**/*"]
-#  s.dependency 'Mantle', '~> 1.5.7'
-#  s.dependency 'ReactiveCocoa', '~> 2.3.1'
   s.default_subspec = 'Default'
 
   spec_names = $all_names[0...-1].join(", ") + " 和 " + $all_names[-1]
