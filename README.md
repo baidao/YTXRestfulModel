@@ -144,34 +144,30 @@ json-server db.json
     }];
 }
 ```
-### Mantle的model属性和目标源属性的映射
-
-在执行同步数据的方法时，模型的属性会按照JSONKeyPathsByPropertyKey方法中的映射转成retDictionary（保留参数）；
-如果传入param为nil则使用retDictionary进行数据统同步；
-如果有传入的param，那么param的key会按照JSONKeyPathsByPropertyKey方法中的映射先进行转成mapParam，然后mapParam的value会替换掉retDictionary的对应key的value；
-
-```objective-c
-- (nonnull NSDictionary *)mergeSelfAndParameters:(nullable NSDictionary *)param
-{
-    NSDictionary * mapParam = [self mapParameters:param];
-
-    NSMutableDictionary *retDic = [[MTLJSONAdapter JSONDictionaryFromModel:self] mutableCopy];
-
-    for (NSString *key in mapParam) {
-        retDic[key] = mapParam[key];
-    }
-    return retDic;
-}
-```
 
 ### 接收同步操作返回的 response ，若数据格式不规范，可以重写下面的方法，在转换前对response进行处理
-
+```objective-c
 - (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass response:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
     return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
 }
 ```
 
+## RACSupport
+```ruby
+pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
+```
+
+```objective-c
+#import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
+
+YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCollection new];
+[[collection rac_fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection *x) {
+    
+} error:^(NSError *error) {
+
+}];
+```
 
 ## 遵循Rest，数据同步的使用 示例
 ```objective-c
@@ -191,7 +187,7 @@ json-server db.json
   */
   YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
   currentTestModel.keyId = @1;
-  [[currentTestModel fetchRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
+  [[currentTestModel rac_fetchRemote:nil] subscribeNext:^(YTXTestModel *responseModel) {
 
   } error:^(NSError *error) {
 
@@ -207,7 +203,7 @@ json-server db.json
   testModel.title = @"ytx test";
   testModel.body = @"test content";
   testModel.userId = @1;
-  [[testModel saveRemote:@{@"keyId":@1}] subscribeNext:^(YTXTestModel *responseModel) {
+  [[testModel rac_saveRemote:@{@"keyId":@1}] subscribeNext:^(YTXTestModel *responseModel) {
 
   } error:^(NSError *error) {
 
@@ -216,7 +212,7 @@ json-server db.json
   YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
   __block id ret;
   currentTestModel.keyId = @1;
-  [[currentTestModel fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestCommentModel class] param:nil] subscribeNext:^(id x) {
+  [[currentTestModel rac_fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestCommentModel class] param:nil] subscribeNext:^(id x) {
       ret = x;
   } error:^(NSError *error) {
 
@@ -224,7 +220,7 @@ json-server db.json
 
   YTXTestModel * dbTestModel = [[YTXTestModel alloc] init];
   dbTestModel.keyId = @1;
-  [[dbTestModel fetchDB:nil] subscribeNext:^(YTXTestModel *responseModel) {
+  [[dbTestModel rac_fetchDB:nil] subscribeNext:^(YTXTestModel *responseModel) {
 
   } error:^(NSError *error) {
 
@@ -232,7 +228,7 @@ json-server db.json
 
   YTXTestModel * storageTestModel = [[YTXTestModel alloc] init];
   storageTestModel.keyId = @1;
-  [[storageTestModel fetchStorage:nil] subscribeNext:^(YTXTestModel *responseModel) {
+  [[storageTestModel rac_fetchStorage:nil] subscribeNext:^(YTXTestModel *responseModel) {
 
   } error:^(NSError *error) {
 
@@ -241,6 +237,7 @@ json-server db.json
 
 ## RACSignal的组合使用
 ```objective-c
+#import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
 
 @interface YTXXXXModel : YTXRestfulModel
 
@@ -250,11 +247,11 @@ json-server db.json
 
 @implementation YTXXXXXModel
 
-- (nonnull RACSignal *) fetchFromRemoteAndStorage
+- (nonnull RACSignal *) rac_fetchFromRemoteAndStorage
 {
     RACSubject * subject = [RACSubject subject];
     @weakify(self);
-    [[RACSignal combineLatest:@[[self fetchRemote], [self fetchStorage]] reduce:^id{
+    [[RACSignal combineLatest:@[[self rac_fetchRemote], [self rac_fetchStorage]] reduce:^id{
         return ...;
     }] subscribeNext:^(id x) {
         @strongify(self);
@@ -529,22 +526,6 @@ NSDictionary *(^hook)() = ^NSDictionary *() {
 };
 
 AFNetworkingRemoteSync.HookExtraParamBlock = hook;
-```
-
-## RACSupport
-```ruby
-pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
-```
-
-```objective-c
-#import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
-
-YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCollection new];
-[[collection rac_fetchRemote:@{@"_start": @"1", @"_limit": @"2"}] subscribeNext:^(YTXTestAFNetworkingRemoteCollection *x) {
-    
-} error:^(NSError *error) {
-
-}];
 ```
 
 ## 更多用法，请查看[Tests](http://gitlab.baidao.com/ios/YTXRestfulModel/tree/master/Example/Tests)
