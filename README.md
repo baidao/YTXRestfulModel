@@ -27,6 +27,8 @@ json-server db.json
 ```
 测试taget YTXRestfulModel-Example
 
+## 更多用法，请查看[Tests](https://github.com/baidao/YTXRestfulModel/tree/github/Example/Tests)
+
 ## 定义Model 示例
 ```objective-c
 @interface YTXTestModel : YTXRestfulModel
@@ -108,20 +110,15 @@ json-server db.json
 
 /** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
-/** GET */
-- (nonnull RACSignal *) fetchStorage:(nullable NSDictionary *)param;
 
 /** GET */
-- (nonnull RACSignal *) fetchRemote:(nullable NSDictionary *)param;
+- (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** POST / PUT */
-- (nonnull RACSignal *) saveRemote:(nullable NSDictionary *)param;
+- (void) saveRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
 /** GET */
 - (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
-
-/** GET */
-- (nonnull RACSignal *) fetchDB:(nullable NSDictionary *)param;
 
 ```
 
@@ -157,6 +154,22 @@ json-server db.json
 ## RACSupport
 ```ruby
 pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
+```
+
+```objective-c
+
+/** GET */
+- (nonnull RACSignal *) rac_fetchStorage:(nullable NSDictionary *)param;
+
+/** GET */
+- (nonnull RACSignal *) rac_fetchRemote:(nullable NSDictionary *)param;
+
+/** POST / PUT */
+- (nonnull RACSignal *) rac_saveRemote:(nullable NSDictionary *)param;
+
+/** GET */
+- (nonnull RACSignal *) rac_fetchDB:(nullable NSDictionary *)param;
+
 ```
 
 ```objective-c
@@ -529,14 +542,6 @@ NSDictionary *(^hook)() = ^NSDictionary *() {
 AFNetworkingRemoteSync.HookExtraParamBlock = hook;
 ```
 
-## 更多用法，请查看[Tests](http://gitlab.baidao.com/ios/YTXRestfulModel/tree/master/Example/Tests)
-```shell
-git clone http://gitlab.baidao.com/ios/YTXRestfulModel.git
-cd YTXRestfulModel/Example
-pod install
-```
-
-
 ## 依赖
 - 'Mantle', '~> 1.5.4'
 
@@ -550,3 +555,9 @@ pod install
 ## Author
 
 caojun, 78612846@qq.com
+
+## License
+
+YTXRestfulModel was built by caojun. It is licensed under the MIT License.
+
+If you use YTXRestfulModel in one of your apps, I'd love to hear about it.

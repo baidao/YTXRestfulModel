@@ -1,6 +1,4 @@
 source 'https://github.com/CocoaPods/Specs.git'
-source 'http://gitlab.baidao.com/ios/ytx-pod-specs.git'
-
 
 target 'YTXRestfulModel_Tests', :exclusive => true do
   pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
