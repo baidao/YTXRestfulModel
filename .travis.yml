@@ -3,10 +3,11 @@
 # * https://github.com/supermarin/xcpretty#usage
 
 language: objective-c
+osx_image: xcode7.1
 cache: cocoapods
 podfile: Example/Podfile
-before_install:
-- gem install cocoapods -v 0.39.0 # Since Travis is not always on latest version
+before_script:
+- gem install cocoapods --no-document -v 0.39.0 # Since Travis is not always on latest version
 - pod install --project-directory=Example
 script:
 - set -o pipefail && xcodebuild test -workspace Example/YTXRestfulModel.xcworkspace -scheme YTXRestfulModel-Example -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty
