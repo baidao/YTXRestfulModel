@@ -1,10 +1,6 @@
 YTXRestfulModel是遵循了REST的Model。
 提供了DBSync（数据库同步）、RemoteSync（远程同步）、StorageSync（本地存储同步）三种数据同步途径的方法。
 
-[![CI Status](https://img.shields.io/travis/baidao/YTXRestfulModel.svg?style=flat)](https://travis-ci.org/baidao/YTXRestfulModel)
-[![Version](https://img.shields.io/cocoapods/v/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
-[![License](https://img.shields.io/cocoapods/l/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
-[![Platform](https://img.shields.io/cocoapods/p/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
 依赖：
 ```
 FMDBSync(sqlite)。
@@ -13,6 +9,13 @@ UserDefaultStorageSync(支持不同的suiteName)。
 Model的转换容器用的是Mantle。
 [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa)FRP。
 ```
+
+
+[![CI Status](https://img.shields.io/travis/baidao/YTXRestfulModel.svg?style=flat)](https://travis-ci.org/baidao/YTXRestfulModel)
+[![Version](https://img.shields.io/cocoapods/v/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
+[![License](https://img.shields.io/cocoapods/l/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
+[![Platform](https://img.shields.io/cocoapods/p/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
+
 
 ## 安装
 
