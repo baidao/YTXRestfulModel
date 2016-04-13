@@ -14,5 +14,5 @@ before_script:
 script:
 - cd Example/Tests; json-server db.json & cd ../..
 - pwd
-- set -o pipefail && xcodebuild test -workspace Example/YTXRestfulModel.xcworkspace -scheme YTXRestfulModel-Example -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=Simulator,name=iPhone 6s,OS=9.2' clean build test| xcpretty
+- set -o pipefail && xcodebuild test -workspace Example/YTXRestfulModel.xcworkspace -scheme YTXRestfulModel-Example -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone 6s,OS=9.2'| xcpretty
 - pod lib lint
