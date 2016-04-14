@@ -22,7 +22,7 @@ Model的转换容器用的是Mantle。
 在podfile中(从CocoaPods 0.36+)
 
 ```ruby
-pod "YTXRestfulModel", :path => "../", :subspecs => ["AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
+pod 'YTXRestfulModel', :subspecs => ["RACSupport", "YTXRequestRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
 ```
 
 ## 测试
