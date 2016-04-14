@@ -577,9 +577,6 @@ AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync) {
 - RACSupport:'ReactiveCocoa', '~> 2.3.1'
 
 
-## Author
-
-caojun, 78612846@qq.com
 
 ## License
 
