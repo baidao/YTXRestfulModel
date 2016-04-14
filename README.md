@@ -156,9 +156,14 @@ Command+U to run Test
 
 ### 接收同步操作返回的 response ，若数据格式不规范，可以重写下面的方法，在转换前对response进行处理
 ```objective-c
+- (nonnull instancetype) transformerProxyOfResponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error
+{
+    return [super transformerProxyOfResponse:response[@"properties"] error:error];
+}
+
 - (nonnull id) transformerProxyOfForeign:(nonnull Class)modelClass response:(nonnull id) response error:(NSError * _Nullable * _Nullable) error;
 {
-    return [MTLJSONAdapter modelsOfClass:modelClass fromJSONArray:response error:error];
+    return [[super transformerProxyOfForeign:modelClass response:response[@"properties"] error:error];
 }
 ```
 
