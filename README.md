@@ -1,33 +1,25 @@
-# YTXRestfulModel是遵循了REST的Model。
-提供了DBSync（数据库同步）、RemoteSync（远程同步）、StorageSync（本地存储同步）三种数据同步途径的方法。
+# YTXRestfulModel [![CI Status](https://img.shields.io/travis/baidao/YTXRestfulModel.svg?style=flat)](https://travis-ci.org/baidao/YTXRestfulModel) [![Version](https://img.shields.io/cocoapods/v/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel) [![License](https://img.shields.io/cocoapods/l/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel) [![Platform](https://img.shields.io/cocoapods/p/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
+YTXRestfulModel makes it easy to fetch(GET), save(PUT/POST) or destory(DELEGATE) data by database, remote or local storage.(YTXRestfulModel提供一种简单的方式从数据库，远程或本地存储去拉取，储存，销毁数据)
 
 ![YTXRestfulModel01_1_X_X](https://github.com/baidao/YTXRestfulModel/blob/github/DocumentAssets/YTXRestfulModel01_1_X_X.png)
 
-## 依赖：
-```
-FMDBSync(sqlite)。
-AFNetworkingRemoteSync(AFNetWorking)。
-UserDefaultStorageSync(支持不同的suiteName)。
-Model的转换容器用的是Mantle。
-[ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa)FRP。
-```
+## Dependency(依赖)
+- [FMDB ~>2.6](https://github.com/ccgus/fmdb)(FMDBSync)
+- [AFNetworking ~>2.6.3](https://github.com/AFNetworking/AFNetworking/tree/2.6.3) (AFNetworkingRemoteSync)
+- [Mantle ~>1.57.](https://github.com/Mantle/Mantle/tree/1.5.7)
+- Optional [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa)FRP。
 
 
-[![CI Status](https://img.shields.io/travis/baidao/YTXRestfulModel.svg?style=flat)](https://travis-ci.org/baidao/YTXRestfulModel)
-[![Version](https://img.shields.io/cocoapods/v/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
-[![License](https://img.shields.io/cocoapods/l/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
-[![Platform](https://img.shields.io/cocoapods/p/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
 
+## Integration
 
-## 安装
-
-在podfile中(从CocoaPods 0.36+)
+You shouldn't just use: pod "ARAnalytics". Since CocoaPods 0.36+ you should do something like:
 
 ```ruby
 pod 'YTXRestfulModel', :subspecs => ["RACSupport", "YTXRequestRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
 ```
 
-## 测试
+## Testing
 ```shell
 git clone https://github.com/baidao/YTXRestfulModel.git
 npm install -g json-server
@@ -40,9 +32,9 @@ open YTXRestfulModel.xcworkspace
 Chose Target: YTXRestfulModel-Example
 Command+U to run Test 
 
-## 更多用法，请查看[Tests](https://github.com/baidao/YTXRestfulModel/tree/github/Example/Tests)
+## More useage, please check(更多用法，请查看)[Tests](https://github.com/baidao/YTXRestfulModel/tree/github/Example/Tests)
 
-## 定义Model 示例
+## A Model Example(定义Model示例)
 ```objective-c
 @interface YTXTestModel : YTXRestfulModel
 
@@ -56,20 +48,19 @@ Command+U to run Test
 ```objective-c
 @implementation YTXTestModel
 
-//Mantle的model属性和目标源属性的映射表
+//The dictionary returned by this method specifies how your model object's properties map to the keys in the JSON representation
+// Check Mantle
 + (NSDictionary *)JSONKeyPathsByPropertyKey
 {
     /** key 的值是 模型中的字段，value 的值是目标源上对应数据的名字。*/
     return @{@"keyId": @"id"};
 }
 
-//@"keyId"为主键名，即Model的关键字段的名字
 + (NSString *)primaryKey
 {
     return @"keyId";
 }
 
-//可以重写init方法 改变sync的初始值等
 - (instancetype)init {
     if (self = [super init]) {
         //这种方式可以在每次使用url的时候都重新获取
@@ -80,25 +71,26 @@ Command+U to run Test
     return  self;
 }
 
-// DB Migration（数据迁移） 当前版本号
+// DB Migration（数据迁移）
 + (nullable NSNumber *) currentMigrationVersion
 {
     return @0;
 }
 
-// 自动建表。默认关闭，当需要用DB才开启
+// Default NO. If you wanna use dbsync, you should return YES;
 + (BOOL) autoCreateTable
 {
     return YES;
 }
 
-//自动扩展表和migration互斥
+//Default YES. If auto alter table, it does not do migration.
 + (BOOL) autoAlterTable
 {
     return YES;
 }
 
 // Mantle Transformer
+// Implement this optional method to convert a property from a different type when deserializing from JSON
 + (MTLValueTransformer *)startSchoolDateJSONTransformer {
     return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *timestamp) {
         return [NSDate dateWithTimeIntervalSince1970: timestamp.longLongValue / 1000];
@@ -118,24 +110,17 @@ Command+U to run Test
 @end
 ```
 
-## 各种灵活的同步数据的方法
+## Fetch
 ```objective-c
-
-/** GET */
 - (nullable instancetype) fetchStorageSync:(nullable NSDictionary *) param;
 
-/** GET */
 - (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
 
-/** POST / PUT */
-- (void) saveRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed;
-
-/** GET */
-- (nonnull instancetype) fetchDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
+- (nonnull instancetype) saveDBSync:(nullable NSDictionary *)param error:(NSError * _Nullable * _Nullable) error;
 
 ```
 
-## Model的转换参考[Mantle](https://github.com/Mantle/Mantle/tree/1.5.7)
+## Model transition Refrence(Model的转换参考)[Mantle](https://github.com/Mantle/Mantle/tree/1.5.7)
 无论数据源来自Remote，Storage，DB都会经过MTLValueTransformer，如果你定义了该属性的Transformer。
 ```objective-c
 + (MTLValueTransformer *)birthdayJSONTransformer {
@@ -146,7 +131,6 @@ Command+U to run Test
     }];
 }
 
-//解密
 + (MTLValueTransformer *)passwordJSONTransformer {
     return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *value) {
         return [self encryption:value];
@@ -156,7 +140,7 @@ Command+U to run Test
 }
 ```
 
-### 接收同步操作返回的 response ，若数据格式不规范，可以重写下面的方法，在转换前对response进行处理
+### Response pretreatment
 ```objective-c
 - (nonnull instancetype) transformerProxyOfResponse:(nonnull id) response error:(NSError * _Nullable * _Nullable) error
 {
@@ -201,7 +185,7 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
 }];
 ```
 
-## 遵循Rest，数据同步的使用 示例
+## Example:
 ```objective-c
   /**
   远程请求：http://jsonplaceholder.typicode.com/posts/1
@@ -231,6 +215,7 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
   mapParam的value会替换retDictionary 的value,所以执行同步的参数是@{@"title":@"ytx_test", @"body":@"test_content", @"userId":@1, @"id":@1}
   由于retDictionary 中没有主键，所以不符合rest原则，最后发送的请求是: *******?title=ytx_test&body=test_content&userId=1&id=1
   */
+
   YTXTestModel * testModel = [[YTXTestModel alloc] init];
   testModel.title = @"ytx test";
   testModel.body = @"test content";
@@ -244,6 +229,7 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
   YTXTestModel * currentTestModel = [[YTXTestModel alloc] init];
   __block id ret;
   currentTestModel.keyId = @1;
+
   [[currentTestModel rac_fetchRemoteForeignWithName:@"comments" modelClass:[YTXTestCommentModel class] param:nil] subscribeNext:^(id x) {
       ret = x;
   } error:^(NSError *error) {
@@ -252,6 +238,7 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
 
   YTXTestModel * dbTestModel = [[YTXTestModel alloc] init];
   dbTestModel.keyId = @1;
+
   [[dbTestModel rac_fetchDB:nil] subscribeNext:^(YTXTestModel *responseModel) {
 
   } error:^(NSError *error) {
@@ -260,6 +247,7 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
 
   YTXTestModel * storageTestModel = [[YTXTestModel alloc] init];
   storageTestModel.keyId = @1;
+
   [[storageTestModel rac_fetchStorage:nil] subscribeNext:^(YTXTestModel *responseModel) {
 
   } error:^(NSError *error) {
@@ -267,7 +255,7 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
   }];
 ```
 
-## RACSignal的组合使用
+## RACSupport
 ```objective-c
 #import <YTXRestfulModel/YTXRestfulModelRACSupport.h>
 
@@ -282,22 +270,12 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
 - (nonnull RACSignal *) rac_fetchFromRemoteAndStorage
 {
     RACSubject * subject = [RACSubject subject];
-    @weakify(self);
-    [[RACSignal combineLatest:@[[self rac_fetchRemote], [self rac_fetchStorage]] reduce:^id{
-        return ...;
-    }] subscribeNext:^(id x) {
-        @strongify(self);
-        NSError * error = nil;
-        [self transformerProxyOfResponse:x error:&error];
-        if (!error) {
-            [subject sendNext:self];
-            [subject sendCompleted];
-        }
-        else {
-            [subject sendError:error];
-        }
-    } error:^(NSError *error) {
+    [self fetchRemote:param success:^(id  _Nullable response) {
+        [subject sendNext:response];
+        [subject sendCompleted];
+    } failed:^(NSError * _Nullable error) {
         [subject sendError:error];
+        
     }];
     return subject;
 }
@@ -306,15 +284,14 @@ YTXTestAFNetworkingRemoteCollection * collection = [YTXTestAFNetworkingRemoteCol
 
 ```
 
-## 我们可以按照协议实现自己的Sync去灵活替换原有的Sync。
+## Use new sync
 
-协议对应模型的字段
 ```objective-c
 id<YTXRestfulModelStorageProtocol> storageSync;
 id<YTXRestfulModelRemoteProtocol> remoteSync;
 id<YTXRestfulModelDBProtocol> dbSync;
 ```
- 替换过方法：
+ 
 ```objective-c
 - (instancetype)init
 {
@@ -330,15 +307,16 @@ model.storageSync = [YTXRestfulModelXXXFileStorageSync new];
 
 ```
 
- 如果有必要你也可以直接使用sync。像这样：
+If necessary, You can also using sync like this(如果有必要你可以直接使用sync想这样)
 ```objective-c
 #import <YTXRestfulModel/YTXRestfulModelUserDefaultStorageSync.h>
 
 YTXRestfulModelUserDefaultStorageSync * sync = [[YTXRestfulModelUserDefaultStorageSync alloc] initWithUserDefaultSuiteName:suitName1]
 ```
 
-## DB数据库的映射
-定义DB的Column的Struct
+## DB mapping
+
+Column Struct
 ```objective-c
 YTXRestfulModelDBSerializingModel * dbsm = [YTXRestfulModelDBSerializingModel new];
 dbsm.objectClass = propertyClassName;
@@ -378,7 +356,7 @@ dbsm.unique = NO;
 @end
 ```
 
-在子类中更改DB的映射
+Modify DB mapping in child Model
 ```objective-c
 + (nullable NSMutableDictionary<NSString *, YTXRestfulModelDBSerializingModel *> *) tableKeyPathsByPropertyKey
 {
@@ -395,7 +373,7 @@ dbsm.unique = NO;
 }
 ```
 
-开启自动创建数据库表。需要使用DB时才这样做。
+Open auto creating table, if you use DB function.(开启自动创建数据库表。需要使用DB时才这样做)
 ```objective-c
 + (BOOL) autoCreateTable
 {
@@ -403,7 +381,7 @@ dbsm.unique = NO;
 }
 ```
 
-关闭主键默认自增
+Close auto incremen (关闭主键默认自增)
 ```objective-c
 + (BOOL) isPrimaryKeyAutoincrement
 {
@@ -411,7 +389,7 @@ dbsm.unique = NO;
 }
 ```
 
-Model支持的属性类型(CType)    数据库转换后类型       SQLite中定义的类型
+Model支持的属性类型(CType)    Model Type           SQLite Type
 ```objective-c
 @{
   @"c":@[                   @"NSNumber",        @"INTEGER"],
@@ -449,13 +427,12 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 ## DB Alter(自动扩展字段到表中)
 
 ```objective-c
-//开启时，不会使用migration
+
 + (BOOL) autoAlterTable
 {
     return YES;//Default
 }
 
-//一样通过version来表示是否已经扩展
 + (nullable NSNumber *) currentMigrationVersion
 {
     return @0;
@@ -473,7 +450,7 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 
 ## DB Migration(数据库迁移)
 ```objective-c
-// DB Migration（数据迁移） 当前版本号。
+// DB Migration（数据迁移）
 + (nullable NSNumber *) currentMigrationVersion
 {
     return @0;
@@ -491,9 +468,9 @@ Model支持的属性类型(CType)    数据库转换后类型       SQLite中定
 | 1                              | KeyId,age,title      | keyId,age,title             |
 | 2                              | KeyId,age,name       | keyId,age,title,title=>name |
 
-sqlite并没有提供rename和drop column的方法。
+sqlite does not support function rename an drop(sqlite并没有提供rename和drop column的方法)
 
-## 然后在Model中重写migrationsMethodWithSync:方法。
+## Migration Example
 
 ```objective-c
 
@@ -522,7 +499,7 @@ sqlite并没有提供rename和drop column的方法。
 
 ```
 
-增/删/改 的方法
+
 ```objective-c
 - (BOOL) createColumnWithDB:(nonnull id)db structSync:(nonnull YTXRestfulModelDBSerializingModel *)sstruct error:(NSError * _Nullable * _Nullable)error;
 
@@ -535,7 +512,7 @@ sqlite并没有提供rename和drop column的方法。
 - (BOOL) changeCollumnDB:(nonnull id)db oldStructSync:(nonnull YTXRestfulModelDBSerializingModel *) oldStruct toNewStruct:(nonnull YTXRestfulModelDBSerializingModel *) newStruct error:(NSError * _Nullable * _Nullable)error;
 ```
 
-相关的代理方法
+Migration Delegate
 ```objective-c
 + (void)dbWillMigrateWithSync:(nonnull id<YTXRestfulModelDBProtocol>)sync
 {
@@ -569,10 +546,8 @@ AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync) {
 };
 ```
 
-## 依赖
-- 'Mantle', '~> 1.5.4'
 
-## subspec依赖
+## subspec
 - AFNetworkingRemoteSync: 'AFNetworking', '~> 2.6.3'
 - FMDBSync: 'FMDB', '~> 2.6'
 - UserDefaultStorageSync:
