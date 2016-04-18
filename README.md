@@ -1,7 +1,9 @@
-YTXRestfulModel是遵循了REST的Model。
+# YTXRestfulModel是遵循了REST的Model。
 提供了DBSync（数据库同步）、RemoteSync（远程同步）、StorageSync（本地存储同步）三种数据同步途径的方法。
 
-依赖：
+![YTXRestfulModel01_1_X_X](https://github.com/baidao/YTXRestfulModel/blob/github/DocumentAssets/YTXRestfulModel01_1_X_X.png)
+
+## 依赖：
 ```
 FMDBSync(sqlite)。
 AFNetworkingRemoteSync(AFNetWorking)。
