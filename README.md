@@ -13,7 +13,7 @@ YTXRestfulModel makes it easy to fetch(GET), save(PUT/POST) or destory(DELEGATE)
 
 ## Integration
 
-You shouldn't just use: pod "ARAnalytics". Since CocoaPods 0.36+ you should do something like:
+You shouldn't just use: pod "YTXRestfulModel". Since CocoaPods 0.36+ you should do something like:
 
 ```ruby
 pod 'YTXRestfulModel', :subspecs => ["RACSupport", "YTXRequestRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
