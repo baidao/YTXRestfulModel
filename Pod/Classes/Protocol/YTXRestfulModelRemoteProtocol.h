@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 typedef NSDictionary * _Nonnull(^YTXRestfulModelRemoteHookExtraParamBlock)();
-typedef void(^YTXRestfulModelRemoteHookRequestBlock)(_Nonnull id request);
+typedef void(^YTXRestfulModelRemoteHookRequestBlock)(_Nonnull id request, NSString * _Nonnull method, NSURL * _Nonnull *_Nonnull url, NSMutableDictionary * _Nonnull * _Nonnull parameters);
 
 typedef void (^YTXRestfulModelRemoteSuccessBlock)(id _Nullable response);
 typedef void (^YTXRestfulModelRemoteFailedBlock)(NSError * _Nullable error);

@@ -592,7 +592,19 @@ describe(@"测试YTXRestfulModelRemote", ^{
             __block AFNetworkingRemoteSync * retSync1 = nil;
             __block AFNetworkingRemoteSync * retSync2 = nil;
             __block AFHTTPRequestOperationManager * operationManager = nil;
-            AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync){
+            
+            __block NSString * retMethod = nil;
+            __block NSURL * retURL = nil;
+            __block NSMutableDictionary * retParamters = nil;
+            
+            AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync, NSString * method, NSURL ** url, NSMutableDictionary ** paramters){
+                retURL = *url;
+                *url = [NSURL URLWithString:@"http://localhost:3000/posts"];
+                retParamters = *paramters;
+                retParamters[@"title"] = @"CaoJun";
+                *paramters = retParamters;
+                retMethod = method;
+                
                 if (!retSync1) {
                     retSync1 = sync;
                 }
@@ -607,6 +619,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
             __block YTXTestAFNetworkingRemoteModel * currentTestModel2 = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block AFNetworkingRemoteSync * model2Sync = (AFNetworkingRemoteSync *)currentTestModel2.remoteSync;
             currentTestModel2.title = @"Jack";
+            currentTestModel2.remoteSync.url = [NSURL URLWithString:@"http://www.baidu.com"];
             
             [[currentTestModel1 rac_saveRemote:nil] subscribeNext:^(YTXTestAFNetworkingRemoteModel *responseModel) {
                 
@@ -629,6 +642,10 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[expectFutureValue(model1Sync.requestOperationManager.requestSerializer) shouldEventually] beNonNil];
             [[expectFutureValue([model1Sync.requestOperationManager.requestSerializer valueForHTTPHeaderField:@"x-auth-token"]) shouldEventually] equal:@"test"];
             
+            [[expectFutureValue(retParamters) shouldEventually] beNonNil];
+            [[expectFutureValue(retURL) shouldEventually] beNonNil];
+            [[expectFutureValue(currentTestModel2.title) shouldEventually] equal:@"CaoJun"];
+            [[expectFutureValue(retMethod) shouldEventually] equal:@"POST"];
         });
 
         it(@"拉取-Fetch-GET失败进入error block，因为替换了错误URL", ^{

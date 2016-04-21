@@ -85,11 +85,14 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 /** GET :id/comment */
 - (void) fetchRemoteForeignWithName:(nonnull NSString *)name param:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
+    NSURL * url = [[self restfulURLWithParam:param] URLByAppendingPathComponent:name];
+    NSMutableDictionary * newParam = [[self restfulParamWithParam:param] mutableCopy];
+    
     if (AFNetworkingRemoteSync.hookRequestBlock) {
-        AFNetworkingRemoteSync.hookRequestBlock(self);
+        AFNetworkingRemoteSync.hookRequestBlock(self, @"GET", &url, &newParam);
     }
     
-    [self.requestOperationManager GET:[[[self restfulURLWithParam:param] URLByAppendingPathComponent:name] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestOperationManager GET:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
         success(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         failed(error);
@@ -99,25 +102,32 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 /** GET */
 - (void) fetchRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
+    NSURL * url = [self restfulURLWithParam:param];
+    NSMutableDictionary * newParam = [[self restfulParamWithParam:param] mutableCopy];
+    
     if (AFNetworkingRemoteSync.hookRequestBlock) {
-        AFNetworkingRemoteSync.hookRequestBlock(self);
+        AFNetworkingRemoteSync.hookRequestBlock(self, @"GET", &url, &newParam);
     }
     
-    [self.requestOperationManager GET:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestOperationManager GET:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
         success(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         failed(error);
     }];
+
 }
 
 /** POST */
 - (void) createRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
+    NSURL * url = [self restfulURLWithParam:param];
+    NSMutableDictionary * newParam = [[self restfulParamWithParam:param] mutableCopy];
+    
     if (AFNetworkingRemoteSync.hookRequestBlock) {
-        AFNetworkingRemoteSync.hookRequestBlock(self);
+        AFNetworkingRemoteSync.hookRequestBlock(self, @"POST", &url, &newParam);
     }
     
-    [self.requestOperationManager POST:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestOperationManager POST:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
         success(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         failed(error);
@@ -127,11 +137,14 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 /** PUT */
 - (void) updateRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
+    NSURL * url = [self restfulURLWithParam:param];
+    NSMutableDictionary * newParam = [[self restfulParamWithParam:param] mutableCopy];
+    
     if (AFNetworkingRemoteSync.hookRequestBlock) {
-        AFNetworkingRemoteSync.hookRequestBlock(self);
+        AFNetworkingRemoteSync.hookRequestBlock(self, @"PUT", &url, &newParam);
     }
     
-    [self.requestOperationManager PUT:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestOperationManager PUT:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
         success(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         failed(error);
@@ -141,11 +154,14 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 /** DELETE */
 - (void) destroyRemote:(nullable NSDictionary *)param success:(nonnull YTXRestfulModelRemoteSuccessBlock)success failed:(nonnull YTXRestfulModelRemoteFailedBlock)failed
 {
+    NSURL * url = [self restfulURLWithParam:param];
+    NSMutableDictionary * newParam = [[self restfulParamWithParam:param] mutableCopy];
+    
     if (AFNetworkingRemoteSync.hookRequestBlock) {
-        AFNetworkingRemoteSync.hookRequestBlock(self);
+        AFNetworkingRemoteSync.hookRequestBlock(self, @"DELETE", &url, &newParam);
     }
     
-    [self.requestOperationManager DELETE:[[self restfulURLWithParam:param] absoluteString] parameters:[self restfulParamWithParam:param] success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestOperationManager DELETE:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
         success(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         failed(error);

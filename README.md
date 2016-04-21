@@ -540,7 +540,11 @@ AFNetworkingRemoteSync.HookExtraParamBlock = hook;
 ## Remote Hook Request
 在发送请求的时候统一修改Header或者其他行为
 ```objective-c
-AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync) {
+AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync, NSString * method, NSURL ** url, NSMutableDictionary ** paramters) {
+    retParamters = *paramters;
+    retParamters[@"title"] = @"XXXX";
+    *paramters = retParamters;
+
     AFHTTPRequestOperationManager * operationManager = sync.requestOperationManager;
     [operationManager.requestSerializer setValue:@"test" forHTTPHeaderField:@"x-auth-token"];
 };
