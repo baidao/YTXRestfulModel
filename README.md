@@ -1,5 +1,5 @@
 # YTXRestfulModel [![CI Status](https://img.shields.io/travis/baidao/YTXRestfulModel.svg?style=flat)](https://travis-ci.org/baidao/YTXRestfulModel) [![Version](https://img.shields.io/cocoapods/v/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel) [![License](https://img.shields.io/cocoapods/l/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel) [![Platform](https://img.shields.io/cocoapods/p/YTXRestfulModel.svg?style=flat)](http://cocoapods.org/pods/YTXRestfulModel)
-YTXRestfulModel makes it easy to fetch(GET), save(PUT/POST) or destory(DELEGATE) data by database, remote or local storage.(YTXRestfulModel提供一种简单的方式从数据库，远程或本地存储去拉取，储存，销毁数据)
+YTXRestfulModel makes it easy to fetch(GET), save(PUT/POST) or destroy(DELEGATE) data by database, remote or local storage.(YTXRestfulModel提供一种简单的方式从数据库，远程或本地存储去拉取，储存，销毁数据)
 
 ![YTXRestfulModel01_1_X_X](https://github.com/baidao/YTXRestfulModel/blob/github/DocumentAssets/YTXRestfulModel01_1_X_X.png)
 
