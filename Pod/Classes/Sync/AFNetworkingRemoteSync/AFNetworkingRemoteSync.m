@@ -18,7 +18,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
 
 @interface AFNetworkingRemoteSync()
 
-@property (nonnull, nonatomic, strong) AFHTTPRequestOperationManager * requestOperationManager;
+@property (nonnull, nonatomic, strong) AFHTTPSessionManager * requestSessionManager;
 
 @end
 
@@ -67,7 +67,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
         _url = URL;
         _primaryKey = primaryKey;
         _timeoutInterval = 60;
-        self.requestOperationManager.requestSerializer.timeoutInterval = _timeoutInterval;
+        self.requestSessionManager.requestSerializer.timeoutInterval = _timeoutInterval;
     }
     return self;
 }
@@ -77,7 +77,7 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
     if (self = [super init]) {
         _primaryKey = primaryKey;
         _timeoutInterval = 60;
-        self.requestOperationManager.requestSerializer.timeoutInterval = _timeoutInterval;
+        self.requestSessionManager.requestSerializer.timeoutInterval = _timeoutInterval;
     }
     return self;
 }
@@ -92,9 +92,9 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
         AFNetworkingRemoteSync.hookRequestBlock(self, @"GET", &url, &newParam);
     }
     
-    [self.requestOperationManager GET:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestSessionManager GET:[url absoluteString] parameters:newParam success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         success(responseObject);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         failed(error);
     }];
 }
@@ -109,12 +109,11 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
         AFNetworkingRemoteSync.hookRequestBlock(self, @"GET", &url, &newParam);
     }
     
-    [self.requestOperationManager GET:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestSessionManager GET:[url absoluteString] parameters:newParam success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         success(responseObject);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         failed(error);
     }];
-
 }
 
 /** POST */
@@ -127,9 +126,9 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
         AFNetworkingRemoteSync.hookRequestBlock(self, @"POST", &url, &newParam);
     }
     
-    [self.requestOperationManager POST:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestSessionManager POST:[url absoluteString] parameters:newParam success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         success(responseObject);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         failed(error);
     }];
 }
@@ -144,9 +143,9 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
         AFNetworkingRemoteSync.hookRequestBlock(self, @"PUT", &url, &newParam);
     }
     
-    [self.requestOperationManager PUT:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestSessionManager PUT:[url absoluteString] parameters:newParam success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         success(responseObject);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         failed(error);
     }];
 }
@@ -161,9 +160,9 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
         AFNetworkingRemoteSync.hookRequestBlock(self, @"DELETE", &url, &newParam);
     }
     
-    [self.requestOperationManager DELETE:[url absoluteString] parameters:newParam success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.requestSessionManager DELETE:[url absoluteString] parameters:newParam success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         success(responseObject);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         failed(error);
     }];
 }
@@ -194,18 +193,18 @@ static NSString *const RestFulDomain = @"AFNetworkingRemoteSync"; //error domain
     return retParam;
 }
 
-- (nonnull AFHTTPRequestOperationManager *) requestOperationManager
+- (nonnull AFHTTPSessionManager *) requestSessionManager
 {
-    if (!_requestOperationManager) {
-        _requestOperationManager = [AFHTTPRequestOperationManager manager];
+    if (!_requestSessionManager) {
+        _requestSessionManager = [AFHTTPSessionManager manager];
     }
-    return _requestOperationManager;
+    return _requestSessionManager;
 }
 
 - (void)setTimeoutInterval:(NSTimeInterval)timeoutInterval
 {
     _timeoutInterval = timeoutInterval;
-    self.requestOperationManager.requestSerializer.timeoutInterval = _timeoutInterval;
+    self.requestSessionManager.requestSerializer.timeoutInterval = _timeoutInterval;
 }
 
 @end

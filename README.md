@@ -9,7 +9,7 @@ YTXRestfulModel makes it easy to fetch(GET), save(PUT/POST) or destroy(DELEGATE)
 - [Mantle ~>1.57.](https://github.com/Mantle/Mantle/tree/1.5.7)
 - Optional [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa)FRP。
 
-
+Support IPv6
 
 ## Integration
 
@@ -545,8 +545,8 @@ AFNetworkingRemoteSync.hookRequestBlock = ^(AFNetworkingRemoteSync * sync, NSStr
     retParamters[@"title"] = @"XXXX";
     *paramters = retParamters;
 
-    AFHTTPRequestOperationManager * operationManager = sync.requestOperationManager;
-    [operationManager.requestSerializer setValue:@"test" forHTTPHeaderField:@"x-auth-token"];
+    AFHTTPSessionManager * sessionManager = sync.requestSessionManager;
+    [sessionManager.requestSerializer setValue:@"test" forHTTPHeaderField:@"x-auth-token"];
 };
 ```
 

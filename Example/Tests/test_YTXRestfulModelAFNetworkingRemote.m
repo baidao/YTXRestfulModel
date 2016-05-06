@@ -591,7 +591,7 @@ describe(@"测试YTXRestfulModelRemote", ^{
         it(@"使用HookRequestBlock在发出请求是修改Request对象", ^{
             __block AFNetworkingRemoteSync * retSync1 = nil;
             __block AFNetworkingRemoteSync * retSync2 = nil;
-            __block AFHTTPRequestOperationManager * operationManager = nil;
+            __block AFHTTPSessionManager * sessionManager = nil;
             
             __block NSString * retMethod = nil;
             __block NSURL * retURL = nil;
@@ -611,8 +611,8 @@ describe(@"测试YTXRestfulModelRemote", ^{
                 else {
                     retSync2 = sync;
                 }
-                operationManager = sync.requestOperationManager;
-                [operationManager.requestSerializer setValue:@"test" forHTTPHeaderField:@"x-auth-token"];
+                sessionManager = sync.requestSessionManager;
+                [sessionManager.requestSerializer setValue:@"test" forHTTPHeaderField:@"x-auth-token"];
             };
             __block YTXTestAFNetworkingRemoteModel * currentTestModel1 = [[YTXTestAFNetworkingRemoteModel alloc] init];
             __block AFNetworkingRemoteSync * model1Sync = (AFNetworkingRemoteSync *)currentTestModel1.remoteSync;
@@ -637,10 +637,10 @@ describe(@"测试YTXRestfulModelRemote", ^{
             [[expectFutureValue(retSync2) shouldEventually] beNonNil];
             [[expectFutureValue(retSync2) shouldEventually] equal:model2Sync];
             [[expectFutureValue(retSync1) shouldNotEventually] equal:retSync2];
-            [[expectFutureValue(operationManager) shouldEventually] beNonNil];
-            [[expectFutureValue([operationManager.requestSerializer valueForHTTPHeaderField:@"x-auth-token"]) shouldEventually] equal:@"test"];
-            [[expectFutureValue(model1Sync.requestOperationManager.requestSerializer) shouldEventually] beNonNil];
-            [[expectFutureValue([model1Sync.requestOperationManager.requestSerializer valueForHTTPHeaderField:@"x-auth-token"]) shouldEventually] equal:@"test"];
+            [[expectFutureValue(sessionManager) shouldEventually] beNonNil];
+            [[expectFutureValue([sessionManager.requestSerializer valueForHTTPHeaderField:@"x-auth-token"]) shouldEventually] equal:@"test"];
+            [[expectFutureValue(model1Sync.requestSessionManager.requestSerializer) shouldEventually] beNonNil];
+            [[expectFutureValue([model1Sync.requestSessionManager.requestSerializer valueForHTTPHeaderField:@"x-auth-token"]) shouldEventually] equal:@"test"];
             
             [[expectFutureValue(retParamters) shouldEventually] beNonNil];
             [[expectFutureValue(retURL) shouldEventually] beNonNil];

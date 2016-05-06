@@ -10,11 +10,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class AFHTTPRequestOperationManager;
+@class AFHTTPSessionManager;
 
 @interface AFNetworkingRemoteSync : NSObject <YTXRestfulModelRemoteProtocol>
 
-@property (nonnull, nonatomic, strong, readonly) AFHTTPRequestOperationManager * requestOperationManager;
+@property (nonnull, nonatomic, strong, readonly) AFHTTPSessionManager * requestSessionManager;
 
 /** 超时时间 默认60 */
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
