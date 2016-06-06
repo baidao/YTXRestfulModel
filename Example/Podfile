@@ -1,6 +1,6 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'YTXRestfulModel_Tests', :exclusive => true do
+target 'YTXRestfulModel_Tests' do
   pod "YTXRestfulModel", :path => "../", :subspecs => ["RACSupport", "AFNetworkingRemoteSync", "FMDBSync", "UserDefaultStorageSync"]
   pod 'Kiwi'
 end
