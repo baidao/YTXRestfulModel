@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "YTXRestfulModel"
-  s.version          = "1.2.0"
+  s.version          = "1.2.1"
   s.summary          = "YTXRestfulModel 提供了restful的功能"
 
 # This description is used to generate tags and improve search results.
@@ -37,13 +37,13 @@ Pod::Spec.new do |s|
       ss.dependency 'YTXRestfulModel/Default'
   end
 
-  AFNetworkingRemoteSync = { :spec_name => "AFNetworkingRemoteSync",   :dependency => [{:name => "AFNetworking",  :version => "~> 2.6.3"    }]  }
-  FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",          :version => "~> 2.6"      }]  }
-  UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync"                                                                             }
+  $AFNetworkingRemoteSync = { :spec_name => "AFNetworkingRemoteSync",   :dependency => [{:name => "AFNetworking",  :version => "~> 2.6.3"    }]  }
+  $FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",          :version => "~> 2.6"      }]  }
+  $UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync"                                                                             }
 
   $all_names = []
 
-  $all_sync = [AFNetworkingRemoteSync, FMDBSync, UserDefaultStorageSync]
+  $all_sync = [$AFNetworkingRemoteSync, $FMDBSync, $UserDefaultStorageSync]
   
   $all_sync.each do |sync_spec|
     s.subspec sync_spec[:spec_name] do |ss|
