@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "YTXRestfulModel"
-  s.version          = "1.2.1"
+  s.version          = "1.2.2"
   s.summary          = "YTXRestfulModel 提供了restful的功能"
 
 # This description is used to generate tags and improve search results.
@@ -37,20 +37,20 @@ Pod::Spec.new do |s|
       ss.dependency 'YTXRestfulModel/Default'
   end
 
-  $AFNetworkingRemoteSync = { :spec_name => "AFNetworkingRemoteSync",   :dependency => [{:name => "AFNetworking",  :version => "~> 2.6.3"    }]  }
-  $FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",          :version => "~> 2.6"      }]  }
-  $UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync"                                                                             }
+  _AFNetworkingRemoteSync = { :spec_name => "AFNetworkingRemoteSync",   :dependency => [{:name => "AFNetworking",  :version => "~> 2.6.3"    }]  }
+  _FMDBSync               = { :spec_name => "FMDBSync",                 :dependency => [{:name => "FMDB",          :version => "~> 2.6"      }]  }
+  _UserDefaultStorageSync = { :spec_name => "UserDefaultStorageSync"                                                                             }
 
-  $all_names = []
+  _all_names = []
 
-  $all_sync = [$AFNetworkingRemoteSync, $FMDBSync, $UserDefaultStorageSync]
+  _all_sync = [_AFNetworkingRemoteSync, _FMDBSync, _UserDefaultStorageSync]
   
-  $all_sync.each do |sync_spec|
+  _all_sync.each do |sync_spec|
     s.subspec sync_spec[:spec_name] do |ss|
 
       specname = sync_spec[:spec_name]
 
-      $all_names << specname
+      _all_names << specname
 
       sources = ["Pod/Classes/Sync/#{specname}/**/*"]
 
@@ -72,7 +72,7 @@ Pod::Spec.new do |s|
 
   s.default_subspec = 'Default'
 
-  spec_names = $all_names[0...-1].join(", ") + " 和 " + $all_names[-1]
+  spec_names = _all_names[0...-1].join(", ") + " 和 " + _all_names[-1]
 
   s.description = "提供了restful的model和collection。提供这些sync:#{spec_names}"
 end
